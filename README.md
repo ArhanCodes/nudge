@@ -24,7 +24,7 @@ npx expo start
 
 Then install **Expo Go** on your phone and scan the QR.
 
-## Next upgrades (when you want)
+## To do
 - Use Google Places Autocomplete for address search (needs API key)
 - Use Directions API / route distance instead of straight-line distance
 - Multi-student accounts + shared dashboard backend
