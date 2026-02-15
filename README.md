@@ -1,4 +1,4 @@
-# School Carbon Footprint Dashboard (Mobile MVP)
+# School Carbon Footprint Dashboard
 
 Expo / React Native app:
 - Students log their commute transport method
