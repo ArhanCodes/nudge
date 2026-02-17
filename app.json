@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "school-carbon-dashboard",
-    "slug": "school-carbon-dashboard",
+    "name": "Nudge",
+    "slug": "nudge",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
