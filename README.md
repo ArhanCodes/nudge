@@ -1,31 +1,19 @@
-# School Carbon Footprint Dashboard
+# Nudge
 
-Expo / React Native app:
-- Students log their commute transport method
-- Estimates CO₂ impact (kg) per day (round trip)
-- Shows weekly trends + compares to a target
-- Lets students pick their home location on a map (coordinates stored locally)
+Nudge is a personalised sustainability tracker to nudge better habits built for my EPQ. The project explores the question: "To what extent can a personalised digital tool influence individual sustainable behaviour change across multiple environmental domains?"
 
-## How Google Maps is used
-This MVP uses `react-native-maps` for a map view (students long-press to pick their location).
+### What it does
+nudge lets users track their daily habits across four sustainability domains — transport, diet, energy use, and waste. each activity is converted into a real CO₂e score using emissions data, giving users a clear picture of their environmental footprint over time.
 
-- iOS: works out of the box
-- Android: Google tiles may require adding a Google Maps API key later
+### Features
 
-To avoid needing paid APIs, the app **does not call the Google Directions API**. It estimates distance using straight-line distance (Haversine) inflated slightly.
+- Daily habit logging across transport, diet, energy & waste
+- Carbon footprint calculator using real emissions data (kg CO₂e)
+- Personalised weekly tips based on your worst-performing category
+- Progress dashboard with charts showing improvement over time
+- Streak & badge system to keep you consistent
 
-## Run
 
-```bash
-cd school-carbon-dashboard
-npm install
-npx expo start
-```
 
-Then install **Expo Go** on your phone and scan the QR.
 
-## To do
-- Use Google Places Autocomplete for address search (needs API key)
-- Use Directions API / route distance instead of straight-line distance
-- Multi-student accounts + shared dashboard backend
-- Teacher admin view
+
