@@ -74,7 +74,13 @@ export default function LocationPickerScreen({ navigation }) {
             initialRegion={region}
             onLongPress={(e) => {
               const { latitude, longitude } = e.nativeEvent.coordinate;
-              setPicked({ latitude, longitude });
+              if (
+                Number.isFinite(latitude) && Number.isFinite(longitude) &&
+                latitude >= -90 && latitude <= 90 &&
+                longitude >= -180 && longitude <= 180
+              ) {
+                setPicked({ latitude, longitude });
+              }
             }}
           >
             {picked ? <Marker coordinate={picked} title="Home" /> : null}

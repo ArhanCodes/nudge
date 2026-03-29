@@ -14,7 +14,10 @@ import {
 import { haversineKm } from '../lib/geo';
 
 function uid() {
-  return Math.random().toString(16).slice(2) + Date.now().toString(16);
+  const bytes = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256);
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 const CAT_KEYS = Object.keys(CATEGORIES);
@@ -36,7 +39,7 @@ export default function LogActivityScreen({ navigation }) {
     return haversineKm(state.home, state.school) * 1.25;
   }, [state]);
 
-  const items = useMemo(() => getCategoryItems(category), [category]);
+  const items = useMemo(() => getCategoryItems(category, state?.region), [category, state?.region]);
   const itemKeys = Object.keys(items);
 
   const preview = useMemo(() => {

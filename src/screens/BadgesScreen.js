@@ -47,7 +47,11 @@ export default function BadgesScreen() {
         {/* Streak card */}
         <Card>
           <View style={styles.streakRow}>
-            <View style={styles.streakCircle}>
+            <View
+              style={styles.streakCircle}
+              accessibilityLabel={`Current streak: ${streakInfo.currentStreak} days`}
+              accessibilityRole="text"
+            >
               <Text style={styles.streakNumber}>{streakInfo.currentStreak}</Text>
               <Text style={styles.streakUnit}>day{streakInfo.currentStreak !== 1 ? 's' : ''}</Text>
             </View>
@@ -59,6 +63,13 @@ export default function BadgesScreen() {
               <Muted>Total activities logged: {stats.totalLogs}</Muted>
             </View>
           </View>
+          {streakInfo.currentStreak > 0 && (
+            <View style={styles.graceNote} accessibilityRole="alert">
+              <Muted style={{ fontSize: 12, textAlign: 'center' }}>
+                Streaks include a 1-day grace period — if you miss today, you have until tomorrow to log and keep your streak alive.
+              </Muted>
+            </View>
+          )}
         </Card>
 
         <View style={{ height: 12 }} />
@@ -217,5 +228,11 @@ const styles = StyleSheet.create({
   allBadgeDesc: {
     color: colors.muted,
     fontSize: 12,
+  },
+  graceNote: {
+    backgroundColor: 'rgba(245,158,11,0.08)',
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 12,
   },
 });
