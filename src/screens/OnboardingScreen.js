@@ -54,7 +54,8 @@ export default function OnboardingScreen() {
     <Screen>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1, justifyContent: step <= 1 ? 'center' : undefined, paddingBottom: 40 }}
       >
         {current === 'welcome' && (
           <Card>
