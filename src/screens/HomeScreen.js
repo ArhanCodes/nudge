@@ -2,9 +2,9 @@ import React, { useContext, useMemo } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { AppContext } from '../state/context';
-import { Screen, Card, Title, Muted, Button, Chip } from '../ui/components';
+import { Screen, Card, Title, Muted, Button, Chip, ProgressRing } from '../ui/components';
 import { colors } from '../ui/theme';
-import { CATEGORIES, computeDailyScore, computeWeeklyScore } from '../lib/co2';
+import { CATEGORIES, computeDailyScore, computeWeeklyScore, compareToBenchmark, WEEKLY_BENCHMARKS } from '../lib/co2';
 import { weekKeyISO, startOfWeekISO } from '../utils/time';
 import { computeStreak } from '../lib/badges';
 
@@ -45,6 +45,13 @@ export default function HomeScreen({ navigation }) {
     // Streak
     const { currentStreak } = computeStreak(logs);
 
+    // Streak grace period: has the user logged today?
+    const hasLoggedToday = todayLogs.length > 0;
+
+    // Benchmark comparison
+    const region = state?.region || 'world';
+    const benchmark = compareToBenchmark(totalKg, region);
+
     return {
       weekStart: startOfWeekISO(now),
       totalKg,
@@ -56,6 +63,9 @@ export default function HomeScreen({ navigation }) {
       todayKg,
       weeklyScore,
       currentStreak,
+      hasLoggedToday,
+      benchmark,
+      region,
       recentLogs: logs.slice().sort((a, b) => (b.dateISO > a.dateISO ? 1 : -1)).slice(0, 6),
     };
   }, [state]);
@@ -71,7 +81,11 @@ export default function HomeScreen({ navigation }) {
             {/* Score + Streak header */}
             <Card>
               <View style={styles.headerRow}>
-                <View style={styles.scoreCircle}>
+                <View
+                  style={styles.scoreCircle}
+                  accessibilityLabel={`Today's score: ${summary.todayScore} out of 100`}
+                  accessibilityRole="text"
+                >
                   <Text style={styles.scoreNum}>{summary.todayScore}</Text>
                   <Text style={styles.scoreLabel}>Today</Text>
                 </View>
@@ -84,10 +98,23 @@ export default function HomeScreen({ navigation }) {
                 </View>
               </View>
 
+              {/* Streak grace period warning */}
+              {!summary.hasLoggedToday && summary.currentStreak > 0 && (
+                <View style={styles.streakWarning} accessibilityRole="alert">
+                  <Text style={styles.streakWarningText}>
+                    Log an activity today to keep your {summary.currentStreak}-day streak!
+                  </Text>
+                </View>
+              )}
+
               {/* Quick category summary */}
               <View style={styles.catRow}>
                 {Object.entries(CATEGORIES).map(([key, cat]) => (
-                  <View key={key} style={styles.catMini}>
+                  <View
+                    key={key}
+                    style={styles.catMini}
+                    accessibilityLabel={`${cat.label}: ${(summary.catTotals[key] || 0).toFixed(1)} kilograms`}
+                  >
                     <Text style={{ fontSize: 18 }}>{cat.icon}</Text>
                     <Text style={[styles.catMiniKg, { color: cat.color }]}>
                       {(summary.catTotals[key] || 0).toFixed(1)}
@@ -103,51 +130,91 @@ export default function HomeScreen({ navigation }) {
             {/* Action buttons */}
             <Card>
               <View style={{ gap: 10 }}>
-                <Button label="+ Log Activity" onPress={() => navigation.navigate('LogActivity')} />
+                <Button label="+ Log Activity" onPress={() => navigation.navigate('LogActivity')} accessibilityLabel="Log a new activity" />
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                   <View style={{ flex: 1 }}>
-                    <Button kind="ghost" label="Dashboard" onPress={() => navigation.navigate('Dashboard')} />
+                    <Button kind="ghost" label="Dashboard" onPress={() => navigation.navigate('Dashboard')} accessibilityLabel="View progress dashboard" />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Button kind="ghost" label="Tips" onPress={() => navigation.navigate('Tips')} />
+                    <Button kind="ghost" label="Tips" onPress={() => navigation.navigate('Tips')} accessibilityLabel="View weekly tips" />
                   </View>
                 </View>
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                   <View style={{ flex: 1 }}>
-                    <Button kind="ghost" label="Badges" onPress={() => navigation.navigate('Badges')} />
+                    <Button kind="ghost" label="Badges" onPress={() => navigation.navigate('Badges')} accessibilityLabel="View badges and streaks" />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Button kind="ghost" label="Settings" onPress={() => navigation.navigate('Settings')} />
+                    <Button kind="ghost" label="Settings" onPress={() => navigation.navigate('Settings')} accessibilityLabel="Open settings" />
                   </View>
                 </View>
+                <Button kind="ghost" label="Export Data" onPress={() => navigation.navigate('Export')} accessibilityLabel="Export data as CSV" />
               </View>
             </Card>
 
             <View style={{ height: 12 }} />
 
-            {/* Weekly progress bar */}
+            {/* Weekly goal progress ring */}
             <Card>
-              <View style={styles.progressHeader}>
-                <Title style={{ fontSize: 16 }}>Weekly Target</Title>
-                <Text style={styles.progressText}>
-                  {summary.totalKg.toFixed(1)} / {summary.target.toFixed(0)} kg
-                </Text>
+              <Title style={{ fontSize: 16, textAlign: 'center', marginBottom: 12 }}>Weekly Goal</Title>
+              <View style={{ alignItems: 'center' }}>
+                <ProgressRing
+                  progress={Math.min(summary.totalKg / summary.target, 1)}
+                  size={140}
+                  strokeWidth={12}
+                  color={summary.over > 0 ? '#ef4444' : colors.brand}
+                >
+                  <Text style={styles.ringMainText}>
+                    {summary.totalKg.toFixed(1)}
+                  </Text>
+                  <Text style={styles.ringSubText}>
+                    / {summary.target.toFixed(0)} kg
+                  </Text>
+                </ProgressRing>
               </View>
-              <View style={styles.progressBg}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    {
-                      width: `${Math.min(100, (summary.totalKg / summary.target) * 100)}%`,
-                      backgroundColor: summary.over > 0 ? '#ef4444' : colors.brand,
-                    },
-                  ]}
-                />
-              </View>
-              <Muted style={{ marginTop: 6, fontSize: 12 }}>
+              <Muted style={{ marginTop: 10, fontSize: 12, textAlign: 'center' }}>
                 {summary.over > 0
                   ? `Over target by ${summary.over.toFixed(1)} kg — check your tips for ideas!`
                   : `${summary.remaining.toFixed(1)} kg remaining this week`}
+              </Muted>
+            </Card>
+
+            <View style={{ height: 12 }} />
+
+            {/* National benchmark comparison */}
+            <Card>
+              <Title style={{ fontSize: 16 }}>vs {summary.benchmark.benchmarkLabel}</Title>
+              <View style={styles.benchmarkRow}>
+                <View style={styles.benchmarkCol}>
+                  <Text style={styles.benchmarkYou}>{summary.totalKg.toFixed(1)} kg</Text>
+                  <Muted style={{ fontSize: 11 }}>You this week</Muted>
+                </View>
+                <View style={styles.benchmarkVs}>
+                  <Text style={{ color: colors.muted, fontWeight: '900', fontSize: 12 }}>vs</Text>
+                </View>
+                <View style={styles.benchmarkCol}>
+                  <Text style={styles.benchmarkAvg}>{summary.benchmark.benchmarkKg} kg</Text>
+                  <Muted style={{ fontSize: 11 }}>National avg</Muted>
+                </View>
+              </View>
+
+              {/* Savings / excess banner */}
+              <View style={[
+                styles.benchmarkBanner,
+                { backgroundColor: summary.benchmark.better ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)' },
+                { borderColor: summary.benchmark.better ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)' },
+              ]}>
+                <Text style={[
+                  styles.benchmarkBannerText,
+                  { color: summary.benchmark.better ? '#22c55e' : '#ef4444' },
+                ]}>
+                  {summary.benchmark.better
+                    ? `🎉 You saved ${summary.benchmark.savedKg.toFixed(1)} kg (${Math.abs(summary.benchmark.savedPct).toFixed(0)}% less) vs the ${summary.benchmark.benchmarkLabel}`
+                    : `📈 ${Math.abs(summary.benchmark.savedKg).toFixed(1)} kg above the ${summary.benchmark.benchmarkLabel} — small changes add up!`}
+                </Text>
+              </View>
+
+              <Muted style={{ marginTop: 6, fontSize: 10 }}>
+                Source: {summary.benchmark.benchmarkSource}
               </Muted>
             </Card>
 
@@ -163,12 +230,16 @@ export default function HomeScreen({ navigation }) {
                 summary.recentLogs.map((item) => {
                   const catInfo = CATEGORIES[item.category || 'transport'];
                   return (
-                    <View key={item.id} style={styles.logRow}>
-                      <Text style={{ fontSize: 18, width: 28 }}>{catInfo?.icon || '🚗'}</Text>
+                    <View
+                      key={item.id}
+                      style={styles.logRow}
+                      accessibilityLabel={`${item.label}, ${(item.co2Kg || 0).toFixed(2)} kg CO2, ${catInfo?.label || 'Transport'}`}
+                    >
+                      <Text style={{ fontSize: 18, width: 28 }}>{catInfo?.icon || ''}</Text>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.logTitle}>{item.label}</Text>
                         <Muted style={{ fontSize: 11 }}>
-                          {new Date(item.dateISO).toLocaleDateString()} • {catInfo?.label || 'Transport'}
+                          {new Date(item.dateISO).toLocaleDateString()} {catInfo?.label || 'Transport'}
                           {item.quantity > 1 ? ` x${item.quantity}` : ''}
                         </Muted>
                       </View>
@@ -219,6 +290,20 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '700',
   },
+  streakWarning: {
+    backgroundColor: 'rgba(245,158,11,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(245,158,11,0.35)',
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+  },
+  streakWarningText: {
+    color: '#f59e0b',
+    fontWeight: '700',
+    fontSize: 13,
+    textAlign: 'center',
+  },
   catRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -240,26 +325,48 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
   },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  progressText: {
-    color: colors.muted,
+  ringMainText: {
+    color: colors.text,
+    fontSize: 26,
     fontWeight: '900',
+  },
+  ringSubText: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  benchmarkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  benchmarkCol: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  benchmarkVs: {
+    paddingHorizontal: 12,
+  },
+  benchmarkYou: {
+    color: colors.brand,
+    fontSize: 22,
+    fontWeight: '900',
+  },
+  benchmarkAvg: {
+    color: colors.muted,
+    fontSize: 22,
+    fontWeight: '900',
+  },
+  benchmarkBanner: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+  },
+  benchmarkBannerText: {
+    fontWeight: '700',
     fontSize: 13,
-  },
-  progressBg: {
-    height: 12,
-    borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 999,
+    textAlign: 'center',
   },
   logRow: {
     flexDirection: 'row',

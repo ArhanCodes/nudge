@@ -2,9 +2,9 @@ import React, { useContext, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppContext } from '../state/context';
-import { Screen, Card, Title, Muted, Chip } from '../ui/components';
+import { Screen, Card, Title, Muted, Chip, ProgressRing } from '../ui/components';
 import { colors } from '../ui/theme';
-import { CATEGORIES, computeDailyScore, computeWeeklyScore } from '../lib/co2';
+import { CATEGORIES, computeDailyScore, computeWeeklyScore, compareToBenchmark } from '../lib/co2';
 import { weekKeyISO, startOfWeekISO, addDaysISO } from '../utils/time';
 
 function clamp(n, a, b) {
@@ -61,7 +61,12 @@ export default function DashboardScreen() {
       return { dayISO, kg, score: computeDailyScore(kg) };
     });
 
-    return { weeks, dailyBreakdown };
+    // Benchmark
+    const region = state?.region || 'world';
+    const target = state?.targetKgPerWeek ?? 10;
+    const benchmark = compareToBenchmark(weeks[0]?.totalKg || 0, region);
+
+    return { weeks, dailyBreakdown, benchmark, target };
   }, [state]);
 
   const thisWeek = data.weeks[0];
@@ -96,6 +101,42 @@ export default function DashboardScreen() {
                   />
                 </View>
               )}
+            </View>
+          </View>
+        </Card>
+
+        <View style={{ height: 12 }} />
+
+        {/* Goal progress ring + benchmark */}
+        <Card>
+          <Title style={{ fontSize: 18 }}>Goal & Benchmark</Title>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, gap: 16 }}>
+            <ProgressRing
+              progress={Math.min(thisWeek.totalKg / data.target, 1)}
+              size={100}
+              strokeWidth={10}
+              color={thisWeek.totalKg > data.target ? '#ef4444' : colors.brand}
+            >
+              <Text style={{ color: colors.text, fontSize: 18, fontWeight: '900' }}>
+                {Math.round(Math.min((thisWeek.totalKg / data.target) * 100, 999))}%
+              </Text>
+            </ProgressRing>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: colors.text, fontWeight: '700', fontSize: 14 }}>
+                {thisWeek.totalKg.toFixed(1)} / {data.target} kg goal
+              </Text>
+              <View style={{ height: 6 }} />
+              <Text style={{ color: data.benchmark.better ? '#22c55e' : '#ef4444', fontWeight: '700', fontSize: 13 }}>
+                {data.benchmark.better
+                  ? `${data.benchmark.savedPct.toFixed(0)}% below ${data.benchmark.benchmarkLabel}`
+                  : `${Math.abs(data.benchmark.savedPct).toFixed(0)}% above ${data.benchmark.benchmarkLabel}`}
+              </Text>
+              <Muted style={{ fontSize: 11, marginTop: 2 }}>
+                National avg: {data.benchmark.benchmarkKg} kg/week
+              </Muted>
+              <Muted style={{ fontSize: 9, marginTop: 2 }}>
+                Source: {data.benchmark.benchmarkSource}
+              </Muted>
             </View>
           </View>
         </Card>

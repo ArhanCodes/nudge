@@ -1,6 +1,7 @@
 // ── CO₂e emission factors across 4 domains ──
 // All values in kg CO₂e per unit (event/km/kWh/item).
 // Sources: DEFRA 2023, EPA, Our World in Data, peer-reviewed LCA studies.
+import { getRegionMultiplier } from './regions';
 
 // ─── TRANSPORT (kg CO₂e per km, one-way) ───
 export const CO2_FACTORS = {
@@ -75,13 +76,25 @@ export const CATEGORIES = {
   waste:     { label: 'Waste',     color: '#8b5cf6', icon: '🗑️' },
 };
 
-export function getCategoryItems(category) {
+export function getCategoryItems(category, region) {
   switch (category) {
     case 'diet':   return DIET_ITEMS;
-    case 'energy': return ENERGY_ITEMS;
+    case 'energy': return getRegionAdjustedEnergy(region);
     case 'waste':  return WASTE_ITEMS;
     default:       return {};
   }
+}
+
+// Return energy items with CO₂ values adjusted for the user's electricity grid region
+export function getRegionAdjustedEnergy(region) {
+  const multiplier = getRegionMultiplier(region);
+  if (multiplier === 1.0) return ENERGY_ITEMS;
+
+  const adjusted = {};
+  for (const [key, item] of Object.entries(ENERGY_ITEMS)) {
+    adjusted[key] = { ...item, co2: +(item.co2 * multiplier).toFixed(3) };
+  }
+  return adjusted;
 }
 
 // ── Scoring ──
@@ -97,4 +110,43 @@ export function computeWeeklyScore(dailyTotals) {
   if (!dailyTotals.length) return 0;
   const sum = dailyTotals.reduce((a, kg) => a + computeDailyScore(kg), 0);
   return Math.round(sum / dailyTotals.length);
+}
+
+// ── National Benchmarks ──
+// Average weekly CO₂e per person by region (kg/week).
+// Sources: BEIS 2023 (UK), EPA 2023 (US), DEFRA, Our World in Data, IEA.
+// These cover *personal controllable* emissions (transport, diet, household energy, waste)
+// — NOT the full territorial per-capita figure (which includes industry, construction, etc.).
+export const WEEKLY_BENCHMARKS = {
+  world:  { label: 'World Average',         kgPerWeek: 95,  source: 'IEA / Our World in Data 2023' },
+  uk:     { label: 'UK Average',            kgPerWeek: 78,  source: 'BEIS / DEFRA 2023' },
+  uae:    { label: 'UAE Average',           kgPerWeek: 135, source: 'IEA 2023' },
+  us:     { label: 'US Average',            kgPerWeek: 115, source: 'EPA 2023' },
+  eu:     { label: 'EU Average',            kgPerWeek: 72,  source: 'EEA / Eurostat 2023' },
+  india:  { label: 'India Average',         kgPerWeek: 28,  source: 'IEA 2023' },
+  china:  { label: 'China Average',         kgPerWeek: 82,  source: 'IEA 2023' },
+  aus:    { label: 'Australia Average',     kgPerWeek: 110, source: 'Dept. Climate Change 2023' },
+  canada: { label: 'Canada Average',        kgPerWeek: 105, source: 'ECCC 2023' },
+  brazil: { label: 'Brazil Average',        kgPerWeek: 35,  source: 'SEEG / Our World in Data' },
+  france: { label: 'France Average',        kgPerWeek: 58,  source: 'CITEPA / INSEE 2023' },
+  nordic: { label: 'Nordics Average',       kgPerWeek: 62,  source: 'Nordic Energy Research 2023' },
+};
+
+/**
+ * Compare a user's weekly total against their region's national average.
+ * Returns { benchmarkKg, savedKg, savedPct, better }.
+ */
+export function compareToBenchmark(userWeeklyKg, regionKey = 'world') {
+  const benchmark = WEEKLY_BENCHMARKS[regionKey] || WEEKLY_BENCHMARKS.world;
+  const benchmarkKg = benchmark.kgPerWeek;
+  const savedKg = benchmarkKg - userWeeklyKg;
+  const savedPct = benchmarkKg > 0 ? (savedKg / benchmarkKg) * 100 : 0;
+  return {
+    benchmarkKg,
+    benchmarkLabel: benchmark.label,
+    benchmarkSource: benchmark.source,
+    savedKg,
+    savedPct,
+    better: savedKg > 0,
+  };
 }

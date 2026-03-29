@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors } from './theme';
 
 export function Screen({ children, style }) {
@@ -7,22 +7,25 @@ export function Screen({ children, style }) {
 }
 
 export function Card({ children, style }) {
-  return <View style={[styles.card, style]}>{children}</View>;
+  return <View style={[styles.card, style]} accessibilityRole="summary">{children}</View>;
 }
 
 export function Title({ children, style }) {
-  return <Text style={[styles.title, style]}>{children}</Text>;
+  return <Text style={[styles.title, style]} accessibilityRole="header">{children}</Text>;
 }
 
 export function Muted({ children, style }) {
   return <Text style={[styles.muted, style]}>{children}</Text>;
 }
 
-export function Button({ label, onPress, kind = 'primary', disabled }) {
+export function Button({ label, onPress, kind = 'primary', disabled, accessibilityLabel }) {
   return (
     <Pressable
       disabled={disabled}
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || label}
+      accessibilityState={{ disabled: !!disabled }}
       style={({ pressed }) => [
         styles.btn,
         kind === 'primary' ? styles.btnPrimary : styles.btnGhost,
@@ -37,8 +40,103 @@ export function Button({ label, onPress, kind = 'primary', disabled }) {
 
 export function Chip({ label, kind = 'default' }) {
   return (
-    <View style={[styles.chip, kind === 'brand' && styles.chipBrand]}>
+    <View style={[styles.chip, kind === 'brand' && styles.chipBrand]} accessibilityLabel={label}>
       <Text style={[styles.chipText, kind === 'brand' && styles.chipTextBrand]}>{label}</Text>
+    </View>
+  );
+}
+
+/**
+ * SVG-free progress ring using bordered Views.
+ * Props: { progress (0-1), size, strokeWidth, color, children }
+ */
+export function ProgressRing({
+  progress = 0,
+  size = 120,
+  strokeWidth = 10,
+  color = colors.brand,
+  bgColor = 'rgba(255,255,255,0.08)',
+  children,
+}) {
+  const clampedProgress = Math.max(0, Math.min(1, progress));
+  const pct = Math.round(clampedProgress * 100);
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference * (1 - clampedProgress);
+
+  // We build the ring with two half-circles (CSS-style trick)
+  // Left half and right half, clipped and rotated based on progress.
+  const isOver50 = pct > 50;
+  const rotation = clampedProgress * 360;
+
+  return (
+    <View
+      style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}
+      accessibilityLabel={`Progress: ${pct}%`}
+      accessibilityRole="progressbar"
+    >
+      {/* Background ring */}
+      <View
+        style={{
+          position: 'absolute',
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          borderWidth: strokeWidth,
+          borderColor: bgColor,
+        }}
+      />
+
+      {/* Right half (0-180°) */}
+      <View style={{ position: 'absolute', width: size, height: size, overflow: 'hidden' }}>
+        <View style={{
+          position: 'absolute',
+          width: size / 2,
+          height: size,
+          right: 0,
+          overflow: 'hidden',
+        }}>
+          <View style={{
+            width: size,
+            height: size,
+            borderRadius: size / 2,
+            borderWidth: strokeWidth,
+            borderColor: color,
+            borderLeftColor: 'transparent',
+            borderBottomColor: 'transparent',
+            transform: [{ rotate: `${Math.min(rotation, 180)}deg` }],
+          }} />
+        </View>
+      </View>
+
+      {/* Left half (180-360°) — only visible when > 50% */}
+      {isOver50 && (
+        <View style={{ position: 'absolute', width: size, height: size, overflow: 'hidden' }}>
+          <View style={{
+            position: 'absolute',
+            width: size / 2,
+            height: size,
+            left: 0,
+            overflow: 'hidden',
+          }}>
+            <View style={{
+              width: size,
+              height: size,
+              borderRadius: size / 2,
+              borderWidth: strokeWidth,
+              borderColor: color,
+              borderRightColor: 'transparent',
+              borderTopColor: 'transparent',
+              transform: [{ rotate: `${rotation - 180}deg` }],
+            }} />
+          </View>
+        </View>
+      )}
+
+      {/* Center content */}
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        {children}
+      </View>
     </View>
   );
 }
