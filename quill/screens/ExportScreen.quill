@@ -1,0 +1,119 @@
+-- CSV data export screen
+
+from "../state/context.quill" use AppContext
+from "../ui/components.quill" use Screen, Card, Title, Muted, Button
+from "../ui/theme.quill" use brand, textColor, muted as mutedColor
+
+to escapeCSV val:
+  str is String(val or "")
+  if str.includes(",") or str.includes("\"") or str.includes("\n"):
+    give back "\"" + str.replace(/"/g, "\"\"") + "\""
+  give back str
+
+to logsToCSV logs:
+  headers are ["Date", "Category", "Activity", "CO2 (kg)", "Quantity", "Notes"]
+  rows are logs.map(with l: [
+    l.dateISO?.slice(0, 10) or "",
+    l.category or "transport",
+    l.label or l.itemKey or "",
+    (l.co2Kg or 0).toFixed(3),
+    l.quantity or 1,
+    l.notes or ""
+  ])
+
+  csvLines are [headers, ...rows].map(with row: row.map(escapeCSV).join(","))
+  give back csvLines.join("\n")
+
+component ExportScreen:
+  use context AppContext as ctx
+
+  state shared is no
+
+  logs are ctx.state?.logs or []
+  memo csv is logsToCSV(logs) when [logs]
+
+  memo stats is computeStats(logs) when [logs]
+
+  to computeStats logs:
+    total is logs.reduce(with a l: a + (l.co2Kg or 0), 0)
+    dates is new Set(logs.map(with l: l.dateISO?.slice(0, 10)))
+    give back { count: logs.length, totalKg: total, days: dates.size }
+
+  to onShare:
+    try:
+      -- Use React Native Share API
+      use "react-native" as RN
+      await RN.Share.share({
+        message: csv,
+        title: "Nudge - Carbon Footprint Data"
+      })
+      shared is yes
+    if it fails error:
+      alert("Export", error?.message or "Could not share data")
+
+  to render:
+    Screen:
+      scroll showsVerticalScrollIndicator no:
+        Card:
+          Title: "Export Your Data"
+          Muted style { marginTop: 6 }: "Share your carbon footprint logs as CSV. You can paste this into Google Sheets, Excel, or use it in your EPQ analysis."
+
+          view style statsRow:
+            view style statBox accessibilityLabel "Activities: {stats.count}":
+              text style statValue: "{stats.count}"
+              text style statLabel: "Activities"
+            view style statBox accessibilityLabel "Days: {stats.days}":
+              text style statValue: "{stats.days}"
+              text style statLabel: "Days"
+            view style statBox accessibilityLabel "Total kg: {stats.totalKg.toFixed(1)}":
+              text style statValue: "{stats.totalKg.toFixed(1)}"
+              text style statLabel: "Total kg"
+
+        view style { height: 12 }
+
+        Card:
+          Title style { fontSize: 16 }: "CSV Preview"
+          view style previewBox:
+            text style previewText: "{csv or 'No data to export yet.'}"
+
+        view style { height: 12 }
+
+        Card:
+          Button label "Share CSV" onPress onShare disabled (logs.length is 0)
+          if shared:
+            Muted style { marginTop: 8, textAlign: "center" }: "Data shared successfully!"
+          if logs.length is 0:
+            Muted style { marginTop: 8, textAlign: "center" }: "Log some activities first to export data."
+
+        view style { height: 30 }
+
+  style native:
+    statsRow:
+      flex direction is "row"
+      gap is 10
+      margin top is 14
+    statBox:
+      flex is 1
+      background color is "rgba(255,255,255,0.04)"
+      border radius is 12
+      padding is 12
+      align items is "center"
+    statValue:
+      color is "#2dd4bf"
+      font size is 22
+      font weight is "900"
+    statLabel:
+      color is "rgba(255,255,255,0.68)"
+      font size is 11
+      font weight is "700"
+      margin top is 2
+    previewBox:
+      background color is "rgba(255,255,255,0.03)"
+      border radius is 8
+      padding is 10
+      margin top is 8
+    previewText:
+      color is "rgba(255,255,255,0.68)"
+      font size is 10
+      font family is "monospace"
+      line height is 14

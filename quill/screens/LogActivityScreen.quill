@@ -1,0 +1,223 @@
+-- Activity logging screen
+
+from "../state/context.quill" use AppContext
+from "../ui/components.quill" use Screen, Card, Title, Muted, Button
+from "../ui/theme.quill" use brand, textColor, muted as mutedColor, border as borderColor
+from "../lib/co2.quill" use CATEGORIES, TRANSPORT_LABELS, CO2_FACTORS, getCategoryItems, computeCo2Kg
+from "../lib/geo.quill" use haversineKm
+
+CAT_KEYS are Object.keys(CATEGORIES)
+
+component LogActivityScreen with navigation:
+  use context AppContext as ctx
+
+  state category is "transport"
+  state selectedItem is nothing
+  state quantity is "1"
+  state notes is ""
+  state transport is "car"
+  state oneWayKm is ""
+
+  memo suggestedKm is computeSuggested(ctx.state) when [ctx.state]
+  memo items is getCategoryItems(category, ctx.state?.region) when [category, ctx.state?.region]
+  memo itemKeys is Object.keys(items) when [items]
+
+  memo preview is computePreview() when [category, transport, oneWayKm, selectedItem, quantity, items]
+
+  to computeSuggested state:
+    if not state?.home or not state?.school:
+      give back nothing
+    give back haversineKm(state.home, state.school) * 1.25
+
+  to computePreview:
+    if category is "transport":
+      km is Number(oneWayKm)
+      if not Number.isFinite(km) or km <= 0:
+        give back nothing
+      give back computeCo2Kg({ transport: transport, oneWayKm: km })
+    if not selectedItem or not items[selectedItem]:
+      give back nothing
+    q is Number(quantity) or 1
+    give back items[selectedItem].co2 * q
+
+  to onSave:
+    try:
+      log is nothing
+
+      if category is "transport":
+        km is Number(oneWayKm)
+        if not Number.isFinite(km) or km <= 0:
+          raise "Enter a valid distance"
+        co2Kg is computeCo2Kg({ transport: transport, oneWayKm: km })
+        log is {
+          id: uuid(),
+          dateISO: new Date().toISOString(),
+          category: "transport",
+          itemKey: transport,
+          label: TRANSPORT_LABELS[transport] or transport,
+          co2Kg: co2Kg,
+          quantity: 1,
+          oneWayKm: km,
+          transport: transport,
+          transportLabel: TRANSPORT_LABELS[transport] or transport,
+          notes: notes.trim() or nothing
+        }
+      otherwise:
+        if not selectedItem:
+          raise "Select an activity"
+        q is Math.max(1, Math.round(Number(quantity) or 1))
+        item is items[selectedItem]
+        log is {
+          id: uuid(),
+          dateISO: new Date().toISOString(),
+          category: category,
+          itemKey: selectedItem,
+          label: item.label,
+          co2Kg: item.co2 * q,
+          quantity: q,
+          notes: notes.trim() or nothing
+        }
+
+      await ctx.setState({
+        ...ctx.state,
+        logs: [log, ...(ctx.state?.logs or [])]
+      })
+
+      navigate to "Home"
+    if it fails error:
+      alert("Log activity", error?.message or "Could not save")
+
+  to render:
+    Screen:
+      scroll showsVerticalScrollIndicator no:
+        -- Category selector
+        Card:
+          Title: "Category"
+          view style pillRow:
+            for each k in CAT_KEYS:
+              pressable onPress (with: category is k, selectedItem is nothing) style [catPill, category is k ? { borderColor: CATEGORIES[k].color, backgroundColor: CATEGORIES[k].color + "22" } : nothing]:
+                text style [catPillText, category is k ? { color: textColor } : nothing]: "{CATEGORIES[k].icon} {CATEGORIES[k].label}"
+
+        view style { height: 12 }
+
+        -- Activity picker
+        Card:
+          Title style { fontSize: 18 }: "{CATEGORIES[category].icon} {CATEGORIES[category].label} Activity"
+
+          if category is "transport":
+            Muted style { marginTop: 6 }: "Select transport mode and enter one-way distance."
+            view style pillRow:
+              for each t in Object.keys(TRANSPORT_LABELS):
+                pressable onPress (with: transport is t) style [pill, transport is t ? pillActive : nothing]:
+                  text style [pillText, transport is t ? pillTextActive : nothing]: "{TRANSPORT_LABELS[t]}"
+
+            text style label: "One-way distance (km)"
+            input value oneWayKm onChangeText (with v: oneWayKm is v) keyboardType "numeric" placeholder "e.g., 7.5" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle
+
+            if suggestedKm:
+              Button kind "ghost" label "Use suggested: ~{suggestedKm.toFixed(1)} km" onPress (with: oneWayKm is suggestedKm.toFixed(1))
+          otherwise:
+            Muted style { marginTop: 6 }: "Tap an activity to select it."
+            view style pillRow:
+              for each k in itemKeys:
+                item is items[k]
+                pressable onPress (with: selectedItem is k) style [itemPill, selectedItem is k ? { borderColor: CATEGORIES[category].color, backgroundColor: CATEGORIES[category].color + "22" } : nothing]:
+                  text style [pillText, selectedItem is k ? { color: textColor } : nothing]: "{item.icon} {item.label}"
+                  text style co2Badge: "{item.co2 > 0 ? '+' : ''}{item.co2} kg"
+
+            if selectedItem:
+              view style { marginTop: 8 }:
+                text style label: "Quantity / times"
+                input value quantity onChangeText (with v: quantity is v) keyboardType "numeric" placeholder "1" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle
+
+        view style { height: 12 }
+
+        -- Preview + Notes + Save
+        Card:
+          if preview is not nothing:
+            view style previewBox:
+              text style previewLabel: "CO2e impact"
+              text style [previewValue, { color: preview >= 0 ? "#ef4444" : "#22c55e" }]: "{preview >= 0 ? '+' : ''}{preview.toFixed(2)} kg CO2e"
+
+          text style label: "Notes (optional)"
+          input value notes onChangeText (with v: notes is v) style [inputStyle, { minHeight: 60, textAlignVertical: "top" }] multiline yes placeholder "e.g., carpooled with 2 friends" placeholderTextColor "rgba(255,255,255,0.45)"
+
+          view style { marginTop: 14, gap: 10 }:
+            Button label "Save Activity" onPress onSave
+            Button kind "ghost" label "Cancel" onPress (with: navigate to "Home")
+
+        view style { height: 30 }
+
+  style native:
+    pillRow:
+      flex direction is "row"
+      gap is 8
+      flex wrap is "wrap"
+      margin top is 10
+    catPill:
+      border width is 1
+      border color is "rgba(255,255,255,0.12)"
+      padding horizontal is 12
+      padding vertical is 8
+      border radius is 999
+      background color is "rgba(255,255,255,0.02)"
+    catPillText:
+      color is "rgba(255,255,255,0.68)"
+      font weight is "900"
+      font size is 13
+    pill:
+      border width is 1
+      border color is "rgba(255,255,255,0.12)"
+      padding horizontal is 10
+      padding vertical is 6
+      border radius is 999
+      background color is "rgba(255,255,255,0.02)"
+    pillActive:
+      border color is "rgba(45,212,191,0.6)"
+      background color is "rgba(45,212,191,0.15)"
+    pillText:
+      color is "rgba(255,255,255,0.68)"
+      font weight is "900"
+      font size is 12
+    pillTextActive:
+      color is "rgba(255,255,255,0.92)"
+    itemPill:
+      border width is 1
+      border color is "rgba(255,255,255,0.12)"
+      padding horizontal is 12
+      padding vertical is 8
+      border radius is 12
+      background color is "rgba(255,255,255,0.02)"
+      flex direction is "row"
+      align items is "center"
+      gap is 6
+    co2Badge:
+      color is "rgba(255,255,255,0.68)"
+      font size is 10
+      font weight is "700"
+    label:
+      color is "rgba(255,255,255,0.68)"
+      font weight is "900"
+      margin bottom is 6
+      margin top is 10
+    inputStyle:
+      color is "rgba(255,255,255,0.92)"
+      border color is "rgba(255,255,255,0.12)"
+      border width is 1
+      border radius is 12
+      padding is 12
+      background color is "rgba(255,255,255,0.03)"
+    previewBox:
+      background color is "rgba(255,255,255,0.04)"
+      border radius is 12
+      padding is 14
+      margin bottom is 12
+      align items is "center"
+    previewLabel:
+      color is "rgba(255,255,255,0.68)"
+      font size is 12
+      font weight is "700"
+    previewValue:
+      font size is 28
+      font weight is "900"
+      margin top is 4

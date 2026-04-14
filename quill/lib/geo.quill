@@ -1,0 +1,15 @@
+-- Haversine distance calculation
+
+to haversineKm a b:
+  R is 6371
+  dLat is toRad(b.latitude - a.latitude)
+  dLon is toRad(b.longitude - a.longitude)
+  lat1 is toRad(a.latitude)
+  lat2 is toRad(b.latitude)
+
+  x is Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2)
+  c is 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x))
+  give back R * c
+
+to toRad deg:
+  give back (deg * Math.PI) / 180

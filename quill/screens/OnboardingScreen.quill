@@ -1,0 +1,138 @@
+-- Onboarding flow (4-step setup)
+
+from "../state/context.quill" use AppContext
+from "../ui/components.quill" use Screen, Card, Title, Muted, Button
+from "../ui/theme.quill" use brand, textColor, muted as mutedColor, border as borderColor
+from "../lib/regions.quill" use REGIONS
+
+STEPS are ["welcome", "school", "region", "target"]
+
+component OnboardingScreen:
+  use context AppContext as ctx
+
+  state step is 0
+  state schoolName is ""
+  state schoolLat is ""
+  state schoolLon is ""
+  state region is "world"
+  state target is "10"
+
+  to onFinish:
+    try:
+      lat is Number(schoolLat)
+      lon is Number(schoolLon)
+      t is Number(target)
+
+      if schoolName.trim() and (not Number.isFinite(lat) or not Number.isFinite(lon)):
+        raise "Please enter valid coordinates for your school."
+      if schoolName.trim() and (lat < -90 or lat > 90 or lon < -180 or lon > 180):
+        raise "Coordinates out of range."
+      if not Number.isFinite(t) or t <= 0:
+        raise "Target must be a positive number."
+
+      await ctx.setState({
+        ...ctx.state,
+        school: schoolName.trim() ? { name: schoolName.trim(), latitude: lat, longitude: lon } : nothing,
+        region: region,
+        targetKgPerWeek: t,
+        onboarded: yes
+      })
+    if it fails error:
+      alert("Setup", error?.message or "Could not save")
+
+  to render:
+    current is STEPS[step]
+
+    Screen:
+      scroll showsVerticalScrollIndicator no keyboardShouldPersistTaps "handled" contentContainerStyle { flexGrow: 1, justifyContent: step <= 1 ? "center" : nothing, paddingBottom: 40 }:
+
+        if current is "welcome":
+          Card:
+            text style emoji: "🌍"
+            Title style { textAlign: "center", fontSize: 28 }: "Welcome to Nudge"
+            Muted style { textAlign: "center", marginTop: 10, lineHeight: 20 }: "Track your carbon footprint, earn badges, and get personalised tips to reduce your environmental impact."
+            view style { marginTop: 24 }:
+              Button label "Get Started" onPress (with: step is 1)
+
+        if current is "school":
+          Card:
+            Title: "Your School"
+            Muted style { marginTop: 6 }: "Enter your school details to estimate commute distance. You can skip this and set it later in Settings."
+
+            text style label: "School name"
+            input value schoolName onChangeText (with v: schoolName is v) placeholder "e.g. Dubai College" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle accessibilityLabel "School name"
+
+            view style { flexDirection: "row", gap: 10 }:
+              view style { flex: 1 }:
+                text style label: "Latitude"
+                input value schoolLat onChangeText (with v: schoolLat is v) placeholder "25.2048" keyboardType "numeric" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle accessibilityLabel "Latitude"
+              view style { flex: 1 }:
+                text style label: "Longitude"
+                input value schoolLon onChangeText (with v: schoolLon is v) placeholder "55.2708" keyboardType "numeric" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle accessibilityLabel "Longitude"
+
+            view style { marginTop: 14, gap: 10 }:
+              Button label "Next" onPress (with: step is 2)
+              Button kind "ghost" label "Skip for now" onPress (with: step is 2)
+
+        if current is "region":
+          Card:
+            Title: "Your Region"
+            Muted style { marginTop: 6 }: "Electricity grid carbon intensity varies by region. Pick yours for more accurate energy estimates."
+
+            view style regionGrid:
+              for each [key, r] in Object.entries(REGIONS):
+                Button kind (region is key ? "primary" : "ghost") label r.label onPress (with: region is key)
+
+            view style { marginTop: 14, gap: 10 }:
+              Button label "Next" onPress (with: step is 3)
+
+        if current is "target":
+          Card:
+            Title: "Weekly Target"
+            Muted style { marginTop: 6 }: "Set a weekly CO2 budget in kg. The average person produces about 22 kg/day. A stretching but achievable student target is 10 kg/week."
+
+            text style label: "Target (kg CO2 / week)"
+            input value target onChangeText (with v: target is v) placeholder "10" keyboardType "numeric" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle accessibilityLabel "Target (kg CO2 / week)"
+
+            view style { marginTop: 14, gap: 10 }:
+              Button label "Start Tracking" onPress onFinish
+
+        -- Progress dots
+        view style dots:
+          for each s in STEPS:
+            i is STEPS.indexOf(s)
+            view style [dot, i is step ? dotActive : nothing] accessibilityLabel "Step {i + 1} of {STEPS.length}"
+
+  style native:
+    emoji:
+      font size is 56
+      text align is "center"
+      margin bottom is 12
+    label:
+      color is "rgba(255,255,255,0.68)"
+      font weight is "900"
+      margin bottom is 6
+      margin top is 10
+    inputStyle:
+      color is "rgba(255,255,255,0.92)"
+      border color is "rgba(255,255,255,0.12)"
+      border width is 1
+      border radius is 12
+      padding is 12
+      background color is "rgba(255,255,255,0.03)"
+    regionGrid:
+      gap is 8
+      margin top is 12
+    dots:
+      flex direction is "row"
+      justify content is "center"
+      gap is 8
+      margin top is 24
+    dot:
+      width is 8
+      height is 8
+      border radius is 4
+      background color is "rgba(255,255,255,0.2)"
+    dotActive:
+      background color is "#2dd4bf"
+      width is 24

@@ -1,0 +1,23 @@
+-- ISO week utilities
+
+to weekKeyISO date:
+  d is new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  dayNum is d.getUTCDay()
+  if dayNum is 0:
+    dayNum is 7
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum)
+  yearStart is new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+  week is Math.ceil(((d - yearStart) / 86400000 + 1) / 7)
+  give back d.getUTCFullYear() + "-W" + String(week).padStart(2, "0")
+
+to startOfWeekISO date:
+  d is new Date(date)
+  day is d.getDay()
+  diff is (day is 0 ? -6 : 1) - day
+  d.setDate(d.getDate() + diff)
+  give back d.toISOString().slice(0, 10)
+
+to addDaysISO iso n:
+  d is new Date(iso + "T00:00:00Z")
+  d.setUTCDate(d.getUTCDate() + n)
+  give back d.toISOString().slice(0, 10)

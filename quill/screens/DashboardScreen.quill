@@ -1,0 +1,227 @@
+-- Analytics dashboard screen
+
+from "../state/context.quill" use AppContext
+from "../ui/components.quill" use Screen, Card, Title, Muted, Chip, ProgressRing
+from "../ui/theme.quill" use brand, brand2, textColor, muted as mutedColor
+from "../lib/co2.quill" use CATEGORIES, computeDailyScore, computeWeeklyScore, compareToBenchmark
+from "../utils/time.quill" use weekKeyISO, startOfWeekISO, addDaysISO
+
+to clamp n a b:
+  give back Math.max(a, Math.min(b, n))
+
+component DashboardScreen:
+  use context AppContext as ctx
+
+  memo data is computeData(ctx.state) when [ctx.state]
+
+  to computeData state:
+    logs are state?.logs or []
+    now is new Date()
+
+    -- Build last 4 weeks
+    weeks are []
+    w is 0
+    while w < 4:
+      d is new Date(now)
+      d.setDate(d.getDate() - w * 7)
+      wk is weekKeyISO(d)
+      startISO is startOfWeekISO(d)
+
+      weekLogs are logs.filter(with l: weekKeyISO(new Date(l.dateISO)) is wk)
+      totalKg is weekLogs.reduce(with a l: a + (l.co2Kg or 0), 0)
+
+      catTotals is { transport: 0, diet: 0, energy: 0, waste: 0 }
+      for each l in weekLogs:
+        cat is l.category or "transport"
+        catTotals[cat] is (catTotals[cat] or 0) + (l.co2Kg or 0)
+
+      daily is {}
+      for each l in weekLogs:
+        day is new Date(l.dateISO).toISOString().slice(0, 10)
+        daily[day] is (daily[day] or 0) + (l.co2Kg or 0)
+      weeklyScore is computeWeeklyScore(Object.values(daily))
+
+      push(weeks, { wk: wk, startISO: startISO, totalKg: totalKg, catTotals: catTotals, weeklyScore: weeklyScore, logCount: weekLogs.length })
+      w is w + 1
+
+    -- Current week daily breakdown
+    currentWk is weekKeyISO(now)
+    currentStart is startOfWeekISO(now)
+    dailyBreakdown are Array.from({ length: 7 }).map(with _ i:
+      dayISO is addDaysISO(currentStart, i)
+      dayLogs are logs.filter(with l: weekKeyISO(new Date(l.dateISO)) is currentWk and new Date(l.dateISO).toISOString().slice(0, 10) is dayISO)
+      kg is dayLogs.reduce(with a l: a + (l.co2Kg or 0), 0)
+      give back { dayISO: dayISO, kg: kg, score: computeDailyScore(kg) }
+    )
+
+    region is state?.region or "world"
+    target is state?.targetKgPerWeek or 10
+    benchmark is compareToBenchmark(weeks[0]?.totalKg or 0, region)
+
+    give back { weeks: weeks, dailyBreakdown: dailyBreakdown, benchmark: benchmark, target: target }
+
+  to render:
+    thisWeek is data.weeks[0]
+    lastWeek is data.weeks[1]
+    maxWeeklyKg is Math.max(1, ...data.weeks.map(with w: w.totalKg))
+    maxDailyKg is Math.max(1, ...data.dailyBreakdown.map(with d: d.kg))
+
+    improvement is nothing
+    if lastWeek?.totalKg > 0:
+      improvement is ((lastWeek.totalKg - thisWeek.totalKg) / lastWeek.totalKg * 100).toFixed(0)
+
+    Screen:
+      scroll showsVerticalScrollIndicator no:
+        -- Score card
+        Card:
+          view style scoreRow:
+            view style scoreCircle:
+              text style scoreNumber: "{thisWeek.weeklyScore}"
+              text style scoreLabel: "Score"
+            view style { flex: 1, marginLeft: 16 }:
+              Title: "This Week"
+              Muted style { marginTop: 4 }: "{thisWeek.totalKg.toFixed(1)} kg CO2e from {thisWeek.logCount} activities"
+              if improvement is not nothing:
+                view style { marginTop: 6 }:
+                  Chip kind (Number(improvement) > 0 ? "brand" : "default") label (Number(improvement) > 0 ? "{improvement}% better than last week" : "{Math.abs(improvement)}% more than last week")
+
+        view style { height: 12 }
+
+        -- Goal + benchmark
+        Card:
+          Title style { fontSize: 18 }: "Goal & Benchmark"
+          view style { flexDirection: "row", alignItems: "center", marginTop: 12, gap: 16 }:
+            ProgressRing progress Math.min(thisWeek.totalKg / data.target, 1) size 100 strokeWidth 10 color (thisWeek.totalKg > data.target ? "#ef4444" : brand):
+              text style { color: textColor, fontSize: 18, fontWeight: "900" }: "{Math.round(Math.min((thisWeek.totalKg / data.target) * 100, 999))}%"
+            view style { flex: 1 }:
+              text style { color: textColor, fontWeight: "700", fontSize: 14 }: "{thisWeek.totalKg.toFixed(1)} / {data.target} kg goal"
+              view style { height: 6 }
+              text style { color: data.benchmark.better ? "#22c55e" : "#ef4444", fontWeight: "700", fontSize: 13 }:
+                if data.benchmark.better:
+                  "{data.benchmark.savedPct.toFixed(0)}% below {data.benchmark.benchmarkLabel}"
+                otherwise:
+                  "{Math.abs(data.benchmark.savedPct).toFixed(0)}% above {data.benchmark.benchmarkLabel}"
+              Muted style { fontSize: 11, marginTop: 2 }: "National avg: {data.benchmark.benchmarkKg} kg/week"
+              Muted style { fontSize: 9, marginTop: 2 }: "Source: {data.benchmark.benchmarkSource}"
+
+        view style { height: 12 }
+
+        -- Category breakdown
+        Card:
+          Title style { fontSize: 18 }: "Category Breakdown"
+          Muted style { marginTop: 4 }: "This week's CO2e by domain"
+          view style { marginTop: 12 }:
+            for each [key, cat] in Object.entries(CATEGORIES):
+              kg is thisWeek.catTotals[key] or 0
+              totalKg is Math.max(0.01, thisWeek.totalKg)
+              pct is (kg / totalKg) * 100
+              view style { marginBottom: 12 }:
+                view style catHeader:
+                  text style catName: "{cat.icon} {cat.label}"
+                  text style catKg: "{kg.toFixed(2)} kg"
+                view style barBg:
+                  view style [barFill, { width: clamp(pct, 0, 100) + "%", backgroundColor: cat.color }]
+
+        view style { height: 12 }
+
+        -- Daily chart
+        Card:
+          Title style { fontSize: 18 }: "Daily Emissions"
+          Muted style { marginTop: 4 }: "CO2e per day this week"
+          view style { marginTop: 12 }:
+            for each d in data.dailyBreakdown:
+              pct is (d.kg / maxDailyKg) * 100
+              dayLabel is new Date(d.dayISO + "T00:00:00Z").toLocaleDateString(nothing, { weekday: "short" })
+              isToday is d.dayISO is new Date().toISOString().slice(0, 10)
+              view style { marginBottom: 8 }:
+                view style dayRow:
+                  text style [dayLabelStyle, isToday ? { color: brand } : nothing]: "{dayLabel}{isToday ? ' (today)' : ''}"
+                  text style dayKg: "{d.kg > 0 ? d.kg.toFixed(2) + ' kg' : '—'}"
+                  view style dayScoreBadge:
+                    text style [dayScoreText, { color: d.score >= 70 ? "#22c55e" : d.score >= 40 ? "#f59e0b" : "#ef4444" }]: "{d.kg > 0 ? d.score : '—'}"
+                view style barBg:
+                  view style [barFill, { width: clamp(pct, 0, 100) + "%", backgroundColor: brand2 }]
+
+        view style { height: 12 }
+
+        -- 4 week trend
+        Card:
+          Title style { fontSize: 18 }: "4-Week Trend"
+          Muted style { marginTop: 4 }: "Total CO2e over recent weeks"
+          view style { marginTop: 12 }:
+            reversed are data.weeks.slice().reverse()
+            for each w in reversed:
+              i is reversed.indexOf(w)
+              pct is (w.totalKg / maxWeeklyKg) * 100
+              view style { marginBottom: 10 }:
+                view style dayRow:
+                  text style [dayLabelStyle, i is 3 ? { color: brand } : nothing]: "{w.startISO}{i is 3 ? ' (current)' : ''}"
+                  text style dayKg: "{w.totalKg.toFixed(1)} kg"
+                view style barBg:
+                  view style [barFill, { width: clamp(pct, 0, 100) + "%", backgroundColor: i is 3 ? brand : "rgba(255,255,255,0.2)" }]
+
+        view style { height: 30 }
+
+  style native:
+    scoreRow:
+      flex direction is "row"
+      align items is "center"
+    scoreCircle:
+      width is 80
+      height is 80
+      border radius is 40
+      border width is 3
+      border color is "#2dd4bf"
+      align items is "center"
+      justify content is "center"
+      background color is "rgba(45,212,191,0.08)"
+    scoreNumber:
+      color is "#2dd4bf"
+      font size is 28
+      font weight is "900"
+    scoreLabel:
+      color is "rgba(255,255,255,0.68)"
+      font size is 10
+      font weight is "700"
+    catHeader:
+      flex direction is "row"
+      justify content is "space-between"
+      align items is "center"
+      margin bottom is 4
+    catName:
+      color is "rgba(255,255,255,0.92)"
+      font weight is "700"
+      font size is 14
+    catKg:
+      color is "rgba(255,255,255,0.68)"
+      font weight is "900"
+      font size is 13
+    barBg:
+      height is 8
+      border radius is 999
+      background color is "rgba(255,255,255,0.06)"
+      overflow is "hidden"
+    barFill:
+      height is "100%"
+      border radius is 999
+    dayRow:
+      flex direction is "row"
+      justify content is "space-between"
+      align items is "center"
+      margin bottom is 4
+    dayLabelStyle:
+      color is "rgba(255,255,255,0.92)"
+      font weight is "700"
+      font size is 13
+      flex is 1
+    dayKg:
+      color is "rgba(255,255,255,0.68)"
+      font weight is "900"
+      font size is 12
+      margin right is 8
+    dayScoreBadge:
+      width is 30
+      align items is "flex-end"
+    dayScoreText:
+      font weight is "900"
+      font size is 13

@@ -1,0 +1,62 @@
+-- Nudge - Carbon footprint tracker
+-- Main app entry point with navigation and context provider
+
+from "./state/context.quill" use AppContext
+from "./state/storage.quill" use loadState, saveState, seedIfEmpty
+from "./lib/notifications.quill" use scheduleDailyReminder
+
+from "./screens/HomeScreen.quill" use HomeScreen
+from "./screens/LogActivityScreen.quill" use LogActivityScreen
+from "./screens/DashboardScreen.quill" use DashboardScreen
+from "./screens/TipsScreen.quill" use TipsScreen
+from "./screens/BadgesScreen.quill" use BadgesScreen
+from "./screens/TrendsScreen.quill" use TrendsScreen
+from "./screens/SettingsScreen.quill" use SettingsScreen
+from "./screens/LocationPickerScreen.quill" use LocationPickerScreen
+from "./screens/OnboardingScreen.quill" use OnboardingScreen
+from "./screens/ExportScreen.quill" use ExportScreen
+
+component App:
+  state appState is nothing
+  state booted is no
+
+  use effect:
+    to boot:
+      await seedIfEmpty()
+      s is await loadState()
+      appState is s
+      booted is yes
+      -- Schedule daily reminder (8pm)
+      try:
+        await scheduleDailyReminder(20, 0)
+      if it fails:
+        -- silently ignore
+        say "reminder setup skipped"
+    boot()
+
+  to updateState next:
+    appState is next
+    await saveState(next)
+
+  memo api is { booted: booted, state: appState, setState: updateState } when [booted, appState]
+
+  needsOnboarding is booted and appState and not appState.onboarded
+
+  to render:
+    provide AppContext with api:
+      if needsOnboarding:
+        app navigation:
+          stack headerShown no:
+            screen "Onboarding" component OnboardingScreen
+      otherwise:
+        app navigation:
+          stack headerStyle { backgroundColor: "#0b1020" } headerTintColor "rgba(255,255,255,0.92)" headerTitleStyle { fontWeight: "900" }:
+            screen "Home" component HomeScreen title "Nudge"
+            screen "LogActivity" component LogActivityScreen title "Log Activity"
+            screen "Dashboard" component DashboardScreen title "Progress Dashboard"
+            screen "Tips" component TipsScreen title "Weekly Tips"
+            screen "Badges" component BadgesScreen title "Badges & Streaks"
+            screen "Trends" component TrendsScreen title "Weekly Trends"
+            screen "Settings" component SettingsScreen title "Settings"
+            screen "PickLocation" component LocationPickerScreen title "Pick Location"
+            screen "Export" component ExportScreen title "Export Data"

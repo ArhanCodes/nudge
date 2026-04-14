@@ -1,0 +1,272 @@
+-- Main dashboard screen
+
+from "../state/context.quill" use AppContext
+from "../ui/components.quill" use Screen, Card, Title, Muted, Button, Chip, ProgressRing
+from "../ui/theme.quill" use brand, textColor, muted as mutedColor
+from "../lib/co2.quill" use CATEGORIES, computeDailyScore, computeWeeklyScore, compareToBenchmark, WEEKLY_BENCHMARKS
+from "../utils/time.quill" use weekKeyISO, startOfWeekISO
+from "../lib/badges.quill" use computeStreak
+
+component HomeScreen with navigation:
+  use context AppContext as ctx
+
+  memo summary is computeSummary(ctx.state) when [ctx.state]
+
+  to computeSummary state:
+    logs are state?.logs or []
+    now is new Date()
+    wk is weekKeyISO(now)
+    today is now.toISOString().slice(0, 10)
+
+    weekLogs are logs.filter(with l: weekKeyISO(new Date(l.dateISO)) is wk)
+    totalKg is weekLogs.reduce(with a l: a + (l.co2Kg or 0), 0)
+    target is state?.targetKgPerWeek or 10
+
+    -- Category breakdown
+    catTotals is { transport: 0, diet: 0, energy: 0, waste: 0 }
+    for each l in weekLogs:
+      catTotals[l.category or "transport"] is catTotals[l.category or "transport"] + (l.co2Kg or 0)
+
+    -- Today's score
+    todayLogs are logs.filter(with l: new Date(l.dateISO).toISOString().slice(0, 10) is today)
+    todayKg is todayLogs.reduce(with a l: a + (l.co2Kg or 0), 0)
+    todayScore is computeDailyScore(todayKg)
+
+    -- Weekly score
+    daily is {}
+    for each l in weekLogs:
+      day is new Date(l.dateISO).toISOString().slice(0, 10)
+      daily[day] is (daily[day] or 0) + (l.co2Kg or 0)
+    weeklyScore is computeWeeklyScore(Object.values(daily))
+
+    -- Streak
+    {currentStreak} is computeStreak(logs)
+    hasLoggedToday is todayLogs.length > 0
+
+    -- Benchmark
+    region is state?.region or "world"
+    benchmark is compareToBenchmark(totalKg, region)
+
+    give back {
+      weekStart: startOfWeekISO(now),
+      totalKg: totalKg,
+      target: target,
+      remaining: Math.max(0, target - totalKg),
+      over: Math.max(0, totalKg - target),
+      catTotals: catTotals,
+      todayScore: todayScore,
+      todayKg: todayKg,
+      weeklyScore: weeklyScore,
+      currentStreak: currentStreak,
+      hasLoggedToday: hasLoggedToday,
+      benchmark: benchmark,
+      region: region,
+      recentLogs: logs.slice().sort(with a b: b.dateISO > a.dateISO ? 1 : -1).slice(0, 6)
+    }
+
+  to render:
+    Screen:
+      flatlist data [1] key "home":
+        view:
+          -- Score + Streak header
+          Card:
+            view style headerRow:
+              view style scoreCircle accessibilityLabel "Today's score: {summary.todayScore} out of 100" accessibilityRole "text":
+                text style scoreNum: "{summary.todayScore}"
+                text style scoreLabel: "Today"
+              view style { flex: 1, marginLeft: 14 }:
+                Title: "Nudge"
+                view style { flexDirection: "row", gap: 8, marginTop: 6, flexWrap: "wrap" }:
+                  Chip kind "brand" label "{summary.totalKg.toFixed(1)} kg this week"
+                  Chip label "{summary.currentStreak} day streak"
+
+            -- Streak grace period warning
+            if not summary.hasLoggedToday and summary.currentStreak > 0:
+              view style streakWarning accessibilityRole "alert":
+                text style streakWarningText: "Log an activity today to keep your {summary.currentStreak}-day streak!"
+
+            -- Category summary
+            view style catRow:
+              for each [key, cat] in Object.entries(CATEGORIES):
+                view style catMini accessibilityLabel "{cat.label}: {(summary.catTotals[key] or 0).toFixed(1)} kilograms":
+                  text style { fontSize: 18 }: "{cat.icon}"
+                  text style [catMiniKg, { color: cat.color }]: "{(summary.catTotals[key] or 0).toFixed(1)}"
+                  text style catMiniLabel: "kg"
+
+          view style { height: 12 }
+
+          -- Action buttons
+          Card:
+            view style { gap: 10 }:
+              Button label "+ Log Activity" onPress (with: navigate to "LogActivity") accessibilityLabel "Log a new activity"
+              view style { flexDirection: "row", gap: 10 }:
+                view style { flex: 1 }:
+                  Button kind "ghost" label "Dashboard" onPress (with: navigate to "Dashboard") accessibilityLabel "View progress dashboard"
+                view style { flex: 1 }:
+                  Button kind "ghost" label "Tips" onPress (with: navigate to "Tips") accessibilityLabel "View weekly tips"
+              view style { flexDirection: "row", gap: 10 }:
+                view style { flex: 1 }:
+                  Button kind "ghost" label "Badges" onPress (with: navigate to "Badges") accessibilityLabel "View badges and streaks"
+                view style { flex: 1 }:
+                  Button kind "ghost" label "Settings" onPress (with: navigate to "Settings") accessibilityLabel "Open settings"
+              Button kind "ghost" label "Export Data" onPress (with: navigate to "Export") accessibilityLabel "Export data as CSV"
+
+          view style { height: 12 }
+
+          -- Weekly goal progress ring
+          Card:
+            Title style { fontSize: 16, textAlign: "center", marginBottom: 12 }: "Weekly Goal"
+            view style { alignItems: "center" }:
+              ProgressRing progress Math.min(summary.totalKg / summary.target, 1) size 140 strokeWidth 12 color (summary.over > 0 ? "#ef4444" : brand):
+                text style ringMainText: "{summary.totalKg.toFixed(1)}"
+                text style ringSubText: "/ {summary.target.toFixed(0)} kg"
+            Muted style { marginTop: 10, fontSize: 12, textAlign: "center" }:
+              if summary.over > 0:
+                "Over target by {summary.over.toFixed(1)} kg — check your tips for ideas!"
+              otherwise:
+                "{summary.remaining.toFixed(1)} kg remaining this week"
+
+          view style { height: 12 }
+
+          -- National benchmark comparison
+          Card:
+            Title style { fontSize: 16 }: "vs {summary.benchmark.benchmarkLabel}"
+            view style benchmarkRow:
+              view style benchmarkCol:
+                text style benchmarkYou: "{summary.totalKg.toFixed(1)} kg"
+                Muted style { fontSize: 11 }: "You this week"
+              view style benchmarkVs:
+                text style { color: mutedColor, fontWeight: "900", fontSize: 12 }: "vs"
+              view style benchmarkCol:
+                text style benchmarkAvg: "{summary.benchmark.benchmarkKg} kg"
+                Muted style { fontSize: 11 }: "National avg"
+
+            view style [benchmarkBanner, { backgroundColor: summary.benchmark.better ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)", borderColor: summary.benchmark.better ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)" }]:
+              text style [benchmarkBannerText, { color: summary.benchmark.better ? "#22c55e" : "#ef4444" }]:
+                if summary.benchmark.better:
+                  "You saved {summary.benchmark.savedKg.toFixed(1)} kg ({Math.abs(summary.benchmark.savedPct).toFixed(0)}% less) vs the {summary.benchmark.benchmarkLabel}"
+                otherwise:
+                  "{Math.abs(summary.benchmark.savedKg).toFixed(1)} kg above the {summary.benchmark.benchmarkLabel} — small changes add up!"
+
+            Muted style { marginTop: 6, fontSize: 10 }: "Source: {summary.benchmark.benchmarkSource}"
+
+          view style { height: 12 }
+
+          -- Recent logs
+          Card:
+            Title style { fontSize: 16 }: "Recent Activity"
+            view style { height: 8 }
+            if summary.recentLogs.length is 0:
+              Muted: "No logs yet. Tap \"+ Log Activity\" to get started."
+            otherwise:
+              for each item in summary.recentLogs:
+                view style logRow accessibilityLabel "{item.label}, {(item.co2Kg or 0).toFixed(2)} kg CO2":
+                  text style { fontSize: 18, width: 28 }: "{(CATEGORIES[item.category or 'transport'])?.icon or ''}"
+                  view style { flex: 1 }:
+                    text style logTitle: "{item.label}"
+                    Muted style { fontSize: 11 }: "{new Date(item.dateISO).toLocaleDateString()}"
+                  text style [logKg, { color: (item.co2Kg or 0) < 0 ? "#22c55e" : textColor }]:
+                    "{(item.co2Kg or 0) >= 0 ? '+' : ''}{(item.co2Kg or 0).toFixed(2)} kg"
+
+          view style { marginTop: 14 }:
+            Muted style { textAlign: "center", fontSize: 11 }: "Educational estimates. Real emissions vary by region, vehicle, and habits."
+          view style { height: 20 }
+
+  style native:
+    headerRow:
+      flex direction is "row"
+      align items is "center"
+    scoreCircle:
+      width is 68
+      height is 68
+      border radius is 34
+      border width is 3
+      border color is "#2dd4bf"
+      align items is "center"
+      justify content is "center"
+      background color is "rgba(45,212,191,0.08)"
+    scoreNum:
+      color is "#2dd4bf"
+      font size is 22
+      font weight is "900"
+    scoreLabel:
+      color is "rgba(255,255,255,0.68)"
+      font size is 9
+      font weight is "700"
+    streakWarning:
+      background color is "rgba(245,158,11,0.12)"
+      border width is 1
+      border color is "rgba(245,158,11,0.35)"
+      border radius is 10
+      padding is 10
+      margin top is 10
+    streakWarningText:
+      color is "#f59e0b"
+      font weight is "700"
+      font size is 13
+      text align is "center"
+    catRow:
+      flex direction is "row"
+      justify content is "space-around"
+      margin top is 14
+      padding top is 12
+      border top width is 1
+      border top color is "rgba(255,255,255,0.12)"
+    catMini:
+      align items is "center"
+    catMiniKg:
+      font weight is "900"
+      font size is 16
+      margin top is 2
+    catMiniLabel:
+      color is "rgba(255,255,255,0.68)"
+      font size is 10
+      font weight is "700"
+    ringMainText:
+      color is "rgba(255,255,255,0.92)"
+      font size is 26
+      font weight is "900"
+    ringSubText:
+      color is "rgba(255,255,255,0.68)"
+      font size is 12
+      font weight is "700"
+    benchmarkRow:
+      flex direction is "row"
+      align items is "center"
+      margin top is 10
+      margin bottom is 10
+    benchmarkCol:
+      flex is 1
+      align items is "center"
+    benchmarkVs:
+      padding horizontal is 12
+    benchmarkYou:
+      color is "#2dd4bf"
+      font size is 22
+      font weight is "900"
+    benchmarkAvg:
+      color is "rgba(255,255,255,0.68)"
+      font size is 22
+      font weight is "900"
+    benchmarkBanner:
+      border width is 1
+      border radius is 10
+      padding is 10
+    benchmarkBannerText:
+      font weight is "700"
+      font size is 13
+      text align is "center"
+    logRow:
+      flex direction is "row"
+      align items is "center"
+      padding vertical is 8
+      border bottom width is 1
+      border bottom color is "rgba(255,255,255,0.12)"
+      gap is 8
+    logTitle:
+      color is "rgba(255,255,255,0.92)"
+      font weight is "700"
+      font size is 14
+    logKg:
+      font weight is "900"
+      font size is 13

@@ -1,0 +1,117 @@
+-- Reusable UI components
+
+from "./theme.quill" use bg, card, border, textColor, muted, brand
+
+component Screen with children style:
+  to render:
+    view style [screen, style]:
+      children
+
+component Card with children style:
+  to render:
+    view style [cardStyle, style] accessibilityRole "summary":
+      children
+
+component Title with children style:
+  to render:
+    text style [titleStyle, style] accessibilityRole "header":
+      children
+
+component Muted with children style:
+  to render:
+    text style [mutedStyle, style]:
+      children
+
+component Button with label onPress kind disabled accessibilityLabel:
+  to render:
+    pressable disabled disabled onPress onPress accessibilityRole "button" accessibilityLabel (accessibilityLabel or label) accessibilityState { disabled: !!disabled }:
+      if kind is "ghost":
+        text style btnGhostText: label
+      otherwise:
+        text style btnPrimaryText: label
+
+component Chip with label kind:
+  to render:
+    view style [chip, kind is "brand" ? chipBrand : nothing] accessibilityLabel label:
+      text style [chipText, kind is "brand" ? chipTextBrand : nothing]: label
+
+component ProgressRing with progress size strokeWidth color bgColor children:
+  -- defaults
+  if progress is nothing:
+    progress is 0
+  if size is nothing:
+    size is 120
+  if strokeWidth is nothing:
+    strokeWidth is 10
+  if color is nothing:
+    color is brand
+  if bgColor is nothing:
+    bgColor is "rgba(255,255,255,0.08)"
+
+  clampedProgress is Math.max(0, Math.min(1, progress))
+  pct is Math.round(clampedProgress * 100)
+  isOver50 is pct > 50
+  rotation is clampedProgress * 360
+
+  to render:
+    view style { width: size, height: size, alignItems: "center", justifyContent: "center" } accessibilityLabel "Progress: {pct}%" accessibilityRole "progressbar":
+      -- Background ring
+      view style { position: "absolute", width: size, height: size, borderRadius: size / 2, borderWidth: strokeWidth, borderColor: bgColor }
+
+      -- Right half (0-180)
+      view style { position: "absolute", width: size, height: size, overflow: "hidden" }:
+        view style { position: "absolute", width: size / 2, height: size, right: 0, overflow: "hidden" }:
+          view style { width: size, height: size, borderRadius: size / 2, borderWidth: strokeWidth, borderColor: color, borderLeftColor: "transparent", borderBottomColor: "transparent", transform: [{ rotate: Math.min(rotation, 180) + "deg" }] }
+
+      -- Left half (180-360)
+      if isOver50:
+        view style { position: "absolute", width: size, height: size, overflow: "hidden" }:
+          view style { position: "absolute", width: size / 2, height: size, left: 0, overflow: "hidden" }:
+            view style { width: size, height: size, borderRadius: size / 2, borderWidth: strokeWidth, borderColor: color, borderRightColor: "transparent", borderTopColor: "transparent", transform: [{ rotate: (rotation - 180) + "deg" }] }
+
+      -- Center content
+      view style { alignItems: "center", justifyContent: "center" }:
+        children
+
+style native:
+  screen:
+    flex is 1
+    background color is "#0b1020"
+    padding is 16
+  cardStyle:
+    background color is "rgba(255,255,255,0.06)"
+    border color is "rgba(255,255,255,0.12)"
+    border width is 1
+    border radius is 16
+    padding is 14
+  titleStyle:
+    color is "rgba(255,255,255,0.92)"
+    font size is 22
+    font weight is "900"
+  mutedStyle:
+    color is "rgba(255,255,255,0.68)"
+    font size is 13
+    line height is 18
+  btnPrimaryText:
+    color is "#081019"
+    font weight is "900"
+  btnGhostText:
+    color is "rgba(255,255,255,0.92)"
+    font weight is "900"
+  chip:
+    border width is 1
+    border color is "rgba(255,255,255,0.12)"
+    background color is "rgba(255,255,255,0.03)"
+    padding horizontal is 10
+    padding vertical is 6
+    border radius is 999
+    align self is "flex-start"
+  chipBrand:
+    border color is "rgba(45,212,191,0.55)"
+    background color is "rgba(45,212,191,0.15)"
+  chipText:
+    color is "rgba(255,255,255,0.68)"
+    font weight is "900"
+    font size is 12
+  chipTextBrand:
+    color is "rgba(255,255,255,0.92)"

@@ -1,0 +1,183 @@
+-- Badges and streaks screen
+
+from "../state/context.quill" use AppContext
+from "../ui/components.quill" use Screen, Card, Title, Muted, Chip
+from "../ui/theme.quill" use brand, textColor, muted as mutedColor, border as borderColor
+from "../lib/co2.quill" use computeWeeklyScore
+from "../utils/time.quill" use weekKeyISO
+from "../lib/badges.quill" use BADGES, computeStats, computeStreak, getEarnedBadges, getNextBadge
+
+component BadgesScreen:
+  use context AppContext as ctx
+
+  memo result is computeBadgeData(ctx.state) when [ctx.state]
+
+  to computeBadgeData state:
+    logs are state?.logs or []
+    now is new Date()
+    thisWk is weekKeyISO(now)
+    prevDate is new Date(now)
+    prevDate.setDate(prevDate.getDate() - 7)
+    prevWk is weekKeyISO(prevDate)
+
+    to weekScore wk:
+      wLogs are logs.filter(with l: weekKeyISO(new Date(l.dateISO)) is wk)
+      daily is {}
+      for each l in wLogs:
+        day is new Date(l.dateISO).toISOString().slice(0, 10)
+        daily[day] is (daily[day] or 0) + (l.co2Kg or 0)
+      give back computeWeeklyScore(Object.values(daily))
+
+    thisScore is weekScore(thisWk)
+    prevScore is weekScore(prevWk)
+
+    s is computeStats(logs, thisScore, prevScore)
+    e is getEarnedBadges(s)
+    n is getNextBadge(s)
+    streak is computeStreak(logs)
+
+    give back { earned: e, nextBadge: n, streakInfo: streak, stats: s }
+
+  to render:
+    Screen:
+      scroll showsVerticalScrollIndicator no:
+        -- Streak card
+        Card:
+          view style streakRow:
+            view style streakCircle accessibilityLabel "Current streak: {result.streakInfo.currentStreak} days" accessibilityRole "text":
+              text style streakNumber: "{result.streakInfo.currentStreak}"
+              text style streakUnit: "day{result.streakInfo.currentStreak is not 1 ? 's' : ''}"
+            view style { flex: 1, marginLeft: 16 }:
+              Title: "Current Streak"
+              Muted style { marginTop: 4 }: "Longest streak: {result.streakInfo.longestStreak} days"
+              Muted: "Total activities logged: {result.stats.totalLogs}"
+
+          if result.streakInfo.currentStreak > 0:
+            view style graceNote accessibilityRole "alert":
+              Muted style { fontSize: 12, textAlign: "center" }: "Streaks include a 1-day grace period — if you miss today, you have until tomorrow to log and keep your streak alive."
+
+        view style { height: 12 }
+
+        -- Earned badges
+        Card:
+          Title style { fontSize: 18 }: "Badges Earned ({result.earned.length}/{BADGES.length})"
+          Muted style { marginTop: 4 }: "Complete challenges to unlock badges"
+          view style { height: 12 }
+
+          if result.earned.length > 0:
+            view style badgeGrid:
+              for each b in result.earned:
+                view style badgeCard:
+                  text style badgeIcon: "{b.icon}"
+                  text style badgeName: "{b.name}"
+                  text style badgeDesc: "{b.desc}"
+          otherwise:
+            Muted: "No badges yet. Start logging activities to earn them!"
+
+        view style { height: 12 }
+
+        -- Next badge
+        if result.nextBadge:
+          Card style { borderWidth: 1, borderColor: "rgba(45,212,191,0.3)" }:
+            Title style { fontSize: 16 }: "Next Badge"
+            view style nextBadgeRow:
+              text style { fontSize: 40 }: "{result.nextBadge.icon}"
+              view style { flex: 1, marginLeft: 12 }:
+                text style nextBadgeName: "{result.nextBadge.name}"
+                text style nextBadgeDesc: "{result.nextBadge.desc}"
+
+        view style { height: 12 }
+
+        -- All badges
+        Card:
+          Title style { fontSize: 16 }: "All Badges"
+          view style { marginTop: 10 }:
+            for each b in BADGES:
+              isEarned is result.earned.some(with e: e.id is b.id)
+              view style [allBadgeRow, not isEarned ? { opacity: 0.4 } : nothing]:
+                text style { fontSize: 24, width: 36 }: "{b.icon}"
+                view style { flex: 1 }:
+                  text style allBadgeName: "{b.name}"
+                  text style allBadgeDesc: "{b.desc}"
+                if isEarned:
+                  Chip kind "brand" label "Earned"
+
+        view style { height: 30 }
+
+  style native:
+    streakRow:
+      flex direction is "row"
+      align items is "center"
+    streakCircle:
+      width is 80
+      height is 80
+      border radius is 40
+      border width is 3
+      border color is "#f59e0b"
+      align items is "center"
+      justify content is "center"
+      background color is "rgba(245,158,11,0.08)"
+    streakNumber:
+      color is "#f59e0b"
+      font size is 28
+      font weight is "900"
+    streakUnit:
+      color is "rgba(255,255,255,0.68)"
+      font size is 10
+      font weight is "700"
+    badgeGrid:
+      flex direction is "row"
+      flex wrap is "wrap"
+      gap is 10
+    badgeCard:
+      background color is "rgba(255,255,255,0.04)"
+      border width is 1
+      border color is "rgba(255,255,255,0.12)"
+      border radius is 12
+      padding is 12
+      align items is "center"
+      width is "47%"
+    badgeIcon:
+      font size is 36
+      margin bottom is 6
+    badgeName:
+      color is "rgba(255,255,255,0.92)"
+      font weight is "900"
+      font size is 13
+      text align is "center"
+    badgeDesc:
+      color is "rgba(255,255,255,0.68)"
+      font size is 11
+      text align is "center"
+      margin top is 2
+    nextBadgeRow:
+      flex direction is "row"
+      align items is "center"
+      margin top is 10
+    nextBadgeName:
+      color is "#2dd4bf"
+      font weight is "900"
+      font size is 16
+    nextBadgeDesc:
+      color is "rgba(255,255,255,0.68)"
+      font size is 13
+      margin top is 2
+    allBadgeRow:
+      flex direction is "row"
+      align items is "center"
+      padding vertical is 10
+      border bottom width is 1
+      border bottom color is "rgba(255,255,255,0.12)"
+      gap is 8
+    allBadgeName:
+      color is "rgba(255,255,255,0.92)"
+      font weight is "900"
+      font size is 14
+    allBadgeDesc:
+      color is "rgba(255,255,255,0.68)"
+      font size is 12
+    graceNote:
+      background color is "rgba(245,158,11,0.08)"
+      border radius is 10
+      padding is 10
+      margin top is 12

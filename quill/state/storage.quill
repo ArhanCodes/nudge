@@ -1,0 +1,66 @@
+-- AsyncStorage persistence with migration support
+
+KEY is "scfd_state_v2"
+OLD_KEY is "scfd_state_v1"
+
+to defaultState:
+  give back {
+    school: nothing,
+    home: nothing,
+    targetKgPerWeek: 10,
+    region: "world",
+    onboarded: no,
+    logs: []
+  }
+
+to migrateV1 v1:
+  logs are (v1.logs or []).map(with l: {
+    ...l,
+    category: "transport",
+    itemKey: l.transport or "car",
+    label: l.transportLabel or l.transport or "Car",
+    quantity: 1
+  })
+
+  give back {
+    ...defaultState(),
+    school: v1.school or nothing,
+    home: v1.home or nothing,
+    targetKgPerWeek: v1.targetKgPerWeek or 10,
+    onboarded: yes,
+    logs: logs
+  }
+
+to seedIfEmpty:
+  try:
+    existing is load(KEY)
+    if existing:
+      give back
+
+    -- Check for v1 data to migrate
+    v1Raw is load(OLD_KEY)
+    if v1Raw:
+      migrated is migrateV1(v1Raw)
+      store(KEY, migrated)
+      give back
+
+    store(KEY, defaultState())
+  if it fails error:
+    say "seedIfEmpty failed, using defaults: {error}"
+
+to loadState:
+  try:
+    raw is load(KEY)
+    if not raw:
+      give back defaultState()
+    give back { ...defaultState(), ...raw }
+  if it fails error:
+    say "loadState failed, using defaults: {error}"
+    give back defaultState()
+
+to saveState state:
+  try:
+    store(KEY, state)
+  if it fails error:
+    say "saveState failed: {error}"
+    raise "Could not save your data. Please try again."

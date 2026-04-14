@@ -1,0 +1,91 @@
+-- Weekly trends screen
+
+from "../state/context.quill" use AppContext
+from "../ui/components.quill" use Screen, Card, Title, Muted, Chip
+from "../ui/theme.quill" use brand, brand2, textColor, muted as mutedColor, border as borderColor
+from "../utils/time.quill" use weekKeyISO, startOfWeekISO, addDaysISO
+
+to clamp n a b:
+  give back Math.max(a, Math.min(b, n))
+
+component TrendsScreen:
+  use context AppContext as ctx
+
+  memo data is computeTrends(ctx.state) when [ctx.state]
+
+  to computeTrends state:
+    logs are state?.logs or []
+    now is new Date()
+    wk is weekKeyISO(now)
+    startISO is startOfWeekISO(now)
+
+    daily are Array.from({ length: 7 }).map(with _ i: { day: addDaysISO(startISO, i), kg: 0 })
+
+    for each l in logs:
+      if weekKeyISO(new Date(l.dateISO)) is not wk:
+        continue
+      day is new Date(l.dateISO).toISOString().slice(0, 10)
+      idx is daily.findIndex(with d: d.day is day)
+      if idx >= 0:
+        daily[idx].kg is daily[idx].kg + (l.co2Kg or 0)
+
+    total is daily.reduce(with a d: a + d.kg, 0)
+    max is Math.max(1, ...daily.map(with d: d.kg))
+    give back { daily: daily, total: total, max: max, startISO: startISO }
+
+  to render:
+    target is ctx.state?.targetKgPerWeek or 10
+    perDayTarget is target / 7
+
+    Screen:
+      Card:
+        Title: "Weekly emissions"
+        Muted style { marginTop: 6 }: "Week starting {data.startISO}"
+
+        view style { flexDirection: "row", gap: 10, marginTop: 12, flexWrap: "wrap" }:
+          Chip kind "brand" label "Total: {data.total.toFixed(2)} kg CO2"
+          Chip label "Target: {target.toFixed(1)} kg"
+          Chip label "Daily guide: {perDayTarget.toFixed(2)} kg/day"
+
+      view style { height: 12 }
+
+      Card:
+        Title style { fontSize: 18 }: "Trend chart"
+        Muted style { marginTop: 6 }: "Simple bar chart (kg CO2 per day)."
+        view style { height: 12 }
+
+        for each d in data.daily:
+          ratio is d.kg / data.max
+          widthPct is clamp(ratio, 0, 1) * 100
+          view style { marginBottom: 10 }:
+            view style dayRow:
+              text style dayLabel: "{new Date(d.day).toLocaleDateString(nothing, { weekday: 'short' })}"
+              text style kg: "{d.kg.toFixed(2)} kg"
+            view style barBg:
+              view style [barFill, { width: widthPct + "%" }]
+
+        view style { marginTop: 8 }:
+          Muted: "Suggestions: If you're over target, try 1-2 days of walking/cycling, public transport, or carpooling."
+
+  style native:
+    dayRow:
+      flex direction is "row"
+      justify content is "space-between"
+      align items is "center"
+    dayLabel:
+      color is "rgba(255,255,255,0.92)"
+      font weight is "900"
+    kg:
+      color is "rgba(255,255,255,0.68)"
+      font weight is "900"
+    barBg:
+      height is 10
+      border radius is 999
+      background color is "rgba(255,255,255,0.06)"
+      border width is 1
+      border color is "rgba(255,255,255,0.12)"
+      overflow is "hidden"
+      margin top is 6
+    barFill:
+      height is "100%"
+      background color is "#7c5cff"

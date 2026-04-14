@@ -1,0 +1,7 @@
+-- App context for global state
+
+context AppContext is {
+  booted: no,
+  state: nothing,
+  setState: with: nothing
+}

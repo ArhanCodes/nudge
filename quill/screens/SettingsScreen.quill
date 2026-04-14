@@ -1,0 +1,144 @@
+-- Settings screen
+
+from "../state/context.quill" use AppContext
+from "../ui/components.quill" use Screen, Card, Title, Muted, Button, Chip
+from "../ui/theme.quill" use textColor, muted as mutedColor, border as borderColor, brand
+from "../lib/regions.quill" use REGIONS
+from "../lib/notifications.quill" use scheduleDailyReminder, cancelAllReminders
+
+component SettingsScreen with navigation:
+  use context AppContext as ctx
+
+  state schoolName is ctx.state?.school?.name or ""
+  state schoolLat is ctx.state?.school ? String(ctx.state.school.latitude) : ""
+  state schoolLon is ctx.state?.school ? String(ctx.state.school.longitude) : ""
+  state target is String(ctx.state?.targetKgPerWeek or 10)
+  state region is ctx.state?.region or "world"
+  state reminderOn is yes
+
+  to onSave:
+    try:
+      lat is Number(schoolLat)
+      lon is Number(schoolLon)
+      t is Number(target)
+
+      hasSchool is schoolName.trim() and schoolLat and schoolLon
+      if hasSchool:
+        if not Number.isFinite(lat) or not Number.isFinite(lon):
+          raise "School coordinates must be numbers"
+        if lat < -90 or lat > 90:
+          raise "Latitude must be between -90 and 90"
+        if lon < -180 or lon > 180:
+          raise "Longitude must be between -180 and 180"
+      if not Number.isFinite(t) or t <= 0:
+        raise "Target must be a positive number"
+
+      await ctx.setState({
+        ...ctx.state,
+        school: hasSchool ? { name: schoolName.trim(), latitude: lat, longitude: lon } : ctx.state?.school,
+        targetKgPerWeek: t,
+        region: region
+      })
+      alert("Saved", "Settings updated.")
+      navigate to "Home"
+    if it fails error:
+      alert("Settings", error?.message or "Could not save")
+
+  to toggleReminder:
+    if reminderOn:
+      await cancelAllReminders()
+      reminderOn is no
+      alert("Reminders", "Daily reminders turned off.")
+    otherwise:
+      id is await scheduleDailyReminder(20, 0)
+      reminderOn is yes
+      if id:
+        alert("Reminders", "You will be reminded at 8pm daily to log your activities.")
+      otherwise:
+        alert("Reminders", "Could not enable reminders. Please check notification permissions.")
+
+  to render:
+    Screen:
+      view style { flex: 1 }:
+        Card:
+          Title: "School"
+          Muted style { marginTop: 6 }: "Set your school location to estimate commute distance."
+
+          text style label: "School name"
+          input value schoolName onChangeText (with v: schoolName is v) placeholder "e.g. Dubai College" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle accessibilityLabel "School name"
+
+          view style { flexDirection: "row", gap: 10 }:
+            view style { flex: 1 }:
+              text style label: "Latitude"
+              input value schoolLat onChangeText (with v: schoolLat is v) placeholder "25.2048" keyboardType "numeric" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle accessibilityLabel "Latitude"
+            view style { flex: 1 }:
+              text style label: "Longitude"
+              input value schoolLon onChangeText (with v: schoolLon is v) placeholder "55.2708" keyboardType "numeric" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle accessibilityLabel "Longitude"
+
+          Button kind "ghost" label "Pick my home location (map)" onPress (with: navigate to "PickLocation") accessibilityLabel "Pick home location on map"
+
+          view style { marginTop: 10 }:
+            if ctx.state?.home:
+              Chip kind "brand" label "Home set: {ctx.state.home.label or ctx.state.home.latitude.toFixed(4) + ', ' + ctx.state.home.longitude.toFixed(4)}"
+            otherwise:
+              Chip label "Home not set yet"
+
+        view style { height: 12 }
+
+        Card:
+          Title: "Region"
+          Muted style { marginTop: 6 }: "Electricity grid carbon intensity varies by region. This adjusts your energy emission estimates."
+          view style regionGrid:
+            for each [key, r] in Object.entries(REGIONS):
+              pressable onPress (with: region is key) style [regionPill, region is key ? regionPillActive : nothing] accessibilityLabel "Region: {r.label}" accessibilityRole "button":
+                text style [regionText, region is key ? { color: textColor } : nothing]: "{r.label}"
+
+        view style { height: 12 }
+
+        Card:
+          Title: "Targets & Reminders"
+          Muted style { marginTop: 6 }: "Weekly CO2 goal (kg)."
+          text style label: "Target kg CO2 / week"
+          input value target onChangeText (with v: target is v) placeholder "10" keyboardType "numeric" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle accessibilityLabel "Target kg CO2 / week"
+
+          view style { marginTop: 4 }:
+            Button kind "ghost" label (reminderOn ? "Turn Off Daily Reminder" : "Turn On Daily Reminder (8pm)") onPress toggleReminder accessibilityLabel (reminderOn ? "Disable daily notification reminder" : "Enable daily notification reminder at 8pm")
+
+          view style { marginTop: 14 }:
+            Button label "Save Settings" onPress onSave accessibilityLabel "Save all settings"
+
+        view style { marginTop: 12 }:
+          Muted: "Tip: if you don't want maps or location permissions, you can still log commutes by entering distance manually."
+
+  style native:
+    label:
+      color is "rgba(255,255,255,0.68)"
+      font weight is "900"
+      margin bottom is 6
+    inputStyle:
+      color is "rgba(255,255,255,0.92)"
+      border color is "rgba(255,255,255,0.12)"
+      border width is 1
+      border radius is 12
+      padding is 12
+      background color is "rgba(255,255,255,0.03)"
+      margin bottom is 10
+    regionGrid:
+      flex direction is "row"
+      flex wrap is "wrap"
+      gap is 6
+      margin top is 10
+    regionPill:
+      border width is 1
+      border color is "rgba(255,255,255,0.12)"
+      padding horizontal is 10
+      padding vertical is 6
+      border radius is 999
+      background color is "rgba(255,255,255,0.02)"
+    regionPillActive:
+      border color is "rgba(45,212,191,0.6)"
+      background color is "rgba(45,212,191,0.15)"
+    regionText:
+      color is "rgba(255,255,255,0.68)"
+      font weight is "700"
+      font size is 12

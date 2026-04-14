@@ -1,0 +1,50 @@
+-- Push notification reminders
+
+use "expo-notifications" as Notifications
+
+notificationsModule is nothing
+
+to requestNotificationPermission:
+  try:
+    {status: existing} is await Notifications.getPermissionsAsync()
+    if existing is "granted":
+      give back yes
+    {status} is await Notifications.requestPermissionsAsync()
+    give back status is "granted"
+  if it fails:
+    give back no
+
+to scheduleDailyReminder hour minute:
+  if hour is nothing:
+    hour is 20
+  if minute is nothing:
+    minute is 0
+
+  try:
+    granted is await requestNotificationPermission()
+    if not granted:
+      give back nothing
+
+    await cancelAllReminders()
+
+    id is await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Nudge",
+        body: "Don't forget to log your activities today! Keep your streak going."
+      },
+      trigger: {
+        type: "daily",
+        hour: hour,
+        minute: minute
+      }
+    })
+    give back id
+  if it fails:
+    give back nothing
+
+to cancelAllReminders:
+  try:
+    await Notifications.cancelAllScheduledNotificationsAsync()
+  if it fails:
+    -- silently fail
+    say "Could not cancel reminders"
