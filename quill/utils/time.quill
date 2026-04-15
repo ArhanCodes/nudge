@@ -13,7 +13,11 @@ to weekKeyISO date:
 to startOfWeekISO date:
   d is new Date(date)
   day is d.getDay()
-  diff is (day is 0 ? -6 : 1) - day
+  diff is 0
+  if day is 0:
+    diff is -6 - day
+  otherwise:
+    diff is 1 - day
   d.setDate(d.getDate() + diff)
   give back d.toISOString().slice(0, 10)
 

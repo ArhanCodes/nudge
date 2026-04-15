@@ -1,15 +1,15 @@
 -- Streak tracking and badge/achievement system
 
 BADGES are [
-  { id: "first_log",      name: "First Step",      desc: "Log your first activity",                icon: "🌱", check: with stats: stats.totalLogs >= 1 },
-  { id: "week_streak_3",  name: "Consistent",      desc: "3-day logging streak",                   icon: "🔥", check: with stats: stats.currentStreak >= 3 },
-  { id: "week_streak_7",  name: "Full Week",       desc: "7-day logging streak",                   icon: "⭐", check: with stats: stats.currentStreak >= 7 },
-  { id: "week_streak_14", name: "Fortnight Hero",   desc: "14-day logging streak",                  icon: "🏅", check: with stats: stats.currentStreak >= 14 },
-  { id: "week_streak_30", name: "Monthly Master",   desc: "30-day logging streak",                  icon: "🏆", check: with stats: stats.currentStreak >= 30 },
-  { id: "low_carbon_day", name: "Green Day",        desc: "Score 80+ on any day",                   icon: "💚", check: with stats: stats.bestDailyScore >= 80 },
-  { id: "perfect_day",    name: "Perfect Day",      desc: "Score 100 on a day",                     icon: "🌟", check: with stats: stats.bestDailyScore >= 100 },
+  { id: "first_log",      name: "First Step",      desc: "Log your first activity",                icon: "🌱", check: with stats: not (stats.totalLogs is less than 1) },
+  { id: "week_streak_3",  name: "Consistent",      desc: "3-day logging streak",                   icon: "🔥", check: with stats: not (stats.currentStreak is less than 3) },
+  { id: "week_streak_7",  name: "Full Week",       desc: "7-day logging streak",                   icon: "⭐", check: with stats: not (stats.currentStreak is less than 7) },
+  { id: "week_streak_14", name: "Fortnight Hero",   desc: "14-day logging streak",                  icon: "🏅", check: with stats: not (stats.currentStreak is less than 14) },
+  { id: "week_streak_30", name: "Monthly Master",   desc: "30-day logging streak",                  icon: "🏆", check: with stats: not (stats.currentStreak is less than 30) },
+  { id: "low_carbon_day", name: "Green Day",        desc: "Score 80+ on any day",                   icon: "💚", check: with stats: not (stats.bestDailyScore is less than 80) },
+  { id: "perfect_day",    name: "Perfect Day",      desc: "Score 100 on a day",                     icon: "🌟", check: with stats: not (stats.bestDailyScore is less than 100) },
   { id: "all_categories", name: "Well-Rounded",     desc: "Log in all 4 categories in one day",     icon: "🎯", check: with stats: stats.hasLoggedAll4InOneDay },
-  { id: "fifty_logs",     name: "Dedicated",        desc: "Log 50 activities total",                icon: "📊", check: with stats: stats.totalLogs >= 50 },
+  { id: "fifty_logs",     name: "Dedicated",        desc: "Log 50 activities total",                icon: "📊", check: with stats: not (stats.totalLogs is less than 50) },
   { id: "improvement",    name: "Improver",         desc: "Weekly score improved over last week",    icon: "📈", check: with stats: stats.weeklyImproved }
 ]
 
@@ -19,7 +19,7 @@ to computeStreak logs:
 
   -- Get unique log dates (YYYY-MM-DD)
   dates is new Set(logs.map(with l: new Date(l.dateISO).toISOString().slice(0, 10)))
-  sorted are [...dates].sort().reverse()
+  sorted are Array.from(dates).sort().reverse()
 
   -- Check streak from today backwards
   today is new Date().toISOString().slice(0, 10)
@@ -52,7 +52,7 @@ to computeLongest sortedDatesDesc:
   run is 1
 
   i is 1
-  while i < sortedDatesDesc.length:
+  while i is less than sortedDatesDesc.length:
     prev is new Date(sortedDatesDesc[i - 1] + "T00:00:00Z")
     curr is new Date(sortedDatesDesc[i] + "T00:00:00Z")
     diff is (prev - curr) / 86400000
@@ -65,7 +65,9 @@ to computeLongest sortedDatesDesc:
   give back longest
 
 to computeStats logs weeklyScoreThisWeek weeklyScorePrevWeek:
-  {currentStreak, longestStreak} is computeStreak(logs)
+  streakResult is computeStreak(logs)
+  currentStreak is streakResult.currentStreak
+  longestStreak is streakResult.longestStreak
 
   -- Best daily score
   dayTotals is {}
@@ -86,7 +88,7 @@ to computeStats logs weeklyScoreThisWeek weeklyScorePrevWeek:
       dayCats[day] is new Set()
     dayCats[day].add(l.category or "transport")
 
-  hasLoggedAll4InOneDay is Object.values(dayCats).some(with s: s.size >= 4)
+  hasLoggedAll4InOneDay is Object.values(dayCats).some(with s: not (s.size is less than 4))
 
   give back {
     totalLogs: logs.length,
@@ -94,7 +96,7 @@ to computeStats logs weeklyScoreThisWeek weeklyScorePrevWeek:
     longestStreak: longestStreak,
     bestDailyScore: bestDailyScore,
     hasLoggedAll4InOneDay: hasLoggedAll4InOneDay,
-    weeklyImproved: weeklyScorePrevWeek > 0 and weeklyScoreThisWeek > weeklyScorePrevWeek
+    weeklyImproved: weeklyScorePrevWeek is greater than 0 and weeklyScoreThisWeek is greater than weeklyScorePrevWeek
   }
 
 to getEarnedBadges stats:

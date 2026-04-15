@@ -2,7 +2,7 @@
 
 from "../state/context.quill" use AppContext
 from "../ui/components.quill" use Screen, Card, Title, Muted, Chip
-from "../ui/theme.quill" use brand, textColor, muted as mutedColor, border as borderColor
+from "../ui/theme.quill" use brand, textColor, muted, border
 from "../lib/co2.quill" use computeWeeklyScore
 from "../utils/time.quill" use weekKeyISO
 from "../lib/badges.quill" use BADGES, computeStats, computeStreak, getEarnedBadges, getNextBadge
@@ -10,10 +10,10 @@ from "../lib/badges.quill" use BADGES, computeStats, computeStreak, getEarnedBad
 component BadgesScreen:
   use context AppContext as ctx
 
-  memo result is computeBadgeData(ctx.state) when [ctx.state]
+  memo result is computeBadgeData(ctx.state) when [ctx]
 
-  to computeBadgeData state:
-    logs are state?.logs or []
+  to computeBadgeData appData:
+    logs are appData?.logs or []
     now is new Date()
     thisWk is weekKeyISO(now)
     prevDate is new Date(now)
@@ -38,33 +38,37 @@ component BadgesScreen:
 
     give back { earned: e, nextBadge: n, streakInfo: streak, stats: s }
 
+  to streakUnitLabel count:
+    if count is not 1:
+      give back "days"
+    otherwise:
+      give back "day"
+
   to render:
     Screen:
-      scroll showsVerticalScrollIndicator no:
-        -- Streak card
+      scroll:
         Card:
           view style streakRow:
             view style streakCircle accessibilityLabel "Current streak: {result.streakInfo.currentStreak} days" accessibilityRole "text":
               text style streakNumber: "{result.streakInfo.currentStreak}"
-              text style streakUnit: "day{result.streakInfo.currentStreak is not 1 ? 's' : ''}"
-            view style { flex: 1, marginLeft: 16 }:
+              text style streakUnit: "{streakUnitLabel(result.streakInfo.currentStreak)}"
+            view style streakMeta:
               Title: "Current Streak"
-              Muted style { marginTop: 4 }: "Longest streak: {result.streakInfo.longestStreak} days"
+              Muted style streakMetaDetail: "Longest streak: {result.streakInfo.longestStreak} days"
               Muted: "Total activities logged: {result.stats.totalLogs}"
 
-          if result.streakInfo.currentStreak > 0:
+          if result.streakInfo.currentStreak is greater than 0:
             view style graceNote accessibilityRole "alert":
-              Muted style { fontSize: 12, textAlign: "center" }: "Streaks include a 1-day grace period — if you miss today, you have until tomorrow to log and keep your streak alive."
+              Muted style graceNoteText: "Streaks include a 1-day grace period — if you miss today, you have until tomorrow to log and keep your streak alive."
 
-        view style { height: 12 }
+        view style spacer12
 
-        -- Earned badges
         Card:
-          Title style { fontSize: 18 }: "Badges Earned ({result.earned.length}/{BADGES.length})"
-          Muted style { marginTop: 4 }: "Complete challenges to unlock badges"
-          view style { height: 12 }
+          Title style sectionTitle18: "Badges Earned ({result.earned.length}/{BADGES.length})"
+          Muted style spacerTop4: "Complete challenges to unlock badges"
+          view style spacer12
 
-          if result.earned.length > 0:
+          if result.earned.length is greater than 0:
             view style badgeGrid:
               for each b in result.earned:
                 view style badgeCard:
@@ -74,35 +78,38 @@ component BadgesScreen:
           otherwise:
             Muted: "No badges yet. Start logging activities to earn them!"
 
-        view style { height: 12 }
+        view style spacer12
 
-        -- Next badge
         if result.nextBadge:
-          Card style { borderWidth: 1, borderColor: "rgba(45,212,191,0.3)" }:
-            Title style { fontSize: 16 }: "Next Badge"
+          Card style nextBadgeCard:
+            Title style sectionTitle16: "Next Badge"
             view style nextBadgeRow:
-              text style { fontSize: 40 }: "{result.nextBadge.icon}"
-              view style { flex: 1, marginLeft: 12 }:
+              text style nextBadgeIcon: "{result.nextBadge.icon}"
+              view style nextBadgeMeta:
                 text style nextBadgeName: "{result.nextBadge.name}"
                 text style nextBadgeDesc: "{result.nextBadge.desc}"
 
-        view style { height: 12 }
+        view style spacer12
 
-        -- All badges
         Card:
-          Title style { fontSize: 16 }: "All Badges"
-          view style { marginTop: 10 }:
+          Title style sectionTitle16: "All Badges"
+          view style spacerTop10:
             for each b in BADGES:
-              isEarned is result.earned.some(with e: e.id is b.id)
-              view style [allBadgeRow, not isEarned ? { opacity: 0.4 } : nothing]:
-                text style { fontSize: 24, width: 36 }: "{b.icon}"
-                view style { flex: 1 }:
-                  text style allBadgeName: "{b.name}"
-                  text style allBadgeDesc: "{b.desc}"
-                if isEarned:
+              if result.earned.some(with e: e.id is b.id):
+                view style allBadgeRow:
+                  text style allBadgeIcon: "{b.icon}"
+                  view style flex1:
+                    text style allBadgeName: "{b.name}"
+                    text style allBadgeDesc: "{b.desc}"
                   Chip kind "brand" label "Earned"
+              otherwise:
+                view style [allBadgeRow, dimmed]:
+                  text style allBadgeIcon: "{b.icon}"
+                  view style flex1:
+                    text style allBadgeName: "{b.name}"
+                    text style allBadgeDesc: "{b.desc}"
 
-        view style { height: 30 }
+        view style spacer30
 
   style native:
     streakRow:
@@ -125,6 +132,31 @@ component BadgesScreen:
       color is "rgba(255,255,255,0.68)"
       font size is 10
       font weight is "700"
+    streakMeta:
+      flex is 1
+      margin left is 16
+    streakMetaDetail:
+      margin top is 4
+    graceNote:
+      background color is "rgba(245,158,11,0.08)"
+      border radius is 10
+      padding is 10
+      margin top is 12
+    graceNoteText:
+      font size is 12
+      text align is "center"
+    spacer12:
+      height is 12
+    spacer30:
+      height is 30
+    spacerTop4:
+      margin top is 4
+    spacerTop10:
+      margin top is 10
+    sectionTitle18:
+      font size is 18
+    sectionTitle16:
+      font size is 16
     badgeGrid:
       flex direction is "row"
       flex wrap is "wrap"
@@ -150,10 +182,18 @@ component BadgesScreen:
       font size is 11
       text align is "center"
       margin top is 2
+    nextBadgeCard:
+      border width is 1
+      border color is "rgba(45,212,191,0.3)"
     nextBadgeRow:
       flex direction is "row"
       align items is "center"
       margin top is 10
+    nextBadgeIcon:
+      font size is 40
+    nextBadgeMeta:
+      flex is 1
+      margin left is 12
     nextBadgeName:
       color is "#2dd4bf"
       font weight is "900"
@@ -169,6 +209,9 @@ component BadgesScreen:
       border bottom width is 1
       border bottom color is "rgba(255,255,255,0.12)"
       gap is 8
+    allBadgeIcon:
+      font size is 24
+      width is 36
     allBadgeName:
       color is "rgba(255,255,255,0.92)"
       font weight is "900"
@@ -176,8 +219,7 @@ component BadgesScreen:
     allBadgeDesc:
       color is "rgba(255,255,255,0.68)"
       font size is 12
-    graceNote:
-      background color is "rgba(245,158,11,0.08)"
-      border radius is 10
-      padding is 10
-      margin top is 12
+    flex1:
+      flex is 1
+    dimmed:
+      opacity is 0.4

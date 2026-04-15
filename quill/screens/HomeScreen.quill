@@ -2,25 +2,80 @@
 
 from "../state/context.quill" use AppContext
 from "../ui/components.quill" use Screen, Card, Title, Muted, Button, Chip, ProgressRing
-from "../ui/theme.quill" use brand, textColor, muted as mutedColor
+from "../ui/theme.quill" use brand, textColor, muted
 from "../lib/co2.quill" use CATEGORIES, computeDailyScore, computeWeeklyScore, compareToBenchmark, WEEKLY_BENCHMARKS
 from "../utils/time.quill" use weekKeyISO, startOfWeekISO
 from "../lib/badges.quill" use computeStreak
 
+to sortByDateDesc a b:
+  if b.dateISO is greater than a.dateISO:
+    give back 1
+  if b.dateISO is less than a.dateISO:
+    give back -1
+  give back 0
+
+to pickGoalColor over:
+  if over is greater than 0:
+    give back "#ef4444"
+  give back brand
+
+to pickBenchmarkBg better:
+  if better:
+    give back "rgba(34,197,94,0.12)"
+  give back "rgba(239,68,68,0.12)"
+
+to pickBenchmarkBorder better:
+  if better:
+    give back "rgba(34,197,94,0.3)"
+  give back "rgba(239,68,68,0.3)"
+
+to pickBenchmarkTextColor better:
+  if better:
+    give back "#22c55e"
+  give back "#ef4444"
+
+to pickLogColor co2Val:
+  if co2Val is less than 0:
+    give back "#22c55e"
+  give back textColor
+
+to pickLogPrefix co2Val:
+  if not (co2Val is less than 0):
+    give back "+"
+  give back ""
+
 component HomeScreen with navigation:
   use context AppContext as ctx
 
-  memo summary is computeSummary(ctx.state) when [ctx.state]
+  memo summary is computeSummary(ctx.state) when [ctx]
 
-  to computeSummary state:
-    logs are state?.logs or []
+  to goLogActivity:
+    navigate to "LogActivity"
+
+  to goDashboard:
+    navigate to "Dashboard"
+
+  to goTips:
+    navigate to "Tips"
+
+  to goBadges:
+    navigate to "Badges"
+
+  to goSettings:
+    navigate to "Settings"
+
+  to goExport:
+    navigate to "Export"
+
+  to computeSummary appData:
+    logs are appData?.logs or []
     now is new Date()
     wk is weekKeyISO(now)
     today is now.toISOString().slice(0, 10)
 
     weekLogs are logs.filter(with l: weekKeyISO(new Date(l.dateISO)) is wk)
     totalKg is weekLogs.reduce(with a l: a + (l.co2Kg or 0), 0)
-    target is state?.targetKgPerWeek or 10
+    target is appData?.targetKgPerWeek or 10
 
     -- Category breakdown
     catTotals is { transport: 0, diet: 0, energy: 0, waste: 0 }
@@ -40,11 +95,12 @@ component HomeScreen with navigation:
     weeklyScore is computeWeeklyScore(Object.values(daily))
 
     -- Streak
-    {currentStreak} is computeStreak(logs)
-    hasLoggedToday is todayLogs.length > 0
+    streakResult is computeStreak(logs)
+    currentStreak is streakResult.currentStreak
+    hasLoggedToday is todayLogs.length is greater than 0
 
     -- Benchmark
-    region is state?.region or "world"
+    region is appData?.region or "world"
     benchmark is compareToBenchmark(totalKg, region)
 
     give back {
@@ -61,14 +117,14 @@ component HomeScreen with navigation:
       hasLoggedToday: hasLoggedToday,
       benchmark: benchmark,
       region: region,
-      recentLogs: logs.slice().sort(with a b: b.dateISO > a.dateISO ? 1 : -1).slice(0, 6)
+      recentLogs: logs.slice().sort(sortByDateDesc).slice(0, 6)
     }
 
   to render:
+    items is [1]
     Screen:
-      flatlist data [1] key "home":
+      flatlist data items key "home":
         view:
-          -- Score + Streak header
           Card:
             view style headerRow:
               view style scoreCircle accessibilityLabel "Today's score: {summary.todayScore} out of 100" accessibilityRole "text":
@@ -81,16 +137,20 @@ component HomeScreen with navigation:
                   Chip label "{summary.currentStreak} day streak"
 
             -- Streak grace period warning
-            if not summary.hasLoggedToday and summary.currentStreak > 0:
+            if not summary.hasLoggedToday and summary.currentStreak is greater than 0:
               view style streakWarning accessibilityRole "alert":
                 text style streakWarningText: "Log an activity today to keep your {summary.currentStreak}-day streak!"
 
             -- Category summary
+            catEntries is Object.entries(CATEGORIES)
             view style catRow:
-              for each [key, cat] in Object.entries(CATEGORIES):
+              for each entry in catEntries:
+                key is entry[0]
+                cat is entry[1]
                 view style catMini accessibilityLabel "{cat.label}: {(summary.catTotals[key] or 0).toFixed(1)} kilograms":
                   text style { fontSize: 18 }: "{cat.icon}"
-                  text style [catMiniKg, { color: cat.color }]: "{(summary.catTotals[key] or 0).toFixed(1)}"
+                  catMiniKgStyle is [catMiniKg, { color: cat.color }]
+                  text style catMiniKgStyle: "{(summary.catTotals[key] or 0).toFixed(1)}"
                   text style catMiniLabel: "kg"
 
           view style { height: 12 }
@@ -98,18 +158,18 @@ component HomeScreen with navigation:
           -- Action buttons
           Card:
             view style { gap: 10 }:
-              Button label "+ Log Activity" onPress (with: navigate to "LogActivity") accessibilityLabel "Log a new activity"
+              Button label "+ Log Activity" onPress goLogActivity accessibilityLabel "Log a new activity"
               view style { flexDirection: "row", gap: 10 }:
                 view style { flex: 1 }:
-                  Button kind "ghost" label "Dashboard" onPress (with: navigate to "Dashboard") accessibilityLabel "View progress dashboard"
+                  Button kind "ghost" label "Dashboard" onPress goDashboard accessibilityLabel "View progress dashboard"
                 view style { flex: 1 }:
-                  Button kind "ghost" label "Tips" onPress (with: navigate to "Tips") accessibilityLabel "View weekly tips"
+                  Button kind "ghost" label "Tips" onPress goTips accessibilityLabel "View weekly tips"
               view style { flexDirection: "row", gap: 10 }:
                 view style { flex: 1 }:
-                  Button kind "ghost" label "Badges" onPress (with: navigate to "Badges") accessibilityLabel "View badges and streaks"
+                  Button kind "ghost" label "Badges" onPress goBadges accessibilityLabel "View badges and streaks"
                 view style { flex: 1 }:
-                  Button kind "ghost" label "Settings" onPress (with: navigate to "Settings") accessibilityLabel "Open settings"
-              Button kind "ghost" label "Export Data" onPress (with: navigate to "Export") accessibilityLabel "Export data as CSV"
+                  Button kind "ghost" label "Settings" onPress goSettings accessibilityLabel "Open settings"
+              Button kind "ghost" label "Export Data" onPress goExport accessibilityLabel "Export data as CSV"
 
           view style { height: 12 }
 
@@ -117,14 +177,15 @@ component HomeScreen with navigation:
           Card:
             Title style { fontSize: 16, textAlign: "center", marginBottom: 12 }: "Weekly Goal"
             view style { alignItems: "center" }:
-              ProgressRing progress Math.min(summary.totalKg / summary.target, 1) size 140 strokeWidth 12 color (summary.over > 0 ? "#ef4444" : brand):
+              goalColor is pickGoalColor(summary.over)
+              goalProgress is Math.min(summary.totalKg / summary.target, 1)
+              ProgressRing progress goalProgress size 140 strokeWidth 12 color goalColor:
                 text style ringMainText: "{summary.totalKg.toFixed(1)}"
                 text style ringSubText: "/ {summary.target.toFixed(0)} kg"
-            Muted style { marginTop: 10, fontSize: 12, textAlign: "center" }:
-              if summary.over > 0:
-                "Over target by {summary.over.toFixed(1)} kg — check your tips for ideas!"
-              otherwise:
-                "{summary.remaining.toFixed(1)} kg remaining this week"
+            if summary.over is greater than 0:
+              Muted style { marginTop: 10, fontSize: 12, textAlign: "center" }: "Over target by {summary.over.toFixed(1)} kg — check your tips for ideas!"
+            otherwise:
+              Muted style { marginTop: 10, fontSize: 12, textAlign: "center" }: "{summary.remaining.toFixed(1)} kg remaining this week"
 
           view style { height: 12 }
 
@@ -136,17 +197,21 @@ component HomeScreen with navigation:
                 text style benchmarkYou: "{summary.totalKg.toFixed(1)} kg"
                 Muted style { fontSize: 11 }: "You this week"
               view style benchmarkVs:
-                text style { color: mutedColor, fontWeight: "900", fontSize: 12 }: "vs"
+                text style { color: muted, fontWeight: "900", fontSize: 12 }: "vs"
               view style benchmarkCol:
                 text style benchmarkAvg: "{summary.benchmark.benchmarkKg} kg"
                 Muted style { fontSize: 11 }: "National avg"
 
-            view style [benchmarkBanner, { backgroundColor: summary.benchmark.better ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)", borderColor: summary.benchmark.better ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)" }]:
-              text style [benchmarkBannerText, { color: summary.benchmark.better ? "#22c55e" : "#ef4444" }]:
-                if summary.benchmark.better:
-                  "You saved {summary.benchmark.savedKg.toFixed(1)} kg ({Math.abs(summary.benchmark.savedPct).toFixed(0)}% less) vs the {summary.benchmark.benchmarkLabel}"
-                otherwise:
-                  "{Math.abs(summary.benchmark.savedKg).toFixed(1)} kg above the {summary.benchmark.benchmarkLabel} — small changes add up!"
+            bmBg is pickBenchmarkBg(summary.benchmark.better)
+            bmBorder is pickBenchmarkBorder(summary.benchmark.better)
+            bmTextColor is pickBenchmarkTextColor(summary.benchmark.better)
+            bmBannerStyle is [benchmarkBanner, { backgroundColor: bmBg, borderColor: bmBorder }]
+            bmBannerTextStyle is [benchmarkBannerText, { color: bmTextColor }]
+            view style bmBannerStyle:
+              if summary.benchmark.better:
+                text style bmBannerTextStyle: "You saved {summary.benchmark.savedKg.toFixed(1)} kg ({Math.abs(summary.benchmark.savedPct).toFixed(0)}% less) vs the {summary.benchmark.benchmarkLabel}"
+              otherwise:
+                text style bmBannerTextStyle: "{Math.abs(summary.benchmark.savedKg).toFixed(1)} kg above the {summary.benchmark.benchmarkLabel} — small changes add up!"
 
             Muted style { marginTop: 6, fontSize: 10 }: "Source: {summary.benchmark.benchmarkSource}"
 
@@ -165,8 +230,11 @@ component HomeScreen with navigation:
                   view style { flex: 1 }:
                     text style logTitle: "{item.label}"
                     Muted style { fontSize: 11 }: "{new Date(item.dateISO).toLocaleDateString()}"
-                  text style [logKg, { color: (item.co2Kg or 0) < 0 ? "#22c55e" : textColor }]:
-                    "{(item.co2Kg or 0) >= 0 ? '+' : ''}{(item.co2Kg or 0).toFixed(2)} kg"
+                  logColor is pickLogColor(item.co2Kg or 0)
+                  logKgStyle is [logKg, { color: logColor }]
+                  logPrefix is pickLogPrefix(item.co2Kg or 0)
+                  logVal is (item.co2Kg or 0).toFixed(2)
+                  text style logKgStyle: "{logPrefix}{logVal} kg"
 
           view style { marginTop: 14 }:
             Muted style { textAlign: "center", fontSize: 11 }: "Educational estimates. Real emissions vary by region, vehicle, and habits."

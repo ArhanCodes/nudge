@@ -2,7 +2,7 @@
 
 from "../state/context.quill" use AppContext
 from "../ui/components.quill" use Screen, Card, Title, Muted, Button
-from "../ui/theme.quill" use brand, textColor, muted as mutedColor
+from "../ui/theme.quill" use brand, textColor, muted
 use "expo-location" as Location
 use "react-native-maps" as MapView
 
@@ -13,11 +13,14 @@ component LocationPickerScreen with navigation:
   state selectedLabel is ""
   state loading is yes
 
+  memo noCoord is not selectedCoord when [selectedCoord]
+
   use effect:
     to init:
       try:
-        {status} is await Location.requestForegroundPermissionsAsync()
-        if status is "granted":
+        permResult is await Location.requestForegroundPermissionsAsync()
+        permStatus is permResult.status
+        if permStatus is "granted":
           pos is await Location.getCurrentPositionAsync({})
           selectedCoord is {
             latitude: pos.coords.latitude,
@@ -26,10 +29,10 @@ component LocationPickerScreen with navigation:
           -- Reverse geocode
           try:
             results is await Location.reverseGeocodeAsync(selectedCoord)
-            if results.length > 0:
+            if results.length is greater than 0:
               r is results[0]
               selectedLabel is [r.street, r.city, r.region].filter(Boolean).join(", ")
-          if it fails:
+          if it fails error:
             selectedLabel is ""
       if it fails error:
         say "Location error: {error}"
@@ -39,38 +42,40 @@ component LocationPickerScreen with navigation:
   to onMapPress event:
     coord is event.nativeEvent.coordinate
     if not coord:
-      give back
+      give back nothing
     lat is coord.latitude
     lon is coord.longitude
     if not Number.isFinite(lat) or not Number.isFinite(lon):
-      give back
-    if lat < -90 or lat > 90 or lon < -180 or lon > 180:
-      give back
+      give back nothing
+    if lat is less than -90 or lat is greater than 90 or lon is less than -180 or lon is greater than 180:
+      give back nothing
     selectedCoord is coord
     -- Reverse geocode
     try:
       results is await Location.reverseGeocodeAsync(coord)
-      if results.length > 0:
+      if results.length is greater than 0:
         r is results[0]
         selectedLabel is [r.street, r.city, r.region].filter(Boolean).join(", ")
       otherwise:
         selectedLabel is ""
-    if it fails:
+    if it fails error:
       selectedLabel is ""
+
+  to onCancel:
+    navigate to "Settings"
 
   to onSave:
     if not selectedCoord:
       alert("Location", "Tap the map to select your home location.")
-      give back
+      give back nothing
     try:
-      await ctx.setState({
-        ...ctx.state,
-        home: {
-          latitude: selectedCoord.latitude,
-          longitude: selectedCoord.longitude,
-          label: selectedLabel or nothing
-        }
-      })
+      newHome is {
+        latitude: selectedCoord.latitude,
+        longitude: selectedCoord.longitude,
+        label: selectedLabel or nothing
+      }
+      newState is Object.assign({}, ctx.state, { home: newHome })
+      await ctx.setState(newState)
       alert("Saved", "Home location set.")
       navigate to "Settings"
     if it fails error:
@@ -80,33 +85,31 @@ component LocationPickerScreen with navigation:
     Screen:
       Card:
         Title: "Pick Home Location"
-        Muted style { marginTop: 6 }: "Tap the map to set your home. This is used to calculate commute distance."
+        Muted style mutedTopSmall: "Tap the map to set your home. This is used to calculate commute distance."
 
-      view style { height: 12 }
+      view style spacerMedium
 
       if loading:
         Card:
           activity size "large" color brand
-          Muted style { textAlign: "center", marginTop: 10 }: "Getting your location..."
+          Muted style mutedCentered: "Getting your location..."
       otherwise:
         view style mapContainer:
-          -- MapView would render here
-          -- Note: MapView integration depends on react-native-maps setup
-          text style { color: textColor, textAlign: "center", padding: 40 }: "Map view - tap to select location"
+          text style mapPlaceholder: "Map view - tap to select location"
 
-      view style { height: 12 }
+      view style spacerMedium
 
       Card:
         if selectedCoord:
           Muted: "Selected: {selectedCoord.latitude.toFixed(4)}, {selectedCoord.longitude.toFixed(4)}"
           if selectedLabel:
-            Muted style { marginTop: 4 }: "{selectedLabel}"
+            Muted style mutedTopTiny: "{selectedLabel}"
         otherwise:
           Muted: "No location selected yet."
 
-        view style { marginTop: 14, gap: 10 }:
-          Button label "Save Home Location" onPress onSave disabled (not selectedCoord)
-          Button kind "ghost" label "Cancel" onPress (with: navigate to "Settings")
+        view style buttonGroup:
+          Button label "Save Home Location" onPress onSave disabled noCoord
+          Button kind "ghost" label "Cancel" onPress onCancel
 
   style native:
     mapContainer:
@@ -118,3 +121,19 @@ component LocationPickerScreen with navigation:
       border color is "rgba(255,255,255,0.12)"
       justify content is "center"
       align items is "center"
+    mutedTopSmall:
+      margin top is 6
+    spacerMedium:
+      height is 12
+    mutedCentered:
+      text align is "center"
+      margin top is 10
+    mapPlaceholder:
+      color is textColor
+      text align is "center"
+      padding is 40
+    mutedTopTiny:
+      margin top is 4
+    buttonGroup:
+      margin top is 14
+      gap is 10

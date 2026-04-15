@@ -2,12 +2,15 @@
 
 from "../state/context.quill" use AppContext
 from "../ui/components.quill" use Screen, Card, Title, Muted, Button
-from "../ui/theme.quill" use brand, textColor, muted as mutedColor
+from "../ui/theme.quill" use brand, textColor, muted
 
 to escapeCSV val:
   str is String(val or "")
-  if str.includes(",") or str.includes("\"") or str.includes("\n"):
-    give back "\"" + str.replace(/"/g, "\"\"") + "\""
+  quote is String.fromCharCode(34)
+  nl is String.fromCharCode(10)
+  quotePattern is new RegExp(String.fromCharCode(34), "g")
+  if str.includes(",") or str.includes(quote) or str.includes(nl):
+    give back quote + str.replace(quotePattern, quote + quote) + quote
   give back str
 
 to logsToCSV logs:
@@ -21,30 +24,40 @@ to logsToCSV logs:
     l.notes or ""
   ])
 
-  csvLines are [headers, ...rows].map(with row: row.map(escapeCSV).join(","))
-  give back csvLines.join("\n")
+  csvLines are [headers].concat(rows).map(with row: row.map(escapeCSV).join(","))
+  give back csvLines.join(String.fromCharCode(10))
 
 component ExportScreen:
   use context AppContext as ctx
 
   state shared is no
 
-  logs are ctx.state?.logs or []
-  memo csv is logsToCSV(logs) when [logs]
+  memo logs is deriveLogs(ctx.state) when [ctx]
+  memo csv is deriveCSV(logs) when [logs]
+  memo stats is deriveStats(logs) when [logs]
+  memo isEmpty is deriveIsEmpty(logs) when [logs]
 
-  memo stats is computeStats(logs) when [logs]
+  to deriveLogs appData:
+    give back appData?.logs or []
 
-  to computeStats logs:
-    total is logs.reduce(with a l: a + (l.co2Kg or 0), 0)
-    dates is new Set(logs.map(with l: l.dateISO?.slice(0, 10)))
-    give back { count: logs.length, totalKg: total, days: dates.size }
+  to deriveCSV logList:
+    give back logsToCSV(logList)
+
+  to deriveStats logList:
+    total is logList.reduce(with a l: a + (l.co2Kg or 0), 0)
+    dates is new Set(logList.map(with l: l.dateISO?.slice(0, 10)))
+    give back { count: logList.length, totalKg: total, days: dates.size }
+
+  to deriveIsEmpty logList:
+    give back logList.length is 0
 
   to onShare:
     try:
-      -- Use React Native Share API
       use "react-native" as RN
+      currentLogs are ctx.state?.logs or []
+      currentCsv is logsToCSV(currentLogs)
       await RN.Share.share({
-        message: csv,
+        message: currentCsv,
         title: "Nudge - Carbon Footprint Data"
       })
       shared is yes
@@ -56,7 +69,7 @@ component ExportScreen:
       scroll showsVerticalScrollIndicator no:
         Card:
           Title: "Export Your Data"
-          Muted style { marginTop: 6 }: "Share your carbon footprint logs as CSV. You can paste this into Google Sheets, Excel, or use it in your EPQ analysis."
+          Muted style hintStyle: "Share your carbon footprint logs as CSV. You can paste this into Google Sheets, Excel, or use it in your EPQ analysis."
 
           view style statsRow:
             view style statBox accessibilityLabel "Activities: {stats.count}":
@@ -69,25 +82,36 @@ component ExportScreen:
               text style statValue: "{stats.totalKg.toFixed(1)}"
               text style statLabel: "Total kg"
 
-        view style { height: 12 }
+        view style spacerSmall
 
         Card:
-          Title style { fontSize: 16 }: "CSV Preview"
+          Title style previewTitle: "CSV Preview"
           view style previewBox:
             text style previewText: "{csv or 'No data to export yet.'}"
 
-        view style { height: 12 }
+        view style spacerSmall
 
         Card:
-          Button label "Share CSV" onPress onShare disabled (logs.length is 0)
+          Button label "Share CSV" onPress onShare disabled isEmpty
           if shared:
-            Muted style { marginTop: 8, textAlign: "center" }: "Data shared successfully!"
-          if logs.length is 0:
-            Muted style { marginTop: 8, textAlign: "center" }: "Log some activities first to export data."
+            Muted style successHint: "Data shared successfully!"
+          if isEmpty:
+            Muted style successHint: "Log some activities first to export data."
 
-        view style { height: 30 }
+        view style spacerLarge
 
   style native:
+    hintStyle:
+      margin top is 6
+    spacerSmall:
+      height is 12
+    spacerLarge:
+      height is 30
+    previewTitle:
+      font size is 16
+    successHint:
+      margin top is 8
+      text align is "center"
     statsRow:
       flex direction is "row"
       gap is 10

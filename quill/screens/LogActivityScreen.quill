@@ -2,7 +2,7 @@
 
 from "../state/context.quill" use AppContext
 from "../ui/components.quill" use Screen, Card, Title, Muted, Button
-from "../ui/theme.quill" use brand, textColor, muted as mutedColor, border as borderColor
+from "../ui/theme.quill" use brand, textColor, muted, border
 from "../lib/co2.quill" use CATEGORIES, TRANSPORT_LABELS, CO2_FACTORS, getCategoryItems, computeCo2Kg
 from "../lib/geo.quill" use haversineKm
 
@@ -18,21 +18,21 @@ component LogActivityScreen with navigation:
   state transport is "car"
   state oneWayKm is ""
 
-  memo suggestedKm is computeSuggested(ctx.state) when [ctx.state]
-  memo items is getCategoryItems(category, ctx.state?.region) when [category, ctx.state?.region]
+  memo suggestedKm is computeSuggested(ctx.state) when [ctx]
+  memo items is getCategoryItems(category, ctx.state?.region) when [category, ctx]
   memo itemKeys is Object.keys(items) when [items]
 
   memo preview is computePreview() when [category, transport, oneWayKm, selectedItem, quantity, items]
 
-  to computeSuggested state:
-    if not state?.home or not state?.school:
+  to computeSuggested appData:
+    if not appData?.home or not appData?.school:
       give back nothing
-    give back haversineKm(state.home, state.school) * 1.25
+    give back haversineKm(appData.home, appData.school) * 1.25
 
   to computePreview:
     if category is "transport":
       km is Number(oneWayKm)
-      if not Number.isFinite(km) or km <= 0:
+      if not Number.isFinite(km) or not (km is greater than 0):
         give back nothing
       give back computeCo2Kg({ transport: transport, oneWayKm: km })
     if not selectedItem or not items[selectedItem]:
@@ -46,7 +46,7 @@ component LogActivityScreen with navigation:
 
       if category is "transport":
         km is Number(oneWayKm)
-        if not Number.isFinite(km) or km <= 0:
+        if not Number.isFinite(km) or not (km is greater than 0):
           raise "Enter a valid distance"
         co2Kg is computeCo2Kg({ transport: transport, oneWayKm: km })
         log is {
@@ -78,29 +78,101 @@ component LogActivityScreen with navigation:
           notes: notes.trim() or nothing
         }
 
-      await ctx.setState({
-        ...ctx.state,
-        logs: [log, ...(ctx.state?.logs or [])]
-      })
+      existingLogs is ctx.state?.logs or []
+      newLogs is Array.from(existingLogs)
+      newLogs.unshift(log)
+      newState is Object.assign({}, ctx.state, { logs: newLogs })
+      await ctx.setState(newState)
 
       navigate to "Home"
     if it fails error:
       alert("Log activity", error?.message or "Could not save")
 
+  to selectCategory k:
+    category is k
+    selectedItem is nothing
+
+  to selectTransport t:
+    transport is t
+
+  to selectItem k:
+    selectedItem is k
+
+  to onOneWayKmChange v:
+    oneWayKm is v
+
+  to onQuantityChange v:
+    quantity is v
+
+  to onNotesChange v:
+    notes is v
+
+  to onUseSuggested:
+    oneWayKm is suggestedKm.toFixed(1)
+
+  to onCancel:
+    navigate to "Home"
+
+  to catPillStyle k:
+    if category is k:
+      give back [catPill, { borderColor: CATEGORIES[k].color, backgroundColor: CATEGORIES[k].color + "22" }]
+    give back [catPill]
+
+  to catPillTextStyle k:
+    if category is k:
+      give back [catPillText, { color: textColor }]
+    give back [catPillText]
+
+  to itemPillStyle k:
+    if selectedItem is k:
+      give back [itemPill, { borderColor: CATEGORIES[category].color, backgroundColor: CATEGORIES[category].color + "22" }]
+    give back [itemPill]
+
+  to itemTextStyle k:
+    if selectedItem is k:
+      give back [pillText, { color: textColor }]
+    give back [pillText]
+
+  to transportPillStyle t:
+    if transport is t:
+      give back [pill, pillActive]
+    give back [pill]
+
+  to transportPillTextStyle t:
+    if transport is t:
+      give back [pillText, pillTextActive]
+    give back [pillText]
+
+  to co2Prefix co2:
+    if co2 is greater than 0:
+      give back "+"
+    give back ""
+
+  to previewColor val:
+    if not (val is less than 0):
+      give back "#ef4444"
+    give back "#22c55e"
+
+  to previewPrefix val:
+    if not (val is less than 0):
+      give back "+"
+    give back ""
+
   to render:
     Screen:
       scroll showsVerticalScrollIndicator no:
-        -- Category selector
         Card:
           Title: "Category"
           view style pillRow:
             for each k in CAT_KEYS:
-              pressable onPress (with: category is k, selectedItem is nothing) style [catPill, category is k ? { borderColor: CATEGORIES[k].color, backgroundColor: CATEGORIES[k].color + "22" } : nothing]:
-                text style [catPillText, category is k ? { color: textColor } : nothing]: "{CATEGORIES[k].icon} {CATEGORIES[k].label}"
+              catSty is catPillStyle(k)
+              catTxtSty is catPillTextStyle(k)
+              catHandler is selectCategory.bind(nothing, k)
+              pressable onPress catHandler style catSty:
+                text style catTxtSty: "{CATEGORIES[k].icon} {CATEGORIES[k].label}"
 
         view style { height: 12 }
 
-        -- Activity picker
         Card:
           Title style { fontSize: 18 }: "{CATEGORIES[category].icon} {CATEGORIES[category].label} Activity"
 
@@ -108,43 +180,51 @@ component LogActivityScreen with navigation:
             Muted style { marginTop: 6 }: "Select transport mode and enter one-way distance."
             view style pillRow:
               for each t in Object.keys(TRANSPORT_LABELS):
-                pressable onPress (with: transport is t) style [pill, transport is t ? pillActive : nothing]:
-                  text style [pillText, transport is t ? pillTextActive : nothing]: "{TRANSPORT_LABELS[t]}"
+                tSty is transportPillStyle(t)
+                tTxtSty is transportPillTextStyle(t)
+                tHandler is selectTransport.bind(nothing, t)
+                pressable onPress tHandler style tSty:
+                  text style tTxtSty: "{TRANSPORT_LABELS[t]}"
 
             text style label: "One-way distance (km)"
-            input value oneWayKm onChangeText (with v: oneWayKm is v) keyboardType "numeric" placeholder "e.g., 7.5" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle
+            input value oneWayKm onChangeText onOneWayKmChange keyboardType "numeric" placeholder "e.g., 7.5" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle
 
             if suggestedKm:
-              Button kind "ghost" label "Use suggested: ~{suggestedKm.toFixed(1)} km" onPress (with: oneWayKm is suggestedKm.toFixed(1))
+              Button kind "ghost" label "Use suggested: ~{suggestedKm.toFixed(1)} km" onPress onUseSuggested
           otherwise:
             Muted style { marginTop: 6 }: "Tap an activity to select it."
             view style pillRow:
               for each k in itemKeys:
                 item is items[k]
-                pressable onPress (with: selectedItem is k) style [itemPill, selectedItem is k ? { borderColor: CATEGORIES[category].color, backgroundColor: CATEGORIES[category].color + "22" } : nothing]:
-                  text style [pillText, selectedItem is k ? { color: textColor } : nothing]: "{item.icon} {item.label}"
-                  text style co2Badge: "{item.co2 > 0 ? '+' : ''}{item.co2} kg"
+                iSty is itemPillStyle(k)
+                iTxtSty is itemTextStyle(k)
+                iHandler is selectItem.bind(nothing, k)
+                pressable onPress iHandler style iSty:
+                  text style iTxtSty: "{item.icon} {item.label}"
+                  text style co2Badge: "{co2Prefix(item.co2)}{item.co2} kg"
 
             if selectedItem:
               view style { marginTop: 8 }:
                 text style label: "Quantity / times"
-                input value quantity onChangeText (with v: quantity is v) keyboardType "numeric" placeholder "1" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle
+                input value quantity onChangeText onQuantityChange keyboardType "numeric" placeholder "1" placeholderTextColor "rgba(255,255,255,0.45)" style inputStyle
 
         view style { height: 12 }
 
-        -- Preview + Notes + Save
         Card:
           if preview is not nothing:
+            pvColor is previewColor(preview)
+            pvSty is [previewValue, { color: pvColor }]
             view style previewBox:
               text style previewLabel: "CO2e impact"
-              text style [previewValue, { color: preview >= 0 ? "#ef4444" : "#22c55e" }]: "{preview >= 0 ? '+' : ''}{preview.toFixed(2)} kg CO2e"
+              text style pvSty: "{previewPrefix(preview)}{preview.toFixed(2)} kg CO2e"
 
           text style label: "Notes (optional)"
-          input value notes onChangeText (with v: notes is v) style [inputStyle, { minHeight: 60, textAlignVertical: "top" }] multiline yes placeholder "e.g., carpooled with 2 friends" placeholderTextColor "rgba(255,255,255,0.45)"
+          notesSty is [inputStyle, { minHeight: 60, textAlignVertical: "top" }]
+          input value notes onChangeText onNotesChange style notesSty multiline yes placeholder "e.g., carpooled with 2 friends" placeholderTextColor "rgba(255,255,255,0.45)"
 
           view style { marginTop: 14, gap: 10 }:
             Button label "Save Activity" onPress onSave
-            Button kind "ghost" label "Cancel" onPress (with: navigate to "Home")
+            Button kind "ghost" label "Cancel" onPress onCancel
 
         view style { height: 30 }
 

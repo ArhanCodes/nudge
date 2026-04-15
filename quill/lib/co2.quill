@@ -95,7 +95,7 @@ to getRegionAdjustedEnergy region:
     give back ENERGY_ITEMS
   adjusted is {}
   for each [key, item] in Object.entries(ENERGY_ITEMS):
-    adjusted[key] is { ...item, co2: +(item.co2 * multiplier).toFixed(3) }
+    adjusted[key] is Object.assign({}, item, { co2: Number((item.co2 * multiplier).toFixed(3)) })
   give back adjusted
 
 -- Scoring
@@ -136,7 +136,7 @@ to compareToBenchmark userWeeklyKg regionKey:
   benchmarkKg is benchmark.kgPerWeek
   savedKg is benchmarkKg - userWeeklyKg
   savedPct is 0
-  if benchmarkKg > 0:
+  if benchmarkKg is greater than 0:
     savedPct is (savedKg / benchmarkKg) * 100
   give back {
     benchmarkKg: benchmarkKg,
@@ -144,5 +144,5 @@ to compareToBenchmark userWeeklyKg regionKey:
     benchmarkSource: benchmark.source,
     savedKg: savedKg,
     savedPct: savedPct,
-    better: savedKg > 0
+    better: savedKg is greater than 0
   }

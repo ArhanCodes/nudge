@@ -2,7 +2,7 @@
 
 from "../state/context.quill" use AppContext
 from "../ui/components.quill" use Screen, Card, Title, Muted, Chip, ProgressRing
-from "../ui/theme.quill" use brand, brand2, textColor, muted as mutedColor
+from "../ui/theme.quill" use brand, brand2, textColor, muted
 from "../lib/co2.quill" use CATEGORIES, computeDailyScore, computeWeeklyScore, compareToBenchmark
 from "../utils/time.quill" use weekKeyISO, startOfWeekISO, addDaysISO
 
@@ -12,16 +12,16 @@ to clamp n a b:
 component DashboardScreen:
   use context AppContext as ctx
 
-  memo data is computeData(ctx.state) when [ctx.state]
+  memo data is computeData(ctx.state) when [ctx]
 
-  to computeData state:
-    logs are state?.logs or []
+  to computeData appData:
+    logs are appData?.logs or []
     now is new Date()
 
     -- Build last 4 weeks
     weeks are []
     w is 0
-    while w < 4:
+    while w is less than 4:
       d is new Date(now)
       d.setDate(d.getDate() - w * 7)
       wk is weekKeyISO(d)
@@ -54,25 +54,102 @@ component DashboardScreen:
       give back { dayISO: dayISO, kg: kg, score: computeDailyScore(kg) }
     )
 
-    region is state?.region or "world"
-    target is state?.targetKgPerWeek or 10
+    region is appData?.region or "world"
+    target is appData?.targetKgPerWeek or 10
     benchmark is compareToBenchmark(weeks[0]?.totalKg or 0, region)
 
     give back { weeks: weeks, dailyBreakdown: dailyBreakdown, benchmark: benchmark, target: target }
 
+  -- Helper methods to replace ternaries
+
+  to pickScoreColor score:
+    if not (score is less than 70):
+      give back "#22c55e"
+    if not (score is less than 40):
+      give back "#f59e0b"
+    give back "#ef4444"
+
+  to pickImprovementKind improvement:
+    if Number(improvement) is greater than 0:
+      give back "brand"
+    give back "default"
+
+  to pickImprovementLabel improvement:
+    if Number(improvement) is greater than 0:
+      give back "{improvement}% better than last week"
+    give back "{Math.abs(improvement)}% more than last week"
+
+  to pickGoalColor currentKg targetKg:
+    if currentKg is greater than targetKg:
+      give back "#ef4444"
+    give back brand
+
+  to pickBenchmarkColor isBetter:
+    if isBetter:
+      give back "#22c55e"
+    give back "#ef4444"
+
+  to pickDayLabelStyle isToday:
+    if isToday:
+      give back [dayLabelStyle, { color: brand }]
+    give back [dayLabelStyle, nothing]
+
+  to pickDayLabelText dayLabel isToday:
+    if isToday:
+      give back "{dayLabel} (today)"
+    give back dayLabel
+
+  to pickDayKgText kg:
+    if kg is greater than 0:
+      give back kg.toFixed(2) + " kg"
+    give back "—"
+
+  to pickDayScoreText kg score:
+    if kg is greater than 0:
+      give back "{score}"
+    give back "—"
+
+  to pickTrendLabelStyle idx:
+    if idx is 3:
+      give back [dayLabelStyle, { color: brand }]
+    give back [dayLabelStyle, nothing]
+
+  to pickTrendLabelText startISO idx:
+    if idx is 3:
+      give back "{startISO} (current)"
+    give back startISO
+
+  to pickTrendBarColor idx:
+    if idx is 3:
+      give back brand
+    give back "rgba(255,255,255,0.2)"
+
+  to catBarFillStyle pct catColor:
+    give back [barFill, { width: clamp(pct, 0, 100) + "%", backgroundColor: catColor }]
+
+  to dayScoreStyle score:
+    give back [dayScoreText, { color: pickScoreColor(score) }]
+
+  to dailyBarFillStyle pct:
+    give back [barFill, { width: clamp(pct, 0, 100) + "%", backgroundColor: brand2 }]
+
+  to trendBarFillStyle pct idx:
+    give back [barFill, { width: clamp(pct, 0, 100) + "%", backgroundColor: pickTrendBarColor(idx) }]
+
   to render:
     thisWeek is data.weeks[0]
     lastWeek is data.weeks[1]
-    maxWeeklyKg is Math.max(1, ...data.weeks.map(with w: w.totalKg))
-    maxDailyKg is Math.max(1, ...data.dailyBreakdown.map(with d: d.kg))
+    weeklyKgValues are data.weeks.map(with w: w.totalKg)
+    maxWeeklyKg is Math.max.apply(Math, [1].concat(weeklyKgValues))
+    dailyKgValues are data.dailyBreakdown.map(with d: d.kg)
+    maxDailyKg is Math.max.apply(Math, [1].concat(dailyKgValues))
 
     improvement is nothing
-    if lastWeek?.totalKg > 0:
+    if lastWeek?.totalKg is greater than 0:
       improvement is ((lastWeek.totalKg - thisWeek.totalKg) / lastWeek.totalKg * 100).toFixed(0)
 
     Screen:
       scroll showsVerticalScrollIndicator no:
-        -- Score card
         Card:
           view style scoreRow:
             view style scoreCircle:
@@ -82,25 +159,30 @@ component DashboardScreen:
               Title: "This Week"
               Muted style { marginTop: 4 }: "{thisWeek.totalKg.toFixed(1)} kg CO2e from {thisWeek.logCount} activities"
               if improvement is not nothing:
+                chipKind is pickImprovementKind(improvement)
+                chipLabel is pickImprovementLabel(improvement)
                 view style { marginTop: 6 }:
-                  Chip kind (Number(improvement) > 0 ? "brand" : "default") label (Number(improvement) > 0 ? "{improvement}% better than last week" : "{Math.abs(improvement)}% more than last week")
+                  Chip kind chipKind label chipLabel
 
         view style { height: 12 }
 
         -- Goal + benchmark
         Card:
           Title style { fontSize: 18 }: "Goal & Benchmark"
+          ringProgress is Math.min(thisWeek.totalKg / data.target, 1)
+          ringColor is pickGoalColor(thisWeek.totalKg, data.target)
+          ringPct is Math.round(Math.min((thisWeek.totalKg / data.target) * 100, 999))
           view style { flexDirection: "row", alignItems: "center", marginTop: 12, gap: 16 }:
-            ProgressRing progress Math.min(thisWeek.totalKg / data.target, 1) size 100 strokeWidth 10 color (thisWeek.totalKg > data.target ? "#ef4444" : brand):
-              text style { color: textColor, fontSize: 18, fontWeight: "900" }: "{Math.round(Math.min((thisWeek.totalKg / data.target) * 100, 999))}%"
+            ProgressRing progress ringProgress size 100 strokeWidth 10 color ringColor:
+              text style { color: textColor, fontSize: 18, fontWeight: "900" }: "{ringPct}%"
+            benchColor is pickBenchmarkColor(data.benchmark.better)
             view style { flex: 1 }:
               text style { color: textColor, fontWeight: "700", fontSize: 14 }: "{thisWeek.totalKg.toFixed(1)} / {data.target} kg goal"
               view style { height: 6 }
-              text style { color: data.benchmark.better ? "#22c55e" : "#ef4444", fontWeight: "700", fontSize: 13 }:
-                if data.benchmark.better:
-                  "{data.benchmark.savedPct.toFixed(0)}% below {data.benchmark.benchmarkLabel}"
-                otherwise:
-                  "{Math.abs(data.benchmark.savedPct).toFixed(0)}% above {data.benchmark.benchmarkLabel}"
+              if data.benchmark.better:
+                text style { color: benchColor, fontWeight: "700", fontSize: 13 }: "{data.benchmark.savedPct.toFixed(0)}% below {data.benchmark.benchmarkLabel}"
+              otherwise:
+                text style { color: benchColor, fontWeight: "700", fontSize: 13 }: "{Math.abs(data.benchmark.savedPct).toFixed(0)}% above {data.benchmark.benchmarkLabel}"
               Muted style { fontSize: 11, marginTop: 2 }: "National avg: {data.benchmark.benchmarkKg} kg/week"
               Muted style { fontSize: 9, marginTop: 2 }: "Source: {data.benchmark.benchmarkSource}"
 
@@ -111,16 +193,19 @@ component DashboardScreen:
           Title style { fontSize: 18 }: "Category Breakdown"
           Muted style { marginTop: 4 }: "This week's CO2e by domain"
           view style { marginTop: 12 }:
-            for each [key, cat] in Object.entries(CATEGORIES):
+            for each entry in Object.entries(CATEGORIES):
+              key is entry[0]
+              cat is entry[1]
               kg is thisWeek.catTotals[key] or 0
               totalKg is Math.max(0.01, thisWeek.totalKg)
               pct is (kg / totalKg) * 100
+              catStyle is catBarFillStyle(pct, cat.color)
               view style { marginBottom: 12 }:
                 view style catHeader:
                   text style catName: "{cat.icon} {cat.label}"
                   text style catKg: "{kg.toFixed(2)} kg"
                 view style barBg:
-                  view style [barFill, { width: clamp(pct, 0, 100) + "%", backgroundColor: cat.color }]
+                  view style catStyle
 
         view style { height: 12 }
 
@@ -133,14 +218,20 @@ component DashboardScreen:
               pct is (d.kg / maxDailyKg) * 100
               dayLabel is new Date(d.dayISO + "T00:00:00Z").toLocaleDateString(nothing, { weekday: "short" })
               isToday is d.dayISO is new Date().toISOString().slice(0, 10)
+              dlStyle is pickDayLabelStyle(isToday)
+              dlText is pickDayLabelText(dayLabel, isToday)
+              dkText is pickDayKgText(d.kg)
+              dsStyle is dayScoreStyle(d.score)
+              dsText is pickDayScoreText(d.kg, d.score)
+              dbStyle is dailyBarFillStyle(pct)
               view style { marginBottom: 8 }:
                 view style dayRow:
-                  text style [dayLabelStyle, isToday ? { color: brand } : nothing]: "{dayLabel}{isToday ? ' (today)' : ''}"
-                  text style dayKg: "{d.kg > 0 ? d.kg.toFixed(2) + ' kg' : '—'}"
+                  text style dlStyle: dlText
+                  text style dayKg: dkText
                   view style dayScoreBadge:
-                    text style [dayScoreText, { color: d.score >= 70 ? "#22c55e" : d.score >= 40 ? "#f59e0b" : "#ef4444" }]: "{d.kg > 0 ? d.score : '—'}"
+                    text style dsStyle: dsText
                 view style barBg:
-                  view style [barFill, { width: clamp(pct, 0, 100) + "%", backgroundColor: brand2 }]
+                  view style dbStyle
 
         view style { height: 12 }
 
@@ -153,12 +244,15 @@ component DashboardScreen:
             for each w in reversed:
               i is reversed.indexOf(w)
               pct is (w.totalKg / maxWeeklyKg) * 100
+              tlStyle is pickTrendLabelStyle(i)
+              tlText is pickTrendLabelText(w.startISO, i)
+              tbStyle is trendBarFillStyle(pct, i)
               view style { marginBottom: 10 }:
                 view style dayRow:
-                  text style [dayLabelStyle, i is 3 ? { color: brand } : nothing]: "{w.startISO}{i is 3 ? ' (current)' : ''}"
+                  text style tlStyle: tlText
                   text style dayKg: "{w.totalKg.toFixed(1)} kg"
                 view style barBg:
-                  view style [barFill, { width: clamp(pct, 0, 100) + "%", backgroundColor: i is 3 ? brand : "rgba(255,255,255,0.2)" }]
+                  view style tbStyle
 
         view style { height: 30 }
 

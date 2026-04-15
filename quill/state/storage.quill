@@ -1,5 +1,7 @@
 -- AsyncStorage persistence with migration support
 
+use "@react-native-async-storage/async-storage" as AsyncStorage
+
 KEY is "scfd_state_v2"
 OLD_KEY is "scfd_state_v1"
 
@@ -14,53 +16,64 @@ to defaultState:
   }
 
 to migrateV1 v1:
-  logs are (v1.logs or []).map(with l: {
-    ...l,
+  logs are (v1.logs or []).map(with l: Object.assign({}, l, {
     category: "transport",
     itemKey: l.transport or "car",
     label: l.transportLabel or l.transport or "Car",
     quantity: 1
-  })
+  }))
 
-  give back {
-    ...defaultState(),
+  give back Object.assign({}, defaultState(), {
     school: v1.school or nothing,
     home: v1.home or nothing,
     targetKgPerWeek: v1.targetKgPerWeek or 10,
     onboarded: yes,
     logs: logs
-  }
+  })
+
+to readStore key:
+  try:
+    raw is await AsyncStorage.getItem(key)
+    if not raw:
+      give back nothing
+    give back JSON.parse(raw)
+  if it fails error:
+    say "readStore failed: {error}"
+    give back nothing
+
+to writeStore key, value:
+  await AsyncStorage.setItem(key, JSON.stringify(value))
 
 to seedIfEmpty:
   try:
-    existing is load(KEY)
+    existing is await readStore(KEY)
     if existing:
-      give back
+      give back nothing
 
     -- Check for v1 data to migrate
-    v1Raw is load(OLD_KEY)
+    v1Raw is await readStore(OLD_KEY)
     if v1Raw:
       migrated is migrateV1(v1Raw)
-      store(KEY, migrated)
-      give back
+      await writeStore(KEY, migrated)
+      give back nothing
 
-    store(KEY, defaultState())
+    await writeStore(KEY, defaultState())
   if it fails error:
     say "seedIfEmpty failed, using defaults: {error}"
 
 to loadState:
   try:
-    raw is load(KEY)
+    raw is await readStore(KEY)
     if not raw:
       give back defaultState()
-    give back { ...defaultState(), ...raw }
+    give back Object.assign({}, defaultState(), raw)
   if it fails error:
     say "loadState failed, using defaults: {error}"
     give back defaultState()
 
-to saveState state:
+to saveState appData:
   try:
-    store(KEY, state)
+    await writeStore(KEY, appData)
   if it fails error:
     say "saveState failed: {error}"
     raise "Could not save your data. Please try again."

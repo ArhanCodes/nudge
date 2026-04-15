@@ -1,20 +1,34 @@
 -- Nudge - Carbon footprint tracker
 -- Main app entry point with navigation and context provider
 
+use "react-native-gesture-handler"
+use "@react-navigation/native" as Nav
+use "@react-navigation/native-stack" as NativeStack
+use "expo-status-bar" as ExpoStatusBar
+
+use "./screens/HomeScreen.quill" as HomeScreen
+use "./screens/LogActivityScreen.quill" as LogActivityScreen
+use "./screens/DashboardScreen.quill" as DashboardScreen
+use "./screens/TipsScreen.quill" as TipsScreen
+use "./screens/BadgesScreen.quill" as BadgesScreen
+use "./screens/TrendsScreen.quill" as TrendsScreen
+use "./screens/SettingsScreen.quill" as SettingsScreen
+use "./screens/LocationPickerScreen.quill" as LocationPickerScreen
+use "./screens/OnboardingScreen.quill" as OnboardingScreen
+use "./screens/ExportScreen.quill" as ExportScreen
+
 from "./state/context.quill" use AppContext
 from "./state/storage.quill" use loadState, saveState, seedIfEmpty
 from "./lib/notifications.quill" use scheduleDailyReminder
+from "./ui/ErrorBoundary.quill" use ErrorBoundary
 
-from "./screens/HomeScreen.quill" use HomeScreen
-from "./screens/LogActivityScreen.quill" use LogActivityScreen
-from "./screens/DashboardScreen.quill" use DashboardScreen
-from "./screens/TipsScreen.quill" use TipsScreen
-from "./screens/BadgesScreen.quill" use BadgesScreen
-from "./screens/TrendsScreen.quill" use TrendsScreen
-from "./screens/SettingsScreen.quill" use SettingsScreen
-from "./screens/LocationPickerScreen.quill" use LocationPickerScreen
-from "./screens/OnboardingScreen.quill" use OnboardingScreen
-from "./screens/ExportScreen.quill" use ExportScreen
+screenOptions is {
+  headerStyle: { backgroundColor: "#0b1020" },
+  headerTintColor: "rgba(255,255,255,0.92)",
+  headerTitleStyle: { fontWeight: "900" }
+}
+
+Stack is NativeStack.createNativeStackNavigator()
 
 component App:
   state appState is nothing
@@ -26,11 +40,9 @@ component App:
       s is await loadState()
       appState is s
       booted is yes
-      -- Schedule daily reminder (8pm)
       try:
         await scheduleDailyReminder(20, 0)
-      if it fails:
-        -- silently ignore
+      fails with error:
         say "reminder setup skipped"
     boot()
 
@@ -40,23 +52,23 @@ component App:
 
   memo api is { booted: booted, state: appState, setState: updateState } when [booted, appState]
 
-  needsOnboarding is booted and appState and not appState.onboarded
-
   to render:
-    provide AppContext with api:
-      if needsOnboarding:
-        app navigation:
-          stack headerShown no:
-            screen "Onboarding" component OnboardingScreen
-      otherwise:
-        app navigation:
-          stack headerStyle { backgroundColor: "#0b1020" } headerTintColor "rgba(255,255,255,0.92)" headerTitleStyle { fontWeight: "900" }:
-            screen "Home" component HomeScreen title "Nudge"
-            screen "LogActivity" component LogActivityScreen title "Log Activity"
-            screen "Dashboard" component DashboardScreen title "Progress Dashboard"
-            screen "Tips" component TipsScreen title "Weekly Tips"
-            screen "Badges" component BadgesScreen title "Badges & Streaks"
-            screen "Trends" component TrendsScreen title "Weekly Trends"
-            screen "Settings" component SettingsScreen title "Settings"
-            screen "PickLocation" component LocationPickerScreen title "Pick Location"
-            screen "Export" component ExportScreen title "Export Data"
+    needsOnboarding is booted and appState and not appState.onboarded
+    ErrorBoundary:
+      provide AppContext with api:
+        Nav.NavigationContainer:
+          ExpoStatusBar.StatusBar style "light"
+          if needsOnboarding:
+            Stack.Navigator screenOptions { headerShown: no }:
+              Stack.Screen name "Onboarding" component OnboardingScreen
+          otherwise:
+            Stack.Navigator screenOptions screenOptions:
+              Stack.Screen name "Home" component HomeScreen options { title: "Nudge" }
+              Stack.Screen name "LogActivity" component LogActivityScreen options { title: "Log Activity" }
+              Stack.Screen name "Dashboard" component DashboardScreen options { title: "Progress Dashboard" }
+              Stack.Screen name "Tips" component TipsScreen options { title: "Weekly Tips" }
+              Stack.Screen name "Badges" component BadgesScreen options { title: "Badges & Streaks" }
+              Stack.Screen name "Trends" component TrendsScreen options { title: "Weekly Trends" }
+              Stack.Screen name "Settings" component SettingsScreen options { title: "Settings" }
+              Stack.Screen name "PickLocation" component LocationPickerScreen options { title: "Pick Location" }
+              Stack.Screen name "Export" component ExportScreen options { title: "Export Data" }

@@ -2,116 +2,128 @@
 
 from "./theme.quill" use bg, card, border, textColor, muted, brand
 
-component Screen with children style:
+component Screen with children extraStyle:
   to render:
-    view style [screen, style]:
+    view style screenBase:
       children
 
-component Card with children style:
+  style native:
+    screenBase:
+      flex is 1
+      background color is "#0b1020"
+      padding is 16
+
+component Card with children extraStyle:
   to render:
-    view style [cardStyle, style] accessibilityRole "summary":
+    view style cardBase accessibilityRole "summary":
       children
 
-component Title with children style:
+  style native:
+    cardBase:
+      background color is "rgba(255,255,255,0.06)"
+      border color is "rgba(255,255,255,0.12)"
+      border width is 1
+      border radius is 16
+      padding is 14
+
+component Title with children extraStyle:
   to render:
-    text style [titleStyle, style] accessibilityRole "header":
+    text style titleBase accessibilityRole "header":
       children
 
-component Muted with children style:
+  style native:
+    titleBase:
+      color is "rgba(255,255,255,0.92)"
+      font size is 22
+      font weight is "900"
+
+component Muted with children extraStyle:
   to render:
-    text style [mutedStyle, style]:
+    text style mutedBase:
       children
+
+  style native:
+    mutedBase:
+      color is "rgba(255,255,255,0.68)"
+      font size is 13
+      line height is 18
 
 component Button with label onPress kind disabled accessibilityLabel:
+  to accessLabel:
+    give back accessibilityLabel or label
   to render:
-    pressable disabled disabled onPress onPress accessibilityRole "button" accessibilityLabel (accessibilityLabel or label) accessibilityState { disabled: !!disabled }:
+    al is accessLabel()
+    pressable disabled disabled onPress onPress accessibilityRole "button" accessibilityLabel al:
       if kind is "ghost":
         text style btnGhostText: label
       otherwise:
         text style btnPrimaryText: label
 
+  style native:
+    btnPrimaryText:
+      color is "#081019"
+      font weight is "900"
+    btnGhostText:
+      color is "rgba(255,255,255,0.92)"
+      font weight is "900"
+
 component Chip with label kind:
   to render:
-    view style [chip, kind is "brand" ? chipBrand : nothing] accessibilityLabel label:
-      text style [chipText, kind is "brand" ? chipTextBrand : nothing]: label
+    if kind is "brand":
+      view style chipBrandView accessibilityLabel label:
+        text style chipBrandText: label
+    otherwise:
+      view style chipView accessibilityLabel label:
+        text style chipTextNormal: label
+
+  style native:
+    chipView:
+      border width is 1
+      border color is "rgba(255,255,255,0.12)"
+      background color is "rgba(255,255,255,0.03)"
+      padding horizontal is 10
+      padding vertical is 6
+      border radius is 999
+      align self is "flex-start"
+    chipBrandView:
+      border width is 1
+      border color is "rgba(45,212,191,0.55)"
+      background color is "rgba(45,212,191,0.15)"
+      padding horizontal is 10
+      padding vertical is 6
+      border radius is 999
+      align self is "flex-start"
+    chipTextNormal:
+      color is "rgba(255,255,255,0.68)"
+      font weight is "900"
+      font size is 12
+    chipBrandText:
+      color is "rgba(255,255,255,0.92)"
+      font weight is "900"
+      font size is 12
 
 component ProgressRing with progress size strokeWidth color bgColor children:
-  -- defaults
-  if progress is nothing:
-    progress is 0
-  if size is nothing:
-    size is 120
-  if strokeWidth is nothing:
-    strokeWidth is 10
-  if color is nothing:
-    color is brand
-  if bgColor is nothing:
-    bgColor is "rgba(255,255,255,0.08)"
-
-  clampedProgress is Math.max(0, Math.min(1, progress))
-  pct is Math.round(clampedProgress * 100)
-  isOver50 is pct > 50
-  rotation is clampedProgress * 360
+  memo p is Math.max(0, Math.min(1, progress or 0)) when [progress]
+  memo sz is size or 120 when [size]
+  memo sw is strokeWidth or 10 when [strokeWidth]
+  memo clr is color or brand when [color]
+  memo bgc is bgColor or "rgba(255,255,255,0.08)" when [bgColor]
+  memo pct is Math.round(p * 100) when [p]
+  memo isOver50 is pct > 50 when [pct]
+  memo rotation is p * 360 when [p]
 
   to render:
-    view style { width: size, height: size, alignItems: "center", justifyContent: "center" } accessibilityLabel "Progress: {pct}%" accessibilityRole "progressbar":
-      -- Background ring
-      view style { position: "absolute", width: size, height: size, borderRadius: size / 2, borderWidth: strokeWidth, borderColor: bgColor }
+    view style { width: sz, height: sz, alignItems: "center", justifyContent: "center" } accessibilityLabel "Progress: {pct}%" accessibilityRole "progressbar":
+      view style { position: "absolute", width: sz, height: sz, borderRadius: sz / 2, borderWidth: sw, borderColor: bgc }
 
-      -- Right half (0-180)
-      view style { position: "absolute", width: size, height: size, overflow: "hidden" }:
-        view style { position: "absolute", width: size / 2, height: size, right: 0, overflow: "hidden" }:
-          view style { width: size, height: size, borderRadius: size / 2, borderWidth: strokeWidth, borderColor: color, borderLeftColor: "transparent", borderBottomColor: "transparent", transform: [{ rotate: Math.min(rotation, 180) + "deg" }] }
+      view style { position: "absolute", width: sz, height: sz, overflow: "hidden" }:
+        view style { position: "absolute", width: sz / 2, height: sz, right: 0, overflow: "hidden" }:
+          view style { width: sz, height: sz, borderRadius: sz / 2, borderWidth: sw, borderColor: clr, borderLeftColor: "transparent", borderBottomColor: "transparent", transform: [{ rotate: Math.min(rotation, 180) + "deg" }] }
 
-      -- Left half (180-360)
       if isOver50:
-        view style { position: "absolute", width: size, height: size, overflow: "hidden" }:
-          view style { position: "absolute", width: size / 2, height: size, left: 0, overflow: "hidden" }:
-            view style { width: size, height: size, borderRadius: size / 2, borderWidth: strokeWidth, borderColor: color, borderRightColor: "transparent", borderTopColor: "transparent", transform: [{ rotate: (rotation - 180) + "deg" }] }
+        view style { position: "absolute", width: sz, height: sz, overflow: "hidden" }:
+          view style { position: "absolute", width: sz / 2, height: sz, left: 0, overflow: "hidden" }:
+            view style { width: sz, height: sz, borderRadius: sz / 2, borderWidth: sw, borderColor: clr, borderRightColor: "transparent", borderTopColor: "transparent", transform: [{ rotate: (rotation - 180) + "deg" }] }
 
-      -- Center content
       view style { alignItems: "center", justifyContent: "center" }:
         children
-
-style native:
-  screen:
-    flex is 1
-    background color is "#0b1020"
-    padding is 16
-  cardStyle:
-    background color is "rgba(255,255,255,0.06)"
-    border color is "rgba(255,255,255,0.12)"
-    border width is 1
-    border radius is 16
-    padding is 14
-  titleStyle:
-    color is "rgba(255,255,255,0.92)"
-    font size is 22
-    font weight is "900"
-  mutedStyle:
-    color is "rgba(255,255,255,0.68)"
-    font size is 13
-    line height is 18
-  btnPrimaryText:
-    color is "#081019"
-    font weight is "900"
-  btnGhostText:
-    color is "rgba(255,255,255,0.92)"
-    font weight is "900"
-  chip:
-    border width is 1
-    border color is "rgba(255,255,255,0.12)"
-    background color is "rgba(255,255,255,0.03)"
-    padding horizontal is 10
-    padding vertical is 6
-    border radius is 999
-    align self is "flex-start"
-  chipBrand:
-    border color is "rgba(45,212,191,0.55)"
-    background color is "rgba(45,212,191,0.15)"
-  chipText:
-    color is "rgba(255,255,255,0.68)"
-    font weight is "900"
-    font size is 12
-  chipTextBrand:
-    color is "rgba(255,255,255,0.92)"

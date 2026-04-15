@@ -2,7 +2,7 @@
 
 from "../state/context.quill" use AppContext
 from "../ui/components.quill" use Screen, Card, Title, Muted
-from "../ui/theme.quill" use textColor, muted as mutedColor, border as borderColor
+from "../ui/theme.quill" use textColor, muted, border
 from "../lib/co2.quill" use CATEGORIES
 from "../lib/tips.quill" use getPersonalisedTips, getWorstCategory
 from "../utils/time.quill" use weekKeyISO
@@ -10,10 +10,14 @@ from "../utils/time.quill" use weekKeyISO
 component TipsScreen:
   use context AppContext as ctx
 
-  memo result is computeTips(ctx.state) when [ctx.state]
+  memo result is computeTips(ctx.state) when [ctx]
+  memo worstInfo is lookupWorstInfo(result) when [result]
 
-  to computeTips state:
-    logs are state?.logs or []
+  to lookupWorstInfo r:
+    give back CATEGORIES[r.worstCat] or CATEGORIES.transport
+
+  to computeTips appData:
+    logs are appData?.logs or []
     now is new Date()
     wk is weekKeyISO(now)
 
@@ -26,51 +30,76 @@ component TipsScreen:
     worst is getWorstCategory(totals)
     personalised is getPersonalisedTips(totals, 5)
 
-    give back { tips: personalised, worstCat: worst, catTotals: totals }
+    enriched are personalised.map(with t:
+      ci is CATEGORIES[t.category] or CATEGORIES.transport
+      give back { tip: t.tip, category: t.category, catIcon: ci.icon, catLabel: ci.label, catColor: ci.color }
+    )
+
+    give back { tips: enriched, worstCat: worst, catTotals: totals }
+
+  to summaryValueStyle key:
+    if key is result.worstCat:
+      give back { color: "#ef4444", fontWeight: "900", fontSize: 14 }
+    otherwise:
+      give back { color: "rgba(255,255,255,0.68)", fontWeight: "700", fontSize: 14 }
 
   to render:
-    worstInfo is CATEGORIES[result.worstCat] or CATEGORIES.transport
-
     Screen:
       scroll showsVerticalScrollIndicator no:
         Card:
           Title: "Your Weekly Tips"
-          Muted style { marginTop: 6 }: "Personalised suggestions based on your activity this week."
+          Muted style mutedMarginTop6: "Personalised suggestions based on your activity this week."
 
           view style worstBox:
             text style worstIcon: "{worstInfo.icon}"
-            view style { flex: 1 }:
+            view style flex1:
               text style worstTitle: "Focus area: {worstInfo.label}"
               text style worstSub: "{result.catTotals[result.worstCat].toFixed(1)} kg CO2e this week — your highest category"
 
-        view style { height: 12 }
+        view style spacer12
 
         for each t in result.tips:
-          catInfo is CATEGORIES[t.category] or CATEGORIES.transport
           view:
-            Card style { borderLeftWidth: 3, borderLeftColor: catInfo.color }:
+            Card style { borderLeftWidth: 3, borderLeftColor: t.catColor }:
               view style tipHeader:
-                text style [tipCat, { color: catInfo.color }]: "{catInfo.icon} {catInfo.label}"
+                text style { fontWeight: "900", fontSize: 12, textTransform: "uppercase", letterSpacing: 0.5, color: t.catColor }: "{t.catIcon} {t.catLabel}"
               text style tipText: "{t.tip}"
-            view style { height: 10 }
+            view style spacer10
 
         if result.tips.length is 0:
           Card:
             Muted: "Log some activities this week to get personalised tips!"
 
-        view style { height: 12 }
+        view style spacer12
 
         Card:
-          Title style { fontSize: 16 }: "Category Summary"
-          view style { marginTop: 10 }:
-            for each [key, cat] in Object.entries(CATEGORIES):
+          Title style titleSmall: "Category Summary"
+          view style marginTop10:
+            for each entry in Object.entries(CATEGORIES):
+              key is entry[0]
+              cat is entry[1]
+              svs is summaryValueStyle(key)
               view style summaryRow:
                 text style summaryLabel: "{cat.icon} {cat.label}"
-                text style [summaryValue, key is result.worstCat ? { color: "#ef4444", fontWeight: "900" } : nothing]: "{(result.catTotals[key] or 0).toFixed(2)} kg"
+                text style { color: svs.color, fontWeight: svs.fontWeight, fontSize: 14 }: "{(result.catTotals[key] or 0).toFixed(2)} kg"
 
-        view style { height: 30 }
+        view style spacer30
 
   style native:
+    mutedMarginTop6:
+      margin top is 6
+    flex1:
+      flex is 1
+    spacer12:
+      height is 12
+    spacer10:
+      height is 10
+    spacer30:
+      height is 30
+    titleSmall:
+      font size is 16
+    marginTop10:
+      margin top is 10
     worstBox:
       flex direction is "row"
       align items is "center"
@@ -91,6 +120,8 @@ component TipsScreen:
       color is "rgba(255,255,255,0.68)"
       font size is 12
       margin top is 2
+    tipCard:
+      border left width is 3
     tipHeader:
       margin bottom is 6
     tipCat:
@@ -116,3 +147,6 @@ component TipsScreen:
       color is "rgba(255,255,255,0.68)"
       font weight is "700"
       font size is 14
+    summaryHighlight:
+      color is "#ef4444"
+      font weight is "900"

@@ -6,11 +6,12 @@ notificationsModule is nothing
 
 to requestNotificationPermission:
   try:
-    {status: existing} is await Notifications.getPermissionsAsync()
-    if existing is "granted":
+    permResult is await Notifications.getPermissionsAsync()
+    existingStatus is permResult.status
+    if existingStatus is "granted":
       give back yes
-    {status} is await Notifications.requestPermissionsAsync()
-    give back status is "granted"
+    reqResult is await Notifications.requestPermissionsAsync()
+    give back reqResult.status is "granted"
   if it fails:
     give back no
 
@@ -45,6 +46,5 @@ to scheduleDailyReminder hour minute:
 to cancelAllReminders:
   try:
     await Notifications.cancelAllScheduledNotificationsAsync()
-  if it fails:
-    -- silently fail
-    say "Could not cancel reminders"
+  if it fails error:
+    say "Could not cancel reminders" -- silently fail

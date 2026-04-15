@@ -39,28 +39,32 @@ to getPersonalisedTips categoryTotals count:
   if count is nothing:
     count is 3
 
-  sorted are Object.entries(categoryTotals).sort(with [, a] [, b]: b - a)
+  sorted are Object.entries(categoryTotals).sort(with a b: b[1] - a[1])
 
   tips are []
   used is new Set()
 
-  for each [category] in sorted:
+  for each entry in sorted:
+    category is entry[0]
     pool is TIPS[category] or []
     for each tip in pool:
-      if tips.length >= count:
+      if not (tips.length is less than count):
         break
       if not used.has(tip):
         push(tips, { category: category, tip: tip })
         used.add(tip)
         break
-    if tips.length >= count:
+    if not (tips.length is less than count):
       break
 
   -- Fill from worst category if needed
-  if tips.length < count:
-    worstCat is sorted[0]?.[0] or "transport"
+  if tips.length is less than count:
+    firstSorted is sorted[0]
+    worstCat is "transport"
+    if firstSorted:
+      worstCat is firstSorted[0]
     for each tip in TIPS[worstCat] or []:
-      if tips.length >= count:
+      if not (tips.length is less than count):
         break
       if not used.has(tip):
         push(tips, { category: worstCat, tip: tip })
@@ -70,9 +74,11 @@ to getPersonalisedTips categoryTotals count:
 
 to getWorstCategory categoryTotals:
   worst is "transport"
-  max is -1
-  for each [cat, val] in Object.entries(categoryTotals):
-    if val > max:
-      max is val
+  maxVal is -1
+  for each entry in Object.entries(categoryTotals):
+    cat is entry[0]
+    val is entry[1]
+    if val is greater than maxVal:
+      maxVal is val
       worst is cat
   give back worst
