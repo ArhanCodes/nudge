@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { bg, card, border, textColor, muted, brand } from './theme';
 export function Screen({ children, extraStyle }) {
   return (
-    <View style={styles.screenBase}>
+    <View style={[styles.screenBase, styles.extraStyle]}>
       {children}
     </View>
   );
@@ -13,7 +13,7 @@ export function Screen({ children, extraStyle }) {
 
 export function Card({ children, extraStyle }) {
   return (
-    <View style={styles.cardBase} accessibilityRole={"summary"}>
+    <View accessibilityRole={"summary"} style={[styles.cardBase, styles.extraStyle]}>
       {children}
     </View>
   );
@@ -21,7 +21,7 @@ export function Card({ children, extraStyle }) {
 
 export function Title({ children, extraStyle }) {
   return (
-    <Text style={styles.titleBase} accessibilityRole={"header"}>
+    <Text style={[styles.titleBase, styles.extraStyle]} accessibilityRole={"header"}>
       {children}
     </Text>
   );
@@ -29,7 +29,7 @@ export function Title({ children, extraStyle }) {
 
 export function Muted({ children, extraStyle }) {
   return (
-    <Text style={styles.mutedBase}>
+    <Text style={[styles.mutedBase, styles.extraStyle]}>
       {children}
     </Text>
   );
@@ -43,7 +43,7 @@ export function Button({ label, onPress, kind, disabled, accessibilityLabel }) {
 let al = accessLabel();
 
   return (
-    <Pressable disabled={disabled} onPress={() => onPress()} accessibilityRole={"button"} accessibilityLabel={al}>
+    <Pressable accessibilityLabel={al} disabled={disabled} onPress={() => onPress()} accessibilityRole={"button"}>
       {(kind === "ghost") ? (
         <Text style={styles.btnGhostText}>{label}</Text>
       ) : (
@@ -54,18 +54,27 @@ let al = accessLabel();
 }
 
 export function Chip({ label, kind }) {
+  const chipViewStyle = () => {
+    if ((kind === "brand")) {
+      return [chipBase, chipBrand];
+    }
+    return [chipBase];
+  };
+
+  const chipLabelStyle = () => {
+    if ((kind === "brand")) {
+      return [chipText, chipTextBrand];
+    }
+    return [chipText];
+  };
+
+let vs = chipViewStyle();
+let ls = chipLabelStyle();
+
   return (
-    <>
-      {(kind === "brand") ? (
-        <View style={styles.chipBrandView} accessibilityLabel={label}>
-          <Text style={styles.chipBrandText}>{label}</Text>
-        </View>
-      ) : (
-        <View style={styles.chipView} accessibilityLabel={label}>
-          <Text style={styles.chipTextNormal}>{label}</Text>
-        </View>
-      )}
-    </>
+    <View style={styles.vs} accessibilityLabel={label}>
+      <Text style={styles.ls}>{label}</Text>
+    </View>
   );
 }
 
@@ -102,16 +111,6 @@ export default function ProgressRing({ progress, size, strokeWidth, color, bgCol
 }
 
 const styles = StyleSheet.create({
-  chipTextNormal: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    fontSize: 12,
-  },
-  chipBrandText: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
-    fontSize: 12,
-  },
   cardBase: {
     backgroundColor: "rgba(255,255,255,0.06)",
     borderColor: "rgba(255,255,255,0.12)",
@@ -124,24 +123,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "900",
   },
-  btnPrimaryText: {
-    color: "#081019",
-    fontWeight: "900",
-  },
-  btnGhostText: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
-  },
-  chipBrandView: {
-    borderWidth: 1,
-    borderColor: "rgba(45,212,191,0.55)",
-    backgroundColor: "rgba(45,212,191,0.15)",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    alignSelf: "flex-start",
-  },
-  chipView: {
+  chipBase: {
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.12)",
     backgroundColor: "rgba(255,255,255,0.03)",
@@ -149,6 +131,14 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 999,
     alignSelf: "flex-start",
+  },
+  chipText: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+    fontSize: 12,
+  },
+  chipTextBrand: {
+    color: "rgba(255,255,255,0.92)",
   },
   screenBase: {
     flex: 1,
@@ -159,5 +149,17 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.68)",
     fontSize: 13,
     lineHeight: 18,
+  },
+  btnPrimaryText: {
+    color: "#081019",
+    fontWeight: "900",
+  },
+  btnGhostText: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+  },
+  chipBrand: {
+    borderColor: "rgba(45,212,191,0.55)",
+    backgroundColor: "rgba(45,212,191,0.15)",
   },
 });

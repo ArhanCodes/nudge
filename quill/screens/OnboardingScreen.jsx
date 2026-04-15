@@ -8,6 +8,7 @@ import { brand, textColor } from '../ui/theme';
 import { REGIONS } from '../lib/regions';
 export let STEPS = ["welcome", "school", "region", "target"];
 export default function OnboardingScreen() {
+  const ctx = useContext(AppContext);
   const [step, setStep] = useState(0);
   const [schoolName, setSchoolName] = useState("");
   const [schoolLat, setSchoolLat] = useState("");
@@ -15,7 +16,6 @@ export default function OnboardingScreen() {
   const [region, setRegion] = useState("world");
   const [target, setTarget] = useState("10");
 
-  const ctx = useContext(AppContext);
   const current = useMemo(() => STEPS[step], [step]);
   const justify = useMemo(() => justifyForStep(), [step]);
 
@@ -105,14 +105,14 @@ export default function OnboardingScreen() {
 
   return (
     <Screen>
-      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"handled"} contentContainerStyle={scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"handled"}>
         {(current === "welcome") && (
           <Card>
             <Text style={styles.emoji}>🌍</Text>
             <Title style={styles.welcomeTitle}>Welcome to Nudge</Title>
             <Muted style={styles.welcomeBody}>Track your carbon footprint, earn badges, and get personalised tips to reduce your environmental impact.</Muted>
             <View style={styles.spacerLg}>
-              <Button label={"Get Started"} onPress={() => goStep1()} />
+              <Button onPress={() => goStep1()} label={"Get Started"} />
             </View>
           </Card>
         )}
@@ -125,16 +125,16 @@ export default function OnboardingScreen() {
             <View style={styles.coordRow}>
               <View style={styles.flexOne}>
                 <Text style={styles.label}>Latitude</Text>
-                <TextInput style={styles.inputStyle} accessibilityLabel={"Latitude"} value={schoolLat} onChangeText={onSchoolLatChange} placeholder={"25.2048"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} />
+                <TextInput accessibilityLabel={"Latitude"} value={schoolLat} onChangeText={onSchoolLatChange} placeholder={"25.2048"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} />
               </View>
               <View style={styles.flexOne}>
                 <Text style={styles.label}>Longitude</Text>
-                <TextInput onChangeText={onSchoolLonChange} placeholder={"55.2708"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"Longitude"} value={schoolLon} />
+                <TextInput style={styles.inputStyle} accessibilityLabel={"Longitude"} value={schoolLon} onChangeText={onSchoolLonChange} placeholder={"55.2708"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} />
               </View>
             </View>
             <View style={styles.buttonGroup}>
               <Button label={"Next"} onPress={() => goStep2()} />
-              <Button onPress={() => goStep2()} kind={"ghost"} label={"Skip for now"} />
+              <Button kind={"ghost"} label={"Skip for now"} onPress={() => goStep2()} />
             </View>
           </Card>
         )}
@@ -164,9 +164,9 @@ export default function OnboardingScreen() {
             <Title>Weekly Target</Title>
             <Muted style={styles.spacerSm}>Set a weekly CO2 budget in kg. The average person produces about 22 kg/day. A stretching but achievable student target is 10 kg/week.</Muted>
             <Text style={styles.label}>Target (kg CO2 / week)</Text>
-            <TextInput accessibilityLabel={"Target (kg CO2 / week)"} value={target} onChangeText={onTargetChange} placeholder={"10"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} />
+            <TextInput value={target} onChangeText={onTargetChange} placeholder={"10"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"Target (kg CO2 / week)"} />
             <View style={styles.buttonGroup}>
-              <Button onPress={() => onFinish()} label={"Start Tracking"} />
+              <Button label={"Start Tracking"} onPress={() => onFinish()} />
             </View>
           </Card>
         )}
@@ -186,25 +186,60 @@ export default function OnboardingScreen() {
 }
 
 const styles = StyleSheet.create({
-  buttonGroup: {
-    marginTop: 14,
-    gap: 10,
-  },
-  label: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    marginBottom: 6,
-    marginTop: 10,
-  },
-  regionGrid: {
+  dots: {
+    flexDirection: "row",
+    justifyContent: "center",
     gap: 8,
-    marginTop: 12,
+    marginTop: 24,
+  },
+  emoji: {
+    fontSize: 56,
+    textAlign: "center",
+    marginBottom: 12,
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: "rgba(255,255,255,0.2)",
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 40,
+  },
+  dotActive: {
+    backgroundColor: "#2dd4bf",
+    width: 24,
+  },
+  welcomeTitle: {
+    textAlign: "center",
+    fontSize: 28,
+  },
+  spacerSm: {
+    marginTop: 6,
+  },
+  flexOne: {
+    flex: 1,
+  },
+  coordRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  buttonGroup: {
+    marginTop: 14,
+    gap: 10,
+  },
+  spacerLg: {
+    marginTop: 24,
+  },
+  regionGrid: {
+    gap: 8,
+    marginTop: 12,
+  },
+  welcomeBody: {
+    textAlign: "center",
+    marginTop: 10,
+    lineHeight: 20,
   },
   inputStyle: {
     color: "rgba(255,255,255,0.92)",
@@ -214,45 +249,10 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: "rgba(255,255,255,0.03)",
   },
-  spacerSm: {
-    marginTop: 6,
-  },
-  dots: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 8,
-    marginTop: 24,
-  },
-  welcomeBody: {
-    textAlign: "center",
+  label: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+    marginBottom: 6,
     marginTop: 10,
-    lineHeight: 20,
-  },
-  flexOne: {
-    flex: 1,
-  },
-  emoji: {
-    fontSize: 56,
-    textAlign: "center",
-    marginBottom: 12,
-  },
-  dotActive: {
-    backgroundColor: "#2dd4bf",
-    width: 24,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 40,
-  },
-  welcomeTitle: {
-    textAlign: "center",
-    fontSize: 28,
-  },
-  spacerLg: {
-    marginTop: 24,
-  },
-  coordRow: {
-    flexDirection: "row",
-    gap: 10,
   },
 });

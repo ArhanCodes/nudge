@@ -18,7 +18,7 @@ export function getPersonalisedTips(categoryTotals, count) {
         break;
       }
       if ((!used.has(tip))) {
-        push(tips, { category: category, tip: tip });
+        tips.push({ category: category, tip: tip });
         used.add(tip);
         break;
       }
@@ -38,7 +38,7 @@ export function getPersonalisedTips(categoryTotals, count) {
         break;
       }
       if ((!used.has(tip))) {
-        push(tips, { category: worstCat, tip: tip });
+        tips.push({ category: worstCat, tip: tip });
         used.add(tip);
       }
     }

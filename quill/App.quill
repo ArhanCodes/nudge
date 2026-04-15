@@ -29,6 +29,20 @@ screenOptions is {
 }
 
 Stack is NativeStack.createNativeStackNavigator()
+NavigationContainer is Nav.NavigationContainer
+StatusBar is ExpoStatusBar.StatusBar
+StackNavigator is Stack["Navigator"]
+StackScreen is Stack["Screen"]
+noHeaderOptions is { headerShown: no }
+optHome is { title: "Nudge" }
+optLog is { title: "Log Activity" }
+optDash is { title: "Progress Dashboard" }
+optTips is { title: "Weekly Tips" }
+optBadges is { title: "Badges & Streaks" }
+optTrends is { title: "Weekly Trends" }
+optSettings is { title: "Settings" }
+optPickLoc is { title: "Pick Location" }
+optExport is { title: "Export Data" }
 
 component App:
   state appState is nothing
@@ -56,19 +70,19 @@ component App:
     needsOnboarding is booted and appState and not appState.onboarded
     ErrorBoundary:
       provide AppContext with api:
-        Nav.NavigationContainer:
-          ExpoStatusBar.StatusBar style "light"
+        NavigationContainer:
+          StatusBar style "light"
           if needsOnboarding:
-            Stack.Navigator screenOptions { headerShown: no }:
-              Stack.Screen name "Onboarding" component OnboardingScreen
+            StackNavigator screenOptions noHeaderOptions:
+              StackScreen name "Onboarding" component OnboardingScreen
           otherwise:
-            Stack.Navigator screenOptions screenOptions:
-              Stack.Screen name "Home" component HomeScreen options { title: "Nudge" }
-              Stack.Screen name "LogActivity" component LogActivityScreen options { title: "Log Activity" }
-              Stack.Screen name "Dashboard" component DashboardScreen options { title: "Progress Dashboard" }
-              Stack.Screen name "Tips" component TipsScreen options { title: "Weekly Tips" }
-              Stack.Screen name "Badges" component BadgesScreen options { title: "Badges & Streaks" }
-              Stack.Screen name "Trends" component TrendsScreen options { title: "Weekly Trends" }
-              Stack.Screen name "Settings" component SettingsScreen options { title: "Settings" }
-              Stack.Screen name "PickLocation" component LocationPickerScreen options { title: "Pick Location" }
-              Stack.Screen name "Export" component ExportScreen options { title: "Export Data" }
+            StackNavigator screenOptions screenOptions:
+              StackScreen name "Home" component HomeScreen options optHome
+              StackScreen name "LogActivity" component LogActivityScreen options optLog
+              StackScreen name "Dashboard" component DashboardScreen options optDash
+              StackScreen name "Tips" component TipsScreen options optTips
+              StackScreen name "Badges" component BadgesScreen options optBadges
+              StackScreen name "Trends" component TrendsScreen options optTrends
+              StackScreen name "Settings" component SettingsScreen options optSettings
+              StackScreen name "PickLocation" component LocationPickerScreen options optPickLoc
+              StackScreen name "Export" component ExportScreen options optExport

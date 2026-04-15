@@ -10,6 +10,7 @@ import { getPersonalisedTips, getWorstCategory } from '../lib/tips';
 import { weekKeyISO } from '../utils/time';
 export default function TipsScreen() {
   const ctx = useContext(AppContext);
+
   const result = useMemo(() => computeTips(ctx.state), [ctx]);
   const worstInfo = useMemo(() => lookupWorstInfo(result), [result]);
 
@@ -99,8 +100,31 @@ export default function TipsScreen() {
 }
 
 const styles = StyleSheet.create({
-  tipCard: {
-    borderLeftWidth: 3,
+  worstTitle: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+    fontSize: 16,
+  },
+  tipHeader: {
+    marginBottom: 6,
+  },
+  summaryHighlight: {
+    color: "#ef4444",
+    fontWeight: "900",
+  },
+  mutedMarginTop6: {
+    marginTop: 6,
+  },
+  spacer10: {
+    height: 10,
+  },
+  tipText: {
+    color: "rgba(255,255,255,0.92)",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  worstIcon: {
+    fontSize: 32,
   },
   tipCat: {
     fontWeight: "900",
@@ -108,8 +132,18 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
-  spacer30: {
-    height: 30,
+  spacer12: {
+    height: 12,
+  },
+  titleSmall: {
+    fontSize: 16,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.12)",
   },
   worstBox: {
     flexDirection: "row",
@@ -122,64 +156,31 @@ const styles = StyleSheet.create({
     marginTop: 14,
     gap: 12,
   },
-  marginTop10: {
-    marginTop: 10,
-  },
-  summaryHighlight: {
-    color: "#ef4444",
-    fontWeight: "900",
-  },
-  mutedMarginTop6: {
-    marginTop: 6,
-  },
-  spacer10: {
-    height: 10,
-  },
-  worstSub: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 12,
-    marginTop: 2,
-  },
-  titleSmall: {
-    fontSize: 16,
-  },
-  tipText: {
-    color: "rgba(255,255,255,0.92)",
-    fontSize: 14,
-    lineHeight: 20,
-  },
   summaryLabel: {
     color: "rgba(255,255,255,0.92)",
     fontWeight: "700",
     fontSize: 14,
   },
-  tipHeader: {
-    marginBottom: 6,
+  flex1: {
+    flex: 1,
   },
   summaryValue: {
     color: "rgba(255,255,255,0.68)",
     fontWeight: "700",
     fontSize: 14,
   },
-  worstTitle: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
-    fontSize: 16,
+  worstSub: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 12,
+    marginTop: 2,
   },
-  spacer12: {
-    height: 12,
+  marginTop10: {
+    marginTop: 10,
   },
-  worstIcon: {
-    fontSize: 32,
+  tipCard: {
+    borderLeftWidth: 3,
   },
-  summaryRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.12)",
-  },
-  flex1: {
-    flex: 1,
+  spacer30: {
+    height: 30,
   },
 });

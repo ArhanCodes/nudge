@@ -22,9 +22,9 @@ export function logsToCSV(logs) {
   return csvLines.join(String.fromCharCode(10));
 }
 export default function ExportScreen() {
+  const ctx = useContext(AppContext);
   const [shared, setShared] = useState(false);
 
-  const ctx = useContext(AppContext);
   const logs = useMemo(() => deriveLogs(ctx.state), [ctx]);
   const csv = useMemo(() => deriveCSV(logs), [logs]);
   const stats = useMemo(() => deriveStats(logs), [logs]);
@@ -105,27 +105,6 @@ export default function ExportScreen() {
 }
 
 const styles = StyleSheet.create({
-  statBox: {
-    flex: 1,
-    backgroundColor: "rgba(255,255,255,0.04)",
-    borderRadius: 12,
-    padding: 12,
-    alignItems: "center",
-  },
-  previewText: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
-    fontFamily: "monospace",
-    lineHeight: 14,
-  },
-  spacerLarge: {
-    height: 30,
-  },
-  statsRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 14,
-  },
   statLabel: {
     color: "rgba(255,255,255,0.68)",
     fontSize: 11,
@@ -138,20 +117,41 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 8,
   },
+  spacerSmall: {
+    height: 12,
+  },
   statValue: {
     color: "#2dd4bf",
     fontSize: 22,
     fontWeight: "900",
   },
-  hintStyle: {
-    marginTop: 6,
+  statBox: {
+    flex: 1,
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderRadius: 12,
+    padding: 12,
+    alignItems: "center",
   },
   successHint: {
     marginTop: 8,
     textAlign: "center",
   },
-  spacerSmall: {
-    height: 12,
+  statsRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 14,
+  },
+  previewText: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 10,
+    fontFamily: "monospace",
+    lineHeight: 14,
+  },
+  hintStyle: {
+    marginTop: 6,
+  },
+  spacerLarge: {
+    height: 30,
   },
   previewTitle: {
     fontSize: 16,

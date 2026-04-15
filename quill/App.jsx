@@ -22,6 +22,20 @@ import { scheduleDailyReminder } from './lib/notifications';
 import { ErrorBoundary } from './ui/ErrorBoundary';
 export let screenOptions = { headerStyle: { backgroundColor: "#0b1020" }, headerTintColor: "rgba(255,255,255,0.92)", headerTitleStyle: { fontWeight: "900" } };
 export let Stack = NativeStack.createNativeStackNavigator();
+export let NavigationContainer = Nav.NavigationContainer;
+export let StatusBar = ExpoStatusBar.StatusBar;
+export let StackNavigator = Stack["Navigator"];
+export let StackScreen = Stack["Screen"];
+export let noHeaderOptions = { headerShown: false };
+export let optHome = { title: "Nudge" };
+export let optLog = { title: "Log Activity" };
+export let optDash = { title: "Progress Dashboard" };
+export let optTips = { title: "Weekly Tips" };
+export let optBadges = { title: "Badges & Streaks" };
+export let optTrends = { title: "Weekly Trends" };
+export let optSettings = { title: "Settings" };
+export let optPickLoc = { title: "Pick Location" };
+export let optExport = { title: "Export Data" };
 export default function App() {
   const [appState, setAppState] = useState(null);
   const [booted, setBooted] = useState(false);
@@ -53,26 +67,26 @@ let needsOnboarding = ((booted && appState) && (!appState.onboarded));
   return (
     <ErrorBoundary>
       <AppContext.Provider value={api}>
-        <Nav.NavigationContainer>
-          <ExpoStatusBar.StatusBar style={"light"} />
+        <NavigationContainer>
+          <StatusBar style={"light"} />
           {needsOnboarding ? (
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-              <Stack.Screen name={"Onboarding"} component={OnboardingScreen} />
-            </Stack.Navigator>
+            <StackNavigator screenOptions={noHeaderOptions}>
+              <StackScreen name={"Onboarding"} component={OnboardingScreen} />
+            </StackNavigator>
           ) : (
-            <Stack.Navigator screenOptions={screenOptions}>
-              <Stack.Screen name={"Home"} component={HomeScreen} options={{ title: "Nudge" }} />
-              <Stack.Screen name={"LogActivity"} component={LogActivityScreen} options={{ title: "Log Activity" }} />
-              <Stack.Screen options={{ title: "Progress Dashboard" }} name={"Dashboard"} component={DashboardScreen} />
-              <Stack.Screen name={"Tips"} component={TipsScreen} options={{ title: "Weekly Tips" }} />
-              <Stack.Screen options={{ title: "Badges & Streaks" }} name={"Badges"} component={BadgesScreen} />
-              <Stack.Screen name={"Trends"} component={TrendsScreen} options={{ title: "Weekly Trends" }} />
-              <Stack.Screen name={"Settings"} component={SettingsScreen} options={{ title: "Settings" }} />
-              <Stack.Screen options={{ title: "Pick Location" }} name={"PickLocation"} component={LocationPickerScreen} />
-              <Stack.Screen name={"Export"} component={ExportScreen} options={{ title: "Export Data" }} />
-            </Stack.Navigator>
+            <StackNavigator screenOptions={screenOptions}>
+              <StackScreen name={"Home"} component={HomeScreen} options={optHome} />
+              <StackScreen options={optLog} name={"LogActivity"} component={LogActivityScreen} />
+              <StackScreen name={"Dashboard"} component={DashboardScreen} options={optDash} />
+              <StackScreen name={"Tips"} component={TipsScreen} options={optTips} />
+              <StackScreen name={"Badges"} component={BadgesScreen} options={optBadges} />
+              <StackScreen name={"Trends"} component={TrendsScreen} options={optTrends} />
+              <StackScreen name={"Settings"} component={SettingsScreen} options={optSettings} />
+              <StackScreen name={"PickLocation"} component={LocationPickerScreen} options={optPickLoc} />
+              <StackScreen options={optExport} name={"Export"} component={ExportScreen} />
+            </StackNavigator>
           )}
-        </Nav.NavigationContainer>
+        </NavigationContainer>
       </AppContext.Provider>
     </ErrorBoundary>
   );

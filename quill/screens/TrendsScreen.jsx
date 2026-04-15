@@ -11,6 +11,7 @@ export function clamp(n, a, b) {
 }
 export default function TrendsScreen() {
   const ctx = useContext(AppContext);
+
   const data = useMemo(() => computeTrends(ctx.state), [ctx]);
   const target = useMemo(() => (__propagate(ctx.state).targetKgPerWeek || 10), [ctx]);
   const perDayTarget = useMemo(() => ((__propagate(ctx.state).targetKgPerWeek || 10) / 7), [ctx]);
@@ -51,7 +52,7 @@ export default function TrendsScreen() {
         <Title>Weekly emissions</Title>
         <Muted style={styles.weekSubtitle}>Week starting {data.startISO}</Muted>
         <View style={styles.chipRow}>
-          <Chip label={`Total: ${data.total.toFixed(2)} kg CO2`} kind={"brand"} />
+          <Chip kind={"brand"} label={`Total: ${data.total.toFixed(2)} kg CO2`} />
           <Chip label={`Target: ${target.toFixed(1)} kg`} />
           <Chip label={`Daily guide: ${perDayTarget.toFixed(2)} kg/day`} />
         </View>
@@ -84,24 +85,42 @@ export default function TrendsScreen() {
 }
 
 const styles = StyleSheet.create({
+  footerWrap: {
+    marginTop: 8,
+  },
+  chartSubtitle: {
+    marginTop: 6,
+  },
   barRow: {
     marginBottom: 10,
-  },
-  spacer: {
-    height: 12,
   },
   dayRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+  kgLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+  },
+  chipRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 12,
+    flexWrap: "wrap",
+  },
   dayLabel: {
     color: "rgba(255,255,255,0.92)",
     fontWeight: "900",
   },
-  kgLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
+  weekSubtitle: {
+    marginTop: 6,
+  },
+  spacer: {
+    height: 12,
+  },
+  chartTitle: {
+    fontSize: 18,
   },
   barBg: {
     height: 10,
@@ -115,23 +134,5 @@ const styles = StyleSheet.create({
   barFill: {
     height: "100%",
     backgroundColor: "#7c5cff",
-  },
-  weekSubtitle: {
-    marginTop: 6,
-  },
-  chipRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 12,
-    flexWrap: "wrap",
-  },
-  chartTitle: {
-    fontSize: 18,
-  },
-  footerWrap: {
-    marginTop: 8,
-  },
-  chartSubtitle: {
-    marginTop: 6,
   },
 });

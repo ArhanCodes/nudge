@@ -9,6 +9,7 @@ import { CATEGORIES, TRANSPORT_LABELS, CO2_FACTORS, getCategoryItems, computeCo2
 import { haversineKm } from '../lib/geo';
 export let CAT_KEYS = Object.keys(CATEGORIES);
 export default function LogActivityScreen({ navigation }) {
+  const ctx = useContext(AppContext);
   const [category, setCategory] = useState("transport");
   const [selectedItem, setSelectedItem] = useState(null);
   const [quantity, setQuantity] = useState("1");
@@ -16,7 +17,6 @@ export default function LogActivityScreen({ navigation }) {
   const [transport, setTransport] = useState("car");
   const [oneWayKm, setOneWayKm] = useState("");
 
-  const ctx = useContext(AppContext);
   const suggestedKm = useMemo(() => computeSuggested(ctx.state), [ctx]);
   const items = useMemo(() => getCategoryItems(category, __propagate(ctx.state).region), [category, ctx]);
   const itemKeys = useMemo(() => Object.keys(items), [items]);
@@ -206,9 +206,9 @@ export default function LogActivityScreen({ navigation }) {
                 ))}
               </View>
               <Text style={styles.label}>One-way distance (km)</Text>
-              <TextInput onChangeText={onOneWayKmChange} keyboardType={"numeric"} placeholder={"e.g., 7.5"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} value={oneWayKm} />
+              <TextInput placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} value={oneWayKm} onChangeText={onOneWayKmChange} keyboardType={"numeric"} placeholder={"e.g., 7.5"} />
               {suggestedKm && (
-                <Button kind={"ghost"} label={`Use suggested: ~${suggestedKm.toFixed(1)} km`} onPress={() => onUseSuggested()} />
+                <Button label={`Use suggested: ~${suggestedKm.toFixed(1)} km`} onPress={() => onUseSuggested()} kind={"ghost"} />
               )}
             </>
           ) : (
@@ -230,7 +230,7 @@ export default function LogActivityScreen({ navigation }) {
             {selectedItem && (
               <View style={{ marginTop: 8 }}>
                 <Text style={styles.label}>Quantity / times</Text>
-                <TextInput keyboardType={"numeric"} placeholder={"1"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} value={quantity} onChangeText={onQuantityChange} />
+                <TextInput placeholder={"1"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} value={quantity} onChangeText={onQuantityChange} keyboardType={"numeric"} />
               </View>
             )}
           )}
@@ -249,10 +249,10 @@ export default function LogActivityScreen({ navigation }) {
           )}
           <Text style={styles.label}>Notes (optional)</Text>
           const notesSty = [inputStyle, { minHeight: 60, textAlignVertical: "top" }];
-          <TextInput value={notes} onChangeText={onNotesChange} style={styles.notesSty} multiline={true} placeholder={"e.g., carpooled with 2 friends"} placeholderTextColor={"rgba(255,255,255,0.45)"} />
+          <TextInput placeholder={"e.g., carpooled with 2 friends"} placeholderTextColor={"rgba(255,255,255,0.45)"} value={notes} onChangeText={onNotesChange} style={styles.notesSty} multiline={true} />
           <View style={{ marginTop: 14, gap: 10 }}>
-            <Button label={"Save Activity"} onPress={() => onSave()} />
-            <Button kind={"ghost"} label={"Cancel"} onPress={() => onCancel()} />
+            <Button onPress={() => onSave()} label={"Save Activity"} />
+            <Button onPress={() => onCancel()} kind={"ghost"} label={"Cancel"} />
           </View>
         </Card>
         <View style={{ height: 30 }} />
@@ -262,21 +262,21 @@ export default function LogActivityScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  catPillText: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    fontSize: 13,
-  },
-  previewValue: {
-    fontSize: 28,
-    fontWeight: "900",
-    marginTop: 4,
-  },
-  pillRow: {
+  itemPill: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.02)",
     flexDirection: "row",
-    gap: 8,
-    flexWrap: "wrap",
-    marginTop: 10,
+    alignItems: "center",
+    gap: 6,
+  },
+  previewLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 12,
+    fontWeight: "700",
   },
   catPill: {
     borderWidth: 1,
@@ -286,13 +286,34 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: "rgba(255,255,255,0.02)",
   },
-  pillTextActive: {
-    color: "rgba(255,255,255,0.92)",
+  previewValue: {
+    fontSize: 28,
+    fontWeight: "900",
+    marginTop: 4,
+  },
+  pillActive: {
+    borderColor: "rgba(45,212,191,0.6)",
+    backgroundColor: "rgba(45,212,191,0.15)",
   },
   co2Badge: {
     color: "rgba(255,255,255,0.68)",
     fontSize: 10,
     fontWeight: "700",
+  },
+  previewBox: {
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
+    alignItems: "center",
+  },
+  pillText: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+    fontSize: 12,
+  },
+  pillTextActive: {
+    color: "rgba(255,255,255,0.92)",
   },
   label: {
     color: "rgba(255,255,255,0.68)",
@@ -308,6 +329,17 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: "rgba(255,255,255,0.03)",
   },
+  pillRow: {
+    flexDirection: "row",
+    gap: 8,
+    flexWrap: "wrap",
+    marginTop: 10,
+  },
+  catPillText: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+    fontSize: 13,
+  },
   pill: {
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.12)",
@@ -315,37 +347,5 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 999,
     backgroundColor: "rgba(255,255,255,0.02)",
-  },
-  pillText: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    fontSize: 12,
-  },
-  previewBox: {
-    backgroundColor: "rgba(255,255,255,0.04)",
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 12,
-    alignItems: "center",
-  },
-  previewLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  pillActive: {
-    borderColor: "rgba(45,212,191,0.6)",
-    backgroundColor: "rgba(45,212,191,0.15)",
-  },
-  itemPill: {
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: "rgba(255,255,255,0.02)",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
   },
 });

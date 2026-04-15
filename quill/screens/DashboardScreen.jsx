@@ -12,6 +12,7 @@ export function clamp(n, a, b) {
 }
 export default function DashboardScreen() {
   const ctx = useContext(AppContext);
+
   const data = useMemo(() => computeData(ctx.state), [ctx]);
 
   const computeData = (appData) => {
@@ -37,7 +38,7 @@ export default function DashboardScreen() {
         daily[day] = ((daily[day] || 0) + (l.co2Kg || 0));
       }
       let weeklyScore = computeWeeklyScore(Object.values(daily));
-      push(weeks, { wk: wk, startISO: startISO, totalKg: totalKg, catTotals: catTotals, weeklyScore: weeklyScore, logCount: weekLogs.length });
+      weeks.push({ wk: wk, startISO: startISO, totalKg: totalKg, catTotals: catTotals, weeklyScore: weeklyScore, logCount: weekLogs.length });
       w = (w + 1);
     }
     let currentWk = weekKeyISO(now);
@@ -309,19 +310,14 @@ let improvement = null;
 }
 
 const styles = StyleSheet.create({
-  dayRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 4,
-  },
   dayKg: {
     color: "rgba(255,255,255,0.68)",
     fontWeight: "900",
     fontSize: 12,
     marginRight: 8,
   },
-  dayScoreText: {
+  catKg: {
+    color: "rgba(255,255,255,0.68)",
     fontWeight: "900",
     fontSize: 13,
   },
@@ -335,10 +331,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(45,212,191,0.08)",
   },
-  scoreLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
+  dayLabelStyle: {
+    color: "rgba(255,255,255,0.92)",
     fontWeight: "700",
+    fontSize: 13,
+    flex: 1,
+  },
+  dayScoreText: {
+    fontWeight: "900",
+    fontSize: 13,
+  },
+  scoreRow: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   catHeader: {
     flexDirection: "row",
@@ -351,38 +356,34 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 14,
   },
-  barFill: {
-    height: "100%",
+  barBg: {
+    height: 8,
     borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    overflow: "hidden",
   },
-  dayLabelStyle: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "700",
-    fontSize: 13,
-    flex: 1,
+  dayRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
   },
   dayScoreBadge: {
     width: 30,
     alignItems: "flex-end",
-  },
-  scoreRow: {
-    flexDirection: "row",
-    alignItems: "center",
   },
   scoreNumber: {
     color: "#2dd4bf",
     fontSize: 28,
     fontWeight: "900",
   },
-  catKg: {
+  scoreLabel: {
     color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    fontSize: 13,
+    fontSize: 10,
+    fontWeight: "700",
   },
-  barBg: {
-    height: 8,
+  barFill: {
+    height: "100%",
     borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.06)",
-    overflow: "hidden",
   },
 });

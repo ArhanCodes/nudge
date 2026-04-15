@@ -4,7 +4,7 @@ from "./theme.quill" use bg, card, border, textColor, muted, brand
 
 component Screen with children extraStyle:
   to render:
-    view style screenBase:
+    view style [screenBase, extraStyle]:
       children
 
   style native:
@@ -15,7 +15,7 @@ component Screen with children extraStyle:
 
 component Card with children extraStyle:
   to render:
-    view style cardBase accessibilityRole "summary":
+    view style [cardBase, extraStyle] accessibilityRole "summary":
       children
 
   style native:
@@ -28,7 +28,7 @@ component Card with children extraStyle:
 
 component Title with children extraStyle:
   to render:
-    text style titleBase accessibilityRole "header":
+    text style [titleBase, extraStyle] accessibilityRole "header":
       children
 
   style native:
@@ -39,7 +39,7 @@ component Title with children extraStyle:
 
 component Muted with children extraStyle:
   to render:
-    text style mutedBase:
+    text style [mutedBase, extraStyle]:
       children
 
   style native:
@@ -68,16 +68,22 @@ component Button with label onPress kind disabled accessibilityLabel:
       font weight is "900"
 
 component Chip with label kind:
-  to render:
+  to chipViewStyle:
     if kind is "brand":
-      view style chipBrandView accessibilityLabel label:
-        text style chipBrandText: label
-    otherwise:
-      view style chipView accessibilityLabel label:
-        text style chipTextNormal: label
+      give back [chipBase, chipBrand]
+    give back [chipBase]
+  to chipLabelStyle:
+    if kind is "brand":
+      give back [chipText, chipTextBrand]
+    give back [chipText]
+  to render:
+    vs is chipViewStyle()
+    ls is chipLabelStyle()
+    view style vs accessibilityLabel label:
+      text style ls: label
 
   style native:
-    chipView:
+    chipBase:
       border width is 1
       border color is "rgba(255,255,255,0.12)"
       background color is "rgba(255,255,255,0.03)"
@@ -85,22 +91,15 @@ component Chip with label kind:
       padding vertical is 6
       border radius is 999
       align self is "flex-start"
-    chipBrandView:
-      border width is 1
+    chipBrand:
       border color is "rgba(45,212,191,0.55)"
       background color is "rgba(45,212,191,0.15)"
-      padding horizontal is 10
-      padding vertical is 6
-      border radius is 999
-      align self is "flex-start"
-    chipTextNormal:
+    chipText:
       color is "rgba(255,255,255,0.68)"
       font weight is "900"
       font size is 12
-    chipBrandText:
+    chipTextBrand:
       color is "rgba(255,255,255,0.92)"
-      font weight is "900"
-      font size is 12
 
 component ProgressRing with progress size strokeWidth color bgColor children:
   memo p is Math.max(0, Math.min(1, progress or 0)) when [progress]
