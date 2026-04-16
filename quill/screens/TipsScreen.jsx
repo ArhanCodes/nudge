@@ -85,7 +85,7 @@ export default function TipsScreen() {
               const cat = entry[1];
               const svs = summaryValueStyle(key);
               return (
-                <View key={__idx} style={styles.summaryRow}>
+                <View style={styles.summaryRow} key={__idx}>
                   <Text style={styles.summaryLabel}>{cat.icon} {cat.label}</Text>
                   <Text style={{ color: svs.color, fontWeight: svs.fontWeight, fontSize: 14 }}>{(result.catTotals[key] || 0).toFixed(2)} kg</Text>
                 </View>
@@ -100,32 +100,40 @@ export default function TipsScreen() {
 }
 
 const styles = StyleSheet.create({
-  worstIcon: {
-    fontSize: 32,
+  tipHeader: {
+    marginBottom: 6,
+  },
+  summaryHighlight: {
+    color: "#ef4444",
+    fontWeight: "900",
+  },
+  flex1: {
+    flex: 1,
+  },
+  spacer10: {
+    height: 10,
+  },
+  tipCat: {
+    fontWeight: "900",
+    fontSize: 12,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   summaryLabel: {
     color: "rgba(255,255,255,0.92)",
     fontWeight: "700",
     fontSize: 14,
   },
-  flex1: {
-    flex: 1,
+  summaryValue: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "700",
+    fontSize: 14,
   },
   mutedMarginTop6: {
     marginTop: 6,
   },
-  spacer12: {
-    height: 12,
-  },
-  spacer10: {
-    height: 10,
-  },
-  summaryHighlight: {
-    color: "#ef4444",
-    fontWeight: "900",
-  },
-  titleSmall: {
-    fontSize: 16,
+  tipCard: {
+    borderLeftWidth: 3,
   },
   worstBox: {
     flexDirection: "row",
@@ -138,32 +146,17 @@ const styles = StyleSheet.create({
     marginTop: 14,
     gap: 12,
   },
-  worstSub: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 12,
-    marginTop: 2,
+  spacer12: {
+    height: 12,
   },
-  tipCard: {
-    borderLeftWidth: 3,
+  spacer30: {
+    height: 30,
   },
-  summaryValue: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "700",
-    fontSize: 14,
+  worstIcon: {
+    fontSize: 32,
   },
-  worstTitle: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
-    fontSize: 16,
-  },
-  tipCat: {
-    fontWeight: "900",
-    fontSize: 12,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  tipHeader: {
-    marginBottom: 6,
+  marginTop10: {
+    marginTop: 10,
   },
   summaryRow: {
     flexDirection: "row",
@@ -172,15 +165,22 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,255,255,0.12)",
   },
+  worstSub: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 12,
+    marginTop: 2,
+  },
   tipText: {
     color: "rgba(255,255,255,0.92)",
     fontSize: 14,
     lineHeight: 20,
   },
-  spacer30: {
-    height: 30,
+  titleSmall: {
+    fontSize: 16,
   },
-  marginTop10: {
-    marginTop: 10,
+  worstTitle: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+    fontSize: 16,
   },
 });

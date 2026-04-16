@@ -5,8 +5,8 @@ import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 import { AppContext } from '../state/context';
 import { Screen, Card, Title, Muted, Button } from '../ui/components';
 import { brand, textColor, muted } from '../ui/theme';
-import Location from 'expo-location';
-import MapView from 'react-native-maps';
+import * as Location from 'expo-location';
+import * as MapView from 'react-native-maps';
 export default function LocationPickerScreen({ navigation }) {
   const ctx = useContext(AppContext);
   const [selectedCoord, setSelectedCoord] = useState(null);
@@ -69,9 +69,10 @@ export default function LocationPickerScreen({ navigation }) {
         let permStatus = permResult.status;
         if ((permStatus === "granted")) {
           let pos = await Location.getCurrentPositionAsync({});
-          setSelectedCoord({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+          let coord = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+          setSelectedCoord(coord);
           try {
-            let results = await Location.reverseGeocodeAsync(selectedCoord);
+            let results = await Location.reverseGeocodeAsync(coord);
             if ((results.length > 0)) {
               let r = results[0];
               setSelectedLabel([r.street, r.city, r.region].filter(Boolean).join(", "));
@@ -118,8 +119,8 @@ export default function LocationPickerScreen({ navigation }) {
           <Muted>No location selected yet.</Muted>
         )}
         <View style={styles.buttonGroup}>
-          <Button onPress={() => onSave()} disabled={noCoord} label={"Save Home Location"} />
-          <Button kind={"ghost"} label={"Cancel"} onPress={() => onCancel()} />
+          <Button label={"Save Home Location"} onPress={onSave} disabled={noCoord} />
+          <Button kind={"ghost"} label={"Cancel"} onPress={onCancel} />
         </View>
       </Card>
     </Screen>
@@ -127,6 +128,9 @@ export default function LocationPickerScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  mutedTopSmall: {
+    marginTop: 6,
+  },
   spacerMedium: {
     height: 12,
   },
@@ -155,8 +159,5 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.12)",
     justifyContent: "center",
     alignItems: "center",
-  },
-  mutedTopSmall: {
-    marginTop: 6,
   },
 });

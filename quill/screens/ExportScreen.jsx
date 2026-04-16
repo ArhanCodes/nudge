@@ -6,19 +6,19 @@ import { AppContext } from '../state/context';
 import { Screen, Card, Title, Muted, Button } from '../ui/components';
 import { brand, textColor, muted } from '../ui/theme';
 export function escapeCSV(val) {
-  str = String((val || ""));
-  quote = String.fromCharCode(34);
-  nl = String.fromCharCode(10);
-  quotePattern = new RegExp(String.fromCharCode(34), "g");
+  let str = String((val || ""));
+  let quote = String.fromCharCode(34);
+  let nl = String.fromCharCode(10);
+  let quotePattern = new RegExp(String.fromCharCode(34), "g");
   if (((str.includes(",") || str.includes(quote)) || str.includes(nl))) {
     return ((quote + str.replace(quotePattern, (quote + quote))) + quote);
   }
   return str;
 }
 export function logsToCSV(logs) {
-  headers = ["Date", "Category", "Activity", "CO2 (kg)", "Quantity", "Notes"];
-  rows = logs.map((l) => [(l.dateISO?.slice(0, 10) || ""), (l.category || "transport"), ((l.label || l.itemKey) || ""), (l.co2Kg || 0).toFixed(3), (l.quantity || 1), (l.notes || "")]);
-  csvLines = [headers].concat(rows).map((row) => row.map(escapeCSV).join(","));
+  let headers = ["Date", "Category", "Activity", "CO2 (kg)", "Quantity", "Notes"];
+  let rows = logs.map((l) => [(l.dateISO?.slice(0, 10) || ""), (l.category || "transport"), ((l.label || l.itemKey) || ""), (l.co2Kg || 0).toFixed(3), (l.quantity || 1), (l.notes || "")]);
+  let csvLines = [headers].concat(rows).map((row) => row.map(escapeCSV).join(","));
   return csvLines.join(String.fromCharCode(10));
 }
 export default function ExportScreen() {
@@ -71,7 +71,7 @@ export default function ExportScreen() {
               <Text style={styles.statValue}>{stats.count}</Text>
               <Text style={styles.statLabel}>Activities</Text>
             </View>
-            <View accessibilityLabel={`Days: ${stats.days}`} style={styles.statBox}>
+            <View style={styles.statBox} accessibilityLabel={`Days: ${stats.days}`}>
               <Text style={styles.statValue}>{stats.days}</Text>
               <Text style={styles.statLabel}>Days</Text>
             </View>
@@ -90,7 +90,7 @@ export default function ExportScreen() {
         </Card>
         <View style={styles.spacerSmall} />
         <Card>
-          <Button label={"Share CSV"} onPress={() => onShare()} disabled={isEmpty} />
+          <Button label={"Share CSV"} onPress={onShare} disabled={isEmpty} />
           {shared && (
             <Muted style={styles.successHint}>Data shared successfully!</Muted>
           )}
@@ -108,12 +108,6 @@ const styles = StyleSheet.create({
   hintStyle: {
     marginTop: 6,
   },
-  spacerSmall: {
-    height: 12,
-  },
-  spacerLarge: {
-    height: 30,
-  },
   statBox: {
     flex: 1,
     backgroundColor: "rgba(255,255,255,0.04)",
@@ -121,25 +115,27 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: "center",
   },
-  previewBox: {
-    backgroundColor: "rgba(255,255,255,0.03)",
-    borderRadius: 8,
-    padding: 10,
-    marginTop: 8,
+  spacerLarge: {
+    height: 30,
   },
   previewTitle: {
     fontSize: 16,
+  },
+  statsRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 14,
   },
   statValue: {
     color: "#2dd4bf",
     fontSize: 22,
     fontWeight: "900",
   },
-  statLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 11,
-    fontWeight: "700",
-    marginTop: 2,
+  previewBox: {
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 8,
   },
   previewText: {
     color: "rgba(255,255,255,0.68)",
@@ -147,13 +143,17 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
     lineHeight: 14,
   },
+  spacerSmall: {
+    height: 12,
+  },
   successHint: {
     marginTop: 8,
     textAlign: "center",
   },
-  statsRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 14,
+  statLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 11,
+    fontWeight: "700",
+    marginTop: 2,
   },
 });

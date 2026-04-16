@@ -166,171 +166,171 @@ let dailyKgValues = data.dailyBreakdown.map((d) => d.kg);
 let maxDailyKg = Math.max.apply(Math, [1].concat(dailyKgValues));
 let improvement = null;
 
+const ringProgress = Math.min((thisWeek.totalKg / data.target), 1);
+const ringColor = pickGoalColor(thisWeek.totalKg, data.target);
+const ringPct = Math.round(Math.min(((thisWeek.totalKg / data.target) * 100), 999));
+const benchColor = pickBenchmarkColor(data.benchmark.better);
+const reversed = data.weeks.slice().reverse();
+if ((lastWeek?.totalKg > 0)) {
+  improvement = (((lastWeek.totalKg - thisWeek.totalKg) / lastWeek.totalKg) * 100).toFixed(0);
+}
   return (
-    <>
-      {(() => {
-        const improvement = (((lastWeek.totalKg - thisWeek.totalKg) / lastWeek.totalKg) * 100).toFixed(0);
-        if (!((lastWeek?.totalKg > 0))) return null;
-        return (
-          <></>
-        );
-      })()}
-      <Screen>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <Card>
-            <View style={styles.scoreRow}>
-              <View style={styles.scoreCircle}>
-                <Text style={styles.scoreNumber}>{thisWeek.weeklyScore}</Text>
-                <Text style={styles.scoreLabel}>Score</Text>
-              </View>
-              <View style={{ flex: 1, marginLeft: 16 }}>
-                <Title>This Week</Title>
-                <Muted style={{ marginTop: 4 }}>{thisWeek.totalKg.toFixed(1)} kg CO2e from {thisWeek.logCount} activities</Muted>
-                {(() => {
-                  const chipKind = pickImprovementKind(improvement);
-                  const chipLabel = pickImprovementLabel(improvement);
-                  if (!((improvement != null))) return null;
-                  return (
-                    <View style={{ marginTop: 6 }}>
-                      <Chip kind={chipKind} label={chipLabel} />
-                    </View>
-                  );
-                })()}
-              </View>
+    <Screen>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Card>
+          <View style={styles.scoreRow}>
+            <View style={styles.scoreCircle}>
+              <Text style={styles.scoreNumber}>{thisWeek.weeklyScore}</Text>
+              <Text style={styles.scoreLabel}>Score</Text>
             </View>
-          </Card>
-          <View style={{ height: 12 }} />
-          <Card>
-            <Title style={{ fontSize: 18 }}>Goal & Benchmark</Title>
-            const ringProgress = Math.min((thisWeek.totalKg / data.target), 1);
-            const ringColor = pickGoalColor(thisWeek.totalKg, data.target);
-            const ringPct = Math.round(Math.min(((thisWeek.totalKg / data.target) * 100), 999));
-            <View style={{ flexDirection: "row", alignItems: "center", marginTop: 12, gap: 16 }}>
-              <ProgressRing strokeWidth={10} color={ringColor} progress={ringProgress} size={100}>
-                <Text style={{ color: textColor, fontSize: 18, fontWeight: "900" }}>{ringPct}%</Text>
-              </ProgressRing>
-              const benchColor = pickBenchmarkColor(data.benchmark.better);
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: textColor, fontWeight: "700", fontSize: 14 }}>{thisWeek.totalKg.toFixed(1)} / {data.target} kg goal</Text>
-                <View style={{ height: 6 }} />
-                {data.benchmark.better ? (
-                  <Text style={{ color: benchColor, fontWeight: "700", fontSize: 13 }}>{data.benchmark.savedPct.toFixed(0)}% below {data.benchmark.benchmarkLabel}</Text>
-                ) : (
-                  <Text style={{ color: benchColor, fontWeight: "700", fontSize: 13 }}>{Math.abs(data.benchmark.savedPct).toFixed(0)}% above {data.benchmark.benchmarkLabel}</Text>
-                )}
-                <Muted style={{ fontSize: 11, marginTop: 2 }}>National avg: {data.benchmark.benchmarkKg} kg/week</Muted>
-                <Muted style={{ fontSize: 9, marginTop: 2 }}>Source: {data.benchmark.benchmarkSource}</Muted>
-              </View>
-            </View>
-          </Card>
-          <View style={{ height: 12 }} />
-          <Card>
-            <Title style={{ fontSize: 18 }}>Category Breakdown</Title>
-            <Muted style={{ marginTop: 4 }}>This week's CO2e by domain</Muted>
-            <View style={{ marginTop: 12 }}>
-              {Object.entries(CATEGORIES).map((entry, __idx) => {
-                const key = entry[0];
-                const cat = entry[1];
-                const kg = (thisWeek.catTotals[key] || 0);
-                const totalKg = Math.max(0.01, thisWeek.totalKg);
-                const pct = ((kg / totalKg) * 100);
-                const catStyle = catBarFillStyle(pct, cat.color);
+            <View style={{ flex: 1, marginLeft: 16 }}>
+              <Title>This Week</Title>
+              <Muted style={{ marginTop: 4 }}>{thisWeek.totalKg.toFixed(1)} kg CO2e from {thisWeek.logCount} activities</Muted>
+              {(() => {
+                const chipKind = pickImprovementKind(improvement);
+                const chipLabel = pickImprovementLabel(improvement);
+                if (!((improvement != null))) return null;
                 return (
-                  <View style={{ marginBottom: 12 }} key={__idx}>
-                    <View style={styles.catHeader}>
-                      <Text style={styles.catName}>{cat.icon} {cat.label}</Text>
-                      <Text style={styles.catKg}>{kg.toFixed(2)} kg</Text>
-                    </View>
-                    <View style={styles.barBg}>
-                      <View style={catStyle} />
-                    </View>
+                  <View style={{ marginTop: 6 }}>
+                    <Chip kind={chipKind} label={chipLabel} />
                   </View>
                 );
-              })}
+              })()}
             </View>
-          </Card>
-          <View style={{ height: 12 }} />
-          <Card>
-            <Title style={{ fontSize: 18 }}>Daily Emissions</Title>
-            <Muted style={{ marginTop: 4 }}>CO2e per day this week</Muted>
-            <View style={{ marginTop: 12 }}>
-              {data.dailyBreakdown.map((d, __idx) => {
-                const pct = ((d.kg / maxDailyKg) * 100);
-                const dayLabel = new Date((d.dayISO + "T00:00:00Z")).toLocaleDateString(null, { weekday: "short" });
-                const isToday = (d.dayISO === new Date().toISOString().slice(0, 10));
-                const dlStyle = pickDayLabelStyle(isToday);
-                const dlText = pickDayLabelText(dayLabel, isToday);
-                const dkText = pickDayKgText(d.kg);
-                const dsStyle = dayScoreStyle(d.score);
-                const dsText = pickDayScoreText(d.kg, d.score);
-                const dbStyle = dailyBarFillStyle(pct);
-                return (
-                  <View style={{ marginBottom: 8 }} key={__idx}>
-                    <View style={styles.dayRow}>
-                      <Text style={dlStyle}>{dlText}</Text>
-                      <Text style={styles.dayKg}>{dkText}</Text>
-                      <View style={styles.dayScoreBadge}>
-                        <Text style={dsStyle}>{dsText}</Text>
-                      </View>
-                    </View>
-                    <View style={styles.barBg}>
-                      <View style={dbStyle} />
+          </View>
+        </Card>
+        <View style={{ height: 12 }} />
+        <Card>
+          <Title style={{ fontSize: 18 }}>Goal & Benchmark</Title>
+          <View style={{ flexDirection: "row", alignItems: "center", marginTop: 12, gap: 16 }}>
+            <ProgressRing progress={ringProgress} size={100} strokeWidth={10} color={ringColor}>
+              <Text style={{ color: textColor, fontSize: 18, fontWeight: "900" }}>{ringPct}%</Text>
+            </ProgressRing>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: textColor, fontWeight: "700", fontSize: 14 }}>{thisWeek.totalKg.toFixed(1)} / {data.target} kg goal</Text>
+              <View style={{ height: 6 }} />
+              {data.benchmark.better ? (
+                <Text style={{ color: benchColor, fontWeight: "700", fontSize: 13 }}>{data.benchmark.savedPct.toFixed(0)}% below {data.benchmark.benchmarkLabel}</Text>
+              ) : (
+                <Text style={{ color: benchColor, fontWeight: "700", fontSize: 13 }}>{Math.abs(data.benchmark.savedPct).toFixed(0)}% above {data.benchmark.benchmarkLabel}</Text>
+              )}
+              <Muted style={{ fontSize: 11, marginTop: 2 }}>National avg: {data.benchmark.benchmarkKg} kg/week</Muted>
+              <Muted style={{ fontSize: 9, marginTop: 2 }}>Source: {data.benchmark.benchmarkSource}</Muted>
+            </View>
+          </View>
+        </Card>
+        <View style={{ height: 12 }} />
+        <Card>
+          <Title style={{ fontSize: 18 }}>Category Breakdown</Title>
+          <Muted style={{ marginTop: 4 }}>This week's CO2e by domain</Muted>
+          <View style={{ marginTop: 12 }}>
+            {Object.entries(CATEGORIES).map((entry, __idx) => {
+              const key = entry[0];
+              const cat = entry[1];
+              const kg = (thisWeek.catTotals[key] || 0);
+              const totalKg = Math.max(0.01, thisWeek.totalKg);
+              const pct = ((kg / totalKg) * 100);
+              const catStyle = catBarFillStyle(pct, cat.color);
+              return (
+                <View key={__idx} style={{ marginBottom: 12 }}>
+                  <View style={styles.catHeader}>
+                    <Text style={styles.catName}>{cat.icon} {cat.label}</Text>
+                    <Text style={styles.catKg}>{kg.toFixed(2)} kg</Text>
+                  </View>
+                  <View style={styles.barBg}>
+                    <View style={catStyle} />
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </Card>
+        <View style={{ height: 12 }} />
+        <Card>
+          <Title style={{ fontSize: 18 }}>Daily Emissions</Title>
+          <Muted style={{ marginTop: 4 }}>CO2e per day this week</Muted>
+          <View style={{ marginTop: 12 }}>
+            {data.dailyBreakdown.map((d, __idx) => {
+              const pct = ((d.kg / maxDailyKg) * 100);
+              const dayLabel = new Date((d.dayISO + "T00:00:00Z")).toLocaleDateString(null, { weekday: "short" });
+              const isToday = (d.dayISO === new Date().toISOString().slice(0, 10));
+              const dlStyle = pickDayLabelStyle(isToday);
+              const dlText = pickDayLabelText(dayLabel, isToday);
+              const dkText = pickDayKgText(d.kg);
+              const dsStyle = dayScoreStyle(d.score);
+              const dsText = pickDayScoreText(d.kg, d.score);
+              const dbStyle = dailyBarFillStyle(pct);
+              return (
+                <View style={{ marginBottom: 8 }} key={__idx}>
+                  <View style={styles.dayRow}>
+                    <Text style={dlStyle}>{dlText}</Text>
+                    <Text style={styles.dayKg}>{dkText}</Text>
+                    <View style={styles.dayScoreBadge}>
+                      <Text style={dsStyle}>{dsText}</Text>
                     </View>
                   </View>
-                );
-              })}
-            </View>
-          </Card>
-          <View style={{ height: 12 }} />
-          <Card>
-            <Title style={{ fontSize: 18 }}>4-Week Trend</Title>
-            <Muted style={{ marginTop: 4 }}>Total CO2e over recent weeks</Muted>
-            <View style={{ marginTop: 12 }}>
-              const reversed = data.weeks.slice().reverse();
-              {reversed.map((w, __idx) => {
-                const i = reversed.indexOf(w);
-                const pct = ((w.totalKg / maxWeeklyKg) * 100);
-                const tlStyle = pickTrendLabelStyle(i);
-                const tlText = pickTrendLabelText(w.startISO, i);
-                const tbStyle = trendBarFillStyle(pct, i);
-                return (
-                  <View style={{ marginBottom: 10 }} key={__idx}>
-                    <View style={styles.dayRow}>
-                      <Text style={tlStyle}>{tlText}</Text>
-                      <Text style={styles.dayKg}>{w.totalKg.toFixed(1)} kg</Text>
-                    </View>
-                    <View style={styles.barBg}>
-                      <View style={tbStyle} />
-                    </View>
+                  <View style={styles.barBg}>
+                    <View style={dbStyle} />
                   </View>
-                );
-              })}
-            </View>
-          </Card>
-          <View style={{ height: 30 }} />
-        </ScrollView>
-      </Screen>
-    </>
+                </View>
+              );
+            })}
+          </View>
+        </Card>
+        <View style={{ height: 12 }} />
+        <Card>
+          <Title style={{ fontSize: 18 }}>4-Week Trend</Title>
+          <Muted style={{ marginTop: 4 }}>Total CO2e over recent weeks</Muted>
+          <View style={{ marginTop: 12 }}>
+            {reversed.map((w, __idx) => {
+              const i = reversed.indexOf(w);
+              const pct = ((w.totalKg / maxWeeklyKg) * 100);
+              const tlStyle = pickTrendLabelStyle(i);
+              const tlText = pickTrendLabelText(w.startISO, i);
+              const tbStyle = trendBarFillStyle(pct, i);
+              return (
+                <View style={{ marginBottom: 10 }} key={__idx}>
+                  <View style={styles.dayRow}>
+                    <Text style={tlStyle}>{tlText}</Text>
+                    <Text style={styles.dayKg}>{w.totalKg.toFixed(1)} kg</Text>
+                  </View>
+                  <View style={styles.barBg}>
+                    <View style={tbStyle} />
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </Card>
+        <View style={{ height: 30 }} />
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  scoreNumber: {
+    color: "#2dd4bf",
+    fontSize: 28,
+    fontWeight: "900",
+  },
+  scoreLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 10,
+    fontWeight: "700",
+  },
   catKg: {
     color: "rgba(255,255,255,0.68)",
     fontWeight: "900",
     fontSize: 13,
   },
-  catHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 4,
+  dayScoreBadge: {
+    width: 30,
+    alignItems: "flex-end",
   },
-  dayRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 4,
+  barFill: {
+    height: "100%",
+    borderRadius: 999,
   },
   dayKg: {
     color: "rgba(255,255,255,0.68)",
@@ -338,15 +338,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginRight: 8,
   },
-  scoreNumber: {
-    color: "#2dd4bf",
-    fontSize: 28,
+  dayScoreText: {
     fontWeight: "900",
-  },
-  catName: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "700",
-    fontSize: 14,
+    fontSize: 13,
   },
   barBg: {
     height: 8,
@@ -354,27 +348,32 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.06)",
     overflow: "hidden",
   },
+  catHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  catName: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  dayRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
   dayLabelStyle: {
     color: "rgba(255,255,255,0.92)",
     fontWeight: "700",
     fontSize: 13,
     flex: 1,
   },
-  dayScoreBadge: {
-    width: 30,
-    alignItems: "flex-end",
-  },
   scoreRow: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  barFill: {
-    height: "100%",
-    borderRadius: 999,
-  },
-  dayScoreText: {
-    fontWeight: "900",
-    fontSize: 13,
   },
   scoreCircle: {
     width: 80,
@@ -385,10 +384,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(45,212,191,0.08)",
-  },
-  scoreLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
-    fontWeight: "700",
   },
 });

@@ -63,7 +63,7 @@ component TrendsScreen:
           bw is computeBarWidth(d.kg, data.max) + "%"
           view style barRow:
             view style dayRow:
-              text style dayLabel: "{new Date(d.day).toLocaleDateString(nothing, { weekday: 'short' })}"
+              text style dayLabel: "{new Date(d.day + 'T00:00:00Z').toLocaleDateString(nothing, { weekday: 'short' })}"
               text style kgLabel: "{d.kg.toFixed(2)} kg"
             view style barBg:
               view style { height: "100%", backgroundColor: "#7c5cff", width: bw }

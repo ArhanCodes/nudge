@@ -2,9 +2,9 @@
 
 from "./theme.quill" use bg, card, border, textColor, muted, brand
 
-component Screen with children extraStyle:
+component Screen with children style:
   to render:
-    view style [screenBase, extraStyle]:
+    view style [screenBase, style]:
       children
 
   style native:
@@ -13,9 +13,9 @@ component Screen with children extraStyle:
       background color is "#0b1020"
       padding is 16
 
-component Card with children extraStyle:
+component Card with children style:
   to render:
-    view style [cardBase, extraStyle] accessibilityRole "summary":
+    view style [cardBase, style] accessibilityRole "summary":
       children
 
   style native:
@@ -26,9 +26,9 @@ component Card with children extraStyle:
       border radius is 16
       padding is 14
 
-component Title with children extraStyle:
+component Title with children style:
   to render:
-    text style [titleBase, extraStyle] accessibilityRole "header":
+    text style [titleBase, style] accessibilityRole "header":
       children
 
   style native:
@@ -37,9 +37,9 @@ component Title with children extraStyle:
       font size is 22
       font weight is "900"
 
-component Muted with children extraStyle:
+component Muted with children style:
   to render:
-    text style [mutedBase, extraStyle]:
+    text style [mutedBase, style]:
       children
 
   style native:

@@ -3,33 +3,33 @@ import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { bg, card, border, textColor, muted, brand } from './theme';
-export function Screen({ children, extraStyle }) {
+export function Screen({ children, style }) {
   return (
-    <View style={[styles.screenBase, extraStyle]}>
+    <View style={[styles.screenBase, style]}>
       {children}
     </View>
   );
 }
 
-export function Card({ children, extraStyle }) {
+export function Card({ children, style }) {
   return (
-    <View accessibilityRole={"summary"} style={[styles.cardBase, extraStyle]}>
+    <View style={[styles.cardBase, style]} accessibilityRole={"summary"}>
       {children}
     </View>
   );
 }
 
-export function Title({ children, extraStyle }) {
+export function Title({ children, style }) {
   return (
-    <Text style={[styles.titleBase, extraStyle]} accessibilityRole={"header"}>
+    <Text style={[styles.titleBase, style]} accessibilityRole={"header"}>
       {children}
     </Text>
   );
 }
 
-export function Muted({ children, extraStyle }) {
+export function Muted({ children, style }) {
   return (
-    <Text style={[styles.mutedBase, extraStyle]}>
+    <Text style={[styles.mutedBase, style]}>
       {children}
     </Text>
   );
@@ -44,7 +44,7 @@ export function Button({ label, onPress, kind, disabled, accessibilityLabel }) {
 let al = accessLabel();
 
   return (
-    <Pressable disabled={disabled} onPress={() => onPress()} accessibilityRole={"button"} accessibilityLabel={al}>
+    <Pressable accessibilityRole={"button"} accessibilityLabel={al} disabled={disabled} onPress={onPress}>
       {(kind === "ghost") ? (
         <Text style={styles.btnGhostText}>{label}</Text>
       ) : (
@@ -120,18 +120,23 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
   },
-  btnPrimaryText: {
-    color: "#081019",
+  btnGhostText: {
+    color: "rgba(255,255,255,0.92)",
     fontWeight: "900",
-  },
-  chipBrand: {
-    borderColor: "rgba(45,212,191,0.55)",
-    backgroundColor: "rgba(45,212,191,0.15)",
   },
   chipText: {
     color: "rgba(255,255,255,0.68)",
     fontWeight: "900",
     fontSize: 12,
+  },
+  chipBase: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(255,255,255,0.03)",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    alignSelf: "flex-start",
   },
   screenBase: {
     flex: 1,
@@ -148,20 +153,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
   },
-  btnGhostText: {
-    color: "rgba(255,255,255,0.92)",
+  btnPrimaryText: {
+    color: "#081019",
     fontWeight: "900",
-  },
-  chipBase: {
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    backgroundColor: "rgba(255,255,255,0.03)",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    alignSelf: "flex-start",
   },
   chipTextBrand: {
     color: "rgba(255,255,255,0.92)",
+  },
+  chipBrand: {
+    borderColor: "rgba(45,212,191,0.55)",
+    backgroundColor: "rgba(45,212,191,0.15)",
   },
 });

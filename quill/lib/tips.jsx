@@ -7,12 +7,12 @@ export function getPersonalisedTips(categoryTotals, count) {
   if ((count == null)) {
     count = 3;
   }
-  sorted = Object.entries(categoryTotals).sort((a, b) => (b[1] - a[1]));
-  tips = [];
-  used = new Set();
+  let sorted = Object.entries(categoryTotals).sort((a, b) => (b[1] - a[1]));
+  let tips = [];
+  let used = new Set();
   for (const entry of sorted) {
-    category = entry[0];
-    pool = (TIPS[category] || []);
+    let category = entry[0];
+    let pool = (TIPS[category] || []);
     for (const tip of pool) {
       if ((!(tips.length < count))) {
         break;
@@ -28,8 +28,8 @@ export function getPersonalisedTips(categoryTotals, count) {
     }
   }
   if ((tips.length < count)) {
-    firstSorted = sorted[0];
-    worstCat = "transport";
+    let firstSorted = sorted[0];
+    let worstCat = "transport";
     if (firstSorted) {
       worstCat = firstSorted[0];
     }
@@ -46,11 +46,11 @@ export function getPersonalisedTips(categoryTotals, count) {
   return tips;
 }
 export function getWorstCategory(categoryTotals) {
-  worst = "transport";
-  maxVal = (-1);
+  let worst = "transport";
+  let maxVal = (-1);
   for (const entry of Object.entries(categoryTotals)) {
-    cat = entry[0];
-    val = entry[1];
+    let cat = entry[0];
+    let val = entry[1];
     if ((val > maxVal)) {
       maxVal = val;
       worst = cat;

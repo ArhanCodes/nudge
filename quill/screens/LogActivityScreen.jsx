@@ -2,6 +2,14 @@
 import React, { useState, useContext, useMemo } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
+function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 import { AppContext } from '../state/context';
 import { Screen, Card, Title, Muted, Button } from '../ui/components';
 import { brand, textColor, muted, border } from '../ui/theme';
@@ -169,6 +177,7 @@ export default function LogActivityScreen({ navigation }) {
   const itemKeys = useMemo(() => Object.keys(items), [items]);
   const preview = useMemo(() => computePreview(), [category, transport, oneWayKm, selectedItem, quantity, items]);
 
+const notesSty = [styles.inputStyle, { minHeight: 60, textAlignVertical: "top" }];
   return (
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -180,7 +189,7 @@ export default function LogActivityScreen({ navigation }) {
               const catTxtSty = catPillTextStyle(k);
               const catHandler = selectCategory.bind(null, k);
               return (
-                <Pressable onPress={() => catHandler()} style={catSty} key={__idx}>
+                <Pressable onPress={catHandler} style={catSty} key={__idx}>
                   <Text style={catTxtSty}>{CATEGORIES[k].icon} {CATEGORIES[k].label}</Text>
                 </Pressable>
               );
@@ -199,40 +208,42 @@ export default function LogActivityScreen({ navigation }) {
                   const tTxtSty = transportPillTextStyle(t);
                   const tHandler = selectTransport.bind(null, t);
                   return (
-                    <Pressable onPress={() => tHandler()} style={tSty} key={__idx}>
+                    <Pressable onPress={tHandler} style={tSty} key={__idx}>
                       <Text style={tTxtSty}>{TRANSPORT_LABELS[t]}</Text>
                     </Pressable>
                   );
                 })}
               </View>
               <Text style={styles.label}>One-way distance (km)</Text>
-              <TextInput keyboardType={"numeric"} placeholder={"e.g., 7.5"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} value={oneWayKm} onChangeText={onOneWayKmChange} />
+              <TextInput onChangeText={onOneWayKmChange} keyboardType={"numeric"} placeholder={"e.g., 7.5"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} value={oneWayKm} />
               {suggestedKm && (
-                <Button onPress={() => onUseSuggested()} kind={"ghost"} label={`Use suggested: ~${suggestedKm.toFixed(1)} km`} />
+                <Button kind={"ghost"} label={`Use suggested: ~${suggestedKm.toFixed(1)} km`} onPress={onUseSuggested} />
               )}
             </>
           ) : (
-            <Muted style={{ marginTop: 6 }}>Tap an activity to select it.</Muted>
-            <View style={styles.pillRow}>
-              {itemKeys.map((k, __idx) => {
-                const item = items[k];
-                const iSty = itemPillStyle(k);
-                const iTxtSty = itemTextStyle(k);
-                const iHandler = selectItem.bind(null, k);
-                return (
-                  <Pressable onPress={() => iHandler()} style={iSty} key={__idx}>
-                    <Text style={iTxtSty}>{item.icon} {item.label}</Text>
-                    <Text style={styles.co2Badge}>{co2Prefix(item.co2)}{item.co2} kg</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-            {selectedItem && (
-              <View style={{ marginTop: 8 }}>
-                <Text style={styles.label}>Quantity / times</Text>
-                <TextInput value={quantity} onChangeText={onQuantityChange} keyboardType={"numeric"} placeholder={"1"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} />
+            <>
+              <Muted style={{ marginTop: 6 }}>Tap an activity to select it.</Muted>
+              <View style={styles.pillRow}>
+                {itemKeys.map((k, __idx) => {
+                  const item = items[k];
+                  const iSty = itemPillStyle(k);
+                  const iTxtSty = itemTextStyle(k);
+                  const iHandler = selectItem.bind(null, k);
+                  return (
+                    <Pressable onPress={iHandler} style={iSty} key={__idx}>
+                      <Text style={iTxtSty}>{item.icon} {item.label}</Text>
+                      <Text style={styles.co2Badge}>{co2Prefix(item.co2)}{item.co2} kg</Text>
+                    </Pressable>
+                  );
+                })}
               </View>
-            )}
+              {selectedItem && (
+                <View style={{ marginTop: 8 }}>
+                  <Text style={styles.label}>Quantity / times</Text>
+                  <TextInput keyboardType={"numeric"} placeholder={"1"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} value={quantity} onChangeText={onQuantityChange} />
+                </View>
+              )}
+            </>
           )}
         </Card>
         <View style={{ height: 12 }} />
@@ -249,11 +260,10 @@ export default function LogActivityScreen({ navigation }) {
             );
           })()}
           <Text style={styles.label}>Notes (optional)</Text>
-          const notesSty = [styles.inputStyle, { minHeight: 60, textAlignVertical: "top" }];
-          <TextInput placeholderTextColor={"rgba(255,255,255,0.45)"} value={notes} onChangeText={onNotesChange} style={notesSty} multiline={true} placeholder={"e.g., carpooled with 2 friends"} />
+          <TextInput onChangeText={onNotesChange} style={notesSty} multiline={true} placeholder={"e.g., carpooled with 2 friends"} placeholderTextColor={"rgba(255,255,255,0.45)"} value={notes} />
           <View style={{ marginTop: 14, gap: 10 }}>
-            <Button label={"Save Activity"} onPress={() => onSave()} />
-            <Button kind={"ghost"} label={"Cancel"} onPress={() => onCancel()} />
+            <Button label={"Save Activity"} onPress={onSave} />
+            <Button kind={"ghost"} label={"Cancel"} onPress={onCancel} />
           </View>
         </Card>
         <View style={{ height: 30 }} />
@@ -266,62 +276,6 @@ const styles = StyleSheet.create({
   pillActive: {
     borderColor: "rgba(45,212,191,0.6)",
     backgroundColor: "rgba(45,212,191,0.15)",
-  },
-  itemPill: {
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: "rgba(255,255,255,0.02)",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  label: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    marginBottom: 6,
-    marginTop: 10,
-  },
-  pillText: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    fontSize: 12,
-  },
-  previewBox: {
-    backgroundColor: "rgba(255,255,255,0.04)",
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 12,
-    alignItems: "center",
-  },
-  pillRow: {
-    flexDirection: "row",
-    gap: 8,
-    flexWrap: "wrap",
-    marginTop: 10,
-  },
-  previewValue: {
-    fontSize: 28,
-    fontWeight: "900",
-    marginTop: 4,
-  },
-  catPill: {
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.02)",
-  },
-  pill: {
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.02)",
   },
   pillTextActive: {
     color: "rgba(255,255,255,0.92)",
@@ -339,14 +293,70 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: "rgba(255,255,255,0.03)",
   },
+  catPill: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.02)",
+  },
   previewLabel: {
     color: "rgba(255,255,255,0.68)",
     fontSize: 12,
     fontWeight: "700",
   },
+  pillRow: {
+    flexDirection: "row",
+    gap: 8,
+    flexWrap: "wrap",
+    marginTop: 10,
+  },
+  pill: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.02)",
+  },
+  pillText: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+    fontSize: 12,
+  },
+  itemPill: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.02)",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   catPillText: {
     color: "rgba(255,255,255,0.68)",
     fontWeight: "900",
     fontSize: 13,
+  },
+  label: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+    marginBottom: 6,
+    marginTop: 10,
+  },
+  previewBox: {
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
+    alignItems: "center",
+  },
+  previewValue: {
+    fontSize: 28,
+    fontWeight: "900",
+    marginTop: 4,
   },
 });

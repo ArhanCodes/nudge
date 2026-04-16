@@ -1,0 +1,47 @@
+-- Details Screen
+
+component DetailsScreen with route navigation:
+  state liked is no
+
+  to toggleLike:
+    liked is not liked
+
+  to goBack:
+    navigate to "Home"
+
+  to render:
+    view style container:
+      text style title: "Details"
+      text: "Count from Home: {route.params.count}"
+      button onPress toggleLike style button:
+        if liked:
+          text style buttonText: "Liked!"
+        otherwise:
+          text style buttonText: "Like"
+      button onPress goBack style link:
+        text style linkText: "Go Back"
+
+  style native:
+    container:
+      flex is 1
+      align items is "center"
+      justify content is "center"
+      background color is "#fff"
+    title:
+      font size is 24
+      font weight is "bold"
+      margin bottom is 16
+    button:
+      background color is "#6C5CE7"
+      padding horizontal is 32
+      padding vertical is 14
+      border radius is 12
+      margin bottom is 12
+    buttonText:
+      color is "#fff"
+      font size is 16
+    link:
+      padding is 12
+    linkText:
+      color is "#6C5CE7"
+      font size is 16

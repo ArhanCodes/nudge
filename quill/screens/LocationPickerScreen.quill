@@ -22,13 +22,14 @@ component LocationPickerScreen with navigation:
         permStatus is permResult.status
         if permStatus is "granted":
           pos is await Location.getCurrentPositionAsync({})
-          selectedCoord is {
+          coord is {
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude
           }
+          selectedCoord is coord
           -- Reverse geocode
           try:
-            results is await Location.reverseGeocodeAsync(selectedCoord)
+            results is await Location.reverseGeocodeAsync(coord)
             if results.length is greater than 0:
               r is results[0]
               selectedLabel is [r.street, r.city, r.region].filter(Boolean).join(", ")

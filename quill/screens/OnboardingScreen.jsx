@@ -112,7 +112,7 @@ export default function OnboardingScreen() {
             <Title style={styles.welcomeTitle}>Welcome to Nudge</Title>
             <Muted style={styles.welcomeBody}>Track your carbon footprint, earn badges, and get personalised tips to reduce your environmental impact.</Muted>
             <View style={styles.spacerLg}>
-              <Button label={"Get Started"} onPress={() => goStep1()} />
+              <Button label={"Get Started"} onPress={goStep1} />
             </View>
           </Card>
         )}
@@ -121,11 +121,11 @@ export default function OnboardingScreen() {
             <Title>Your School</Title>
             <Muted style={styles.spacerSm}>Enter your school details to estimate commute distance. You can skip this and set it later in Settings.</Muted>
             <Text style={styles.label}>School name</Text>
-            <TextInput onChangeText={onSchoolNameChange} placeholder={"e.g. Dubai College"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"School name"} value={schoolName} />
+            <TextInput placeholder={"e.g. Dubai College"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"School name"} value={schoolName} onChangeText={onSchoolNameChange} />
             <View style={styles.coordRow}>
               <View style={styles.flexOne}>
                 <Text style={styles.label}>Latitude</Text>
-                <TextInput keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"Latitude"} value={schoolLat} onChangeText={onSchoolLatChange} placeholder={"25.2048"} />
+                <TextInput placeholder={"25.2048"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"Latitude"} value={schoolLat} onChangeText={onSchoolLatChange} />
               </View>
               <View style={styles.flexOne}>
                 <Text style={styles.label}>Longitude</Text>
@@ -133,8 +133,8 @@ export default function OnboardingScreen() {
               </View>
             </View>
             <View style={styles.buttonGroup}>
-              <Button onPress={() => goStep2()} label={"Next"} />
-              <Button kind={"ghost"} label={"Skip for now"} onPress={() => goStep2()} />
+              <Button label={"Next"} onPress={goStep2} />
+              <Button kind={"ghost"} label={"Skip for now"} onPress={goStep2} />
             </View>
           </Card>
         )}
@@ -150,12 +150,12 @@ export default function OnboardingScreen() {
                 const rl = rVal.label;
                 const handler = selectRegion.bind(null, rKey);
                 return (
-                  <Button kind={bk} label={rl} onPress={() => handler()} key={__idx} />
+                  <Button kind={bk} label={rl} onPress={handler} key={__idx} />
                 );
               })}
             </View>
             <View style={styles.buttonGroup}>
-              <Button onPress={() => goStep3()} label={"Next"} />
+              <Button label={"Next"} onPress={goStep3} />
             </View>
           </Card>
         )}
@@ -164,9 +164,9 @@ export default function OnboardingScreen() {
             <Title>Weekly Target</Title>
             <Muted style={styles.spacerSm}>Set a weekly CO2 budget in kg. The average person produces about 22 kg/day. A stretching but achievable student target is 10 kg/week.</Muted>
             <Text style={styles.label}>Target (kg CO2 / week)</Text>
-            <TextInput accessibilityLabel={"Target (kg CO2 / week)"} value={target} onChangeText={onTargetChange} placeholder={"10"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} />
+            <TextInput style={styles.inputStyle} accessibilityLabel={"Target (kg CO2 / week)"} value={target} onChangeText={onTargetChange} placeholder={"10"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} />
             <View style={styles.buttonGroup}>
-              <Button label={"Start Tracking"} onPress={() => onFinish()} />
+              <Button label={"Start Tracking"} onPress={onFinish} />
             </View>
           </Card>
         )}
@@ -186,25 +186,57 @@ export default function OnboardingScreen() {
 }
 
 const styles = StyleSheet.create({
-  regionGrid: {
-    gap: 8,
-    marginTop: 12,
-  },
-  spacerLg: {
-    marginTop: 24,
-  },
-  coordRow: {
-    flexDirection: "row",
-    gap: 10,
-  },
   dotActive: {
     backgroundColor: "#2dd4bf",
     width: 24,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 40,
+  },
+  dots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 24,
+  },
+  buttonGroup: {
+    marginTop: 14,
+    gap: 10,
   },
   emoji: {
     fontSize: 56,
     textAlign: "center",
     marginBottom: 12,
+  },
+  flexOne: {
+    flex: 1,
+  },
+  regionGrid: {
+    gap: 8,
+    marginTop: 12,
+  },
+  spacerSm: {
+    marginTop: 6,
+  },
+  coordRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  welcomeTitle: {
+    textAlign: "center",
+    fontSize: 28,
+  },
+  welcomeBody: {
+    textAlign: "center",
+    marginTop: 10,
+    lineHeight: 20,
+  },
+  label: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+    marginBottom: 6,
+    marginTop: 10,
   },
   inputStyle: {
     color: "rgba(255,255,255,0.92)",
@@ -214,45 +246,13 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: "rgba(255,255,255,0.03)",
   },
-  spacerSm: {
-    marginTop: 6,
-  },
-  buttonGroup: {
-    marginTop: 14,
-    gap: 10,
-  },
-  welcomeTitle: {
-    textAlign: "center",
-    fontSize: 28,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 40,
-  },
-  label: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    marginBottom: 6,
-    marginTop: 10,
+  spacerLg: {
+    marginTop: 24,
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: "rgba(255,255,255,0.2)",
-  },
-  dots: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 8,
-    marginTop: 24,
-  },
-  welcomeBody: {
-    textAlign: "center",
-    marginTop: 10,
-    lineHeight: 20,
-  },
-  flexOne: {
-    flex: 1,
   },
 });

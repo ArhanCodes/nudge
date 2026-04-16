@@ -67,7 +67,7 @@ export default function TrendsScreen() {
           return (
             <View style={styles.barRow} key={__idx}>
               <View style={styles.dayRow}>
-                <Text style={styles.dayLabel}>{new Date(d.day).toLocaleDateString(null, { weekday: 'short' })}</Text>
+                <Text style={styles.dayLabel}>{new Date(d.day + 'T00:00:00Z').toLocaleDateString(null, { weekday: 'short' })}</Text>
                 <Text style={styles.kgLabel}>{d.kg.toFixed(2)} kg</Text>
               </View>
               <View style={styles.barBg}>
@@ -85,47 +85,6 @@ export default function TrendsScreen() {
 }
 
 const styles = StyleSheet.create({
-  barFill: {
-    height: "100%",
-    backgroundColor: "#7c5cff",
-  },
-  weekSubtitle: {
-    marginTop: 6,
-  },
-  spacer: {
-    height: 12,
-  },
-  dayLabel: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
-  },
-  kgLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-  },
-  barRow: {
-    marginBottom: 10,
-  },
-  chartSubtitle: {
-    marginTop: 6,
-  },
-  dayRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  footerWrap: {
-    marginTop: 8,
-  },
-  chipRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 12,
-    flexWrap: "wrap",
-  },
-  chartTitle: {
-    fontSize: 18,
-  },
   barBg: {
     height: 10,
     borderRadius: 999,
@@ -133,6 +92,47 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.12)",
     overflow: "hidden",
+    marginTop: 6,
+  },
+  dayLabel: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+  },
+  barFill: {
+    height: "100%",
+    backgroundColor: "#7c5cff",
+  },
+  footerWrap: {
+    marginTop: 8,
+  },
+  weekSubtitle: {
+    marginTop: 6,
+  },
+  spacer: {
+    height: 12,
+  },
+  dayRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  kgLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+  },
+  chipRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 12,
+    flexWrap: "wrap",
+  },
+  barRow: {
+    marginBottom: 10,
+  },
+  chartTitle: {
+    fontSize: 18,
+  },
+  chartSubtitle: {
     marginTop: 6,
   },
 });

@@ -6,7 +6,7 @@ import { getRegionMultiplier } from '../lib/regions';
 export let CO2_FACTORS = { car: 0.171, bus: 0.089, metro: 0.041, taxi: 0.2, motorbike: 0.103, cycle: 0, walk: 0 };
 export let TRANSPORT_LABELS = { car: "Car", bus: "Bus", metro: "Metro/Train", taxi: "Taxi", motorbike: "Motorbike", cycle: "Cycle", walk: "Walk" };
 export function computeCo2Kg(options) {
-  factor = CO2_FACTORS[options.transport];
+  let factor = CO2_FACTORS[options.transport];
   if ((factor == null)) {
     factor = 0;
   }
@@ -31,11 +31,11 @@ export function getCategoryItems(category, region) {
   }
 }
 export function getRegionAdjustedEnergy(region) {
-  multiplier = getRegionMultiplier(region);
+  let multiplier = getRegionMultiplier(region);
   if ((multiplier === 1)) {
     return ENERGY_ITEMS;
   }
-  adjusted = {};
+  let adjusted = {};
   for (const [key, item] of Object.entries(ENERGY_ITEMS)) {
     adjusted[key] = Object.assign({}, item, { co2: Number((item.co2 * multiplier).toFixed(3)) });
   }
@@ -48,7 +48,7 @@ export function computeWeeklyScore(dailyTotals) {
   if ((dailyTotals.length === 0)) {
     return 0;
   }
-  sum = dailyTotals.reduce((a, kg) => (a + computeDailyScore(kg)), 0);
+  let sum = dailyTotals.reduce((a, kg) => (a + computeDailyScore(kg)), 0);
   return Math.round((sum / dailyTotals.length));
 }
 export let WEEKLY_BENCHMARKS = { world: { label: "World Average", kgPerWeek: 95, source: "IEA / Our World in Data 2023" }, uk: { label: "UK Average", kgPerWeek: 78, source: "BEIS / DEFRA 2023" }, uae: { label: "UAE Average", kgPerWeek: 135, source: "IEA 2023" }, us: { label: "US Average", kgPerWeek: 115, source: "EPA 2023" }, eu: { label: "EU Average", kgPerWeek: 72, source: "EEA / Eurostat 2023" }, india: { label: "India Average", kgPerWeek: 28, source: "IEA 2023" }, china: { label: "China Average", kgPerWeek: 82, source: "IEA 2023" }, aus: { label: "Australia Average", kgPerWeek: 110, source: "Dept. Climate Change 2023" }, canada: { label: "Canada Average", kgPerWeek: 105, source: "ECCC 2023" }, brazil: { label: "Brazil Average", kgPerWeek: 35, source: "SEEG / Our World in Data" }, france: { label: "France Average", kgPerWeek: 58, source: "CITEPA / INSEE 2023" }, nordic: { label: "Nordics Average", kgPerWeek: 62, source: "Nordic Energy Research 2023" } };
@@ -56,13 +56,13 @@ export function compareToBenchmark(userWeeklyKg, regionKey) {
   if ((regionKey == null)) {
     regionKey = "world";
   }
-  benchmark = WEEKLY_BENCHMARKS[regionKey];
+  let benchmark = WEEKLY_BENCHMARKS[regionKey];
   if ((benchmark == null)) {
     benchmark = WEEKLY_BENCHMARKS.world;
   }
-  benchmarkKg = benchmark.kgPerWeek;
-  savedKg = (benchmarkKg - userWeeklyKg);
-  savedPct = 0;
+  let benchmarkKg = benchmark.kgPerWeek;
+  let savedKg = (benchmarkKg - userWeeklyKg);
+  let savedPct = 0;
   if ((benchmarkKg > 0)) {
     savedPct = ((savedKg / benchmarkKg) * 100);
   }

@@ -3,20 +3,20 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 
 export function weekKeyISO(date) {
-  d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  dayNum = d.getUTCDay();
+  let d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  let dayNum = d.getUTCDay();
   if ((dayNum === 0)) {
     dayNum = 7;
   }
   d.setUTCDate(((d.getUTCDate() + 4) - dayNum));
-  yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  week = Math.ceil(((((d - yearStart) / 86400000) + 1) / 7));
+  let yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  let week = Math.ceil(((((d - yearStart) / 86400000) + 1) / 7));
   return ((d.getUTCFullYear() + "-W") + String(week).padStart(2, "0"));
 }
 export function startOfWeekISO(date) {
-  d = new Date(date);
-  day = d.getDay();
-  diff = 0;
+  let d = new Date(date);
+  let day = d.getDay();
+  let diff = 0;
   if ((day === 0)) {
     diff = ((-6) - day);
   } else {
@@ -26,7 +26,7 @@ export function startOfWeekISO(date) {
   return d.toISOString().slice(0, 10);
 }
 export function addDaysISO(iso, n) {
-  d = new Date((iso + "T00:00:00Z"));
+  let d = new Date((iso + "T00:00:00Z"));
   d.setUTCDate((d.getUTCDate() + n));
   return d.toISOString().slice(0, 10);
 }

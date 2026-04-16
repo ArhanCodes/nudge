@@ -113,6 +113,14 @@ export default function HomeScreen({ navigation }) {
 
 let items = [1];
 
+const catEntries = Object.entries(CATEGORIES);
+const goalColor = pickGoalColor(summary.over);
+const goalProgress = Math.min((summary.totalKg / summary.target), 1);
+const bmBg = pickBenchmarkBg(summary.benchmark.better);
+const bmBorder = pickBenchmarkBorder(summary.benchmark.better);
+const bmTextColor = pickBenchmarkTextColor(summary.benchmark.better);
+const bmBannerStyle = [styles.benchmarkBanner, { backgroundColor: bmBg, borderColor: bmBorder }];
+const bmBannerTextStyle = [styles.benchmarkBannerText, { color: bmTextColor }];
   return (
     <Screen>
       <FlatList
@@ -122,7 +130,7 @@ let items = [1];
           <View>
             <Card>
               <View style={styles.headerRow}>
-                <View accessibilityLabel={`Today's score: ${summary.todayScore} out of 100`} accessibilityRole={"text"} style={styles.scoreCircle}>
+                <View style={styles.scoreCircle} accessibilityLabel={`Today's score: ${summary.todayScore} out of 100`} accessibilityRole={"text"}>
                   <Text style={styles.scoreNum}>{summary.todayScore}</Text>
                   <Text style={styles.scoreLabel}>Today</Text>
                 </View>
@@ -139,15 +147,14 @@ let items = [1];
                   <Text style={styles.streakWarningText}>Log an activity today to keep your {summary.currentStreak}-day streak!</Text>
                 </View>
               )}
-              const catEntries = Object.entries(CATEGORIES);
               <View style={styles.catRow}>
                 {catEntries.map((entry, __idx) => {
                   const key = entry[0];
                   const cat = entry[1];
+                  const catMiniKgStyle = [styles.catMiniKg, { color: cat.color }];
                   return (
                     <View style={styles.catMini} accessibilityLabel={`${cat.label}: ${(summary.catTotals[key] || 0).toFixed(1)} kilograms`} key={__idx}>
                       <Text style={{ fontSize: 18 }}>{cat.icon}</Text>
-                      const catMiniKgStyle = [styles.catMiniKg, { color: cat.color }];
                       <Text style={catMiniKgStyle}>{(summary.catTotals[key] || 0).toFixed(1)}</Text>
                       <Text style={styles.catMiniLabel}>kg</Text>
                     </View>
@@ -158,32 +165,30 @@ let items = [1];
             <View style={{ height: 12 }} />
             <Card>
               <View style={{ gap: 10 }}>
-                <Button accessibilityLabel={"Log a new activity"} label={"+ Log Activity"} onPress={() => goLogActivity()} />
+                <Button label={"+ Log Activity"} onPress={goLogActivity} accessibilityLabel={"Log a new activity"} />
                 <View style={{ flexDirection: "row", gap: 10 }}>
                   <View style={{ flex: 1 }}>
-                    <Button kind={"ghost"} label={"Dashboard"} onPress={() => goDashboard()} accessibilityLabel={"View progress dashboard"} />
+                    <Button kind={"ghost"} label={"Dashboard"} onPress={goDashboard} accessibilityLabel={"View progress dashboard"} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Button label={"Tips"} onPress={() => goTips()} accessibilityLabel={"View weekly tips"} kind={"ghost"} />
+                    <Button kind={"ghost"} label={"Tips"} onPress={goTips} accessibilityLabel={"View weekly tips"} />
                   </View>
                 </View>
                 <View style={{ flexDirection: "row", gap: 10 }}>
                   <View style={{ flex: 1 }}>
-                    <Button onPress={() => goBadges()} accessibilityLabel={"View badges and streaks"} kind={"ghost"} label={"Badges"} />
+                    <Button kind={"ghost"} label={"Badges"} onPress={goBadges} accessibilityLabel={"View badges and streaks"} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Button label={"Settings"} onPress={() => goSettings()} accessibilityLabel={"Open settings"} kind={"ghost"} />
+                    <Button kind={"ghost"} label={"Settings"} onPress={goSettings} accessibilityLabel={"Open settings"} />
                   </View>
                 </View>
-                <Button kind={"ghost"} label={"Export Data"} onPress={() => goExport()} accessibilityLabel={"Export data as CSV"} />
+                <Button onPress={goExport} accessibilityLabel={"Export data as CSV"} kind={"ghost"} label={"Export Data"} />
               </View>
             </Card>
             <View style={{ height: 12 }} />
             <Card>
               <Title style={{ fontSize: 16, textAlign: "center", marginBottom: 12 }}>Weekly Goal</Title>
               <View style={{ alignItems: "center" }}>
-                const goalColor = pickGoalColor(summary.over);
-                const goalProgress = Math.min((summary.totalKg / summary.target), 1);
                 <ProgressRing progress={goalProgress} size={140} strokeWidth={12} color={goalColor}>
                   <Text style={styles.ringMainText}>{summary.totalKg.toFixed(1)}</Text>
                   <Text style={styles.ringSubText}>/ {summary.target.toFixed(0)} kg</Text>
@@ -211,11 +216,6 @@ let items = [1];
                   <Muted style={{ fontSize: 11 }}>National avg</Muted>
                 </View>
               </View>
-              const bmBg = pickBenchmarkBg(summary.benchmark.better);
-              const bmBorder = pickBenchmarkBorder(summary.benchmark.better);
-              const bmTextColor = pickBenchmarkTextColor(summary.benchmark.better);
-              const bmBannerStyle = [styles.benchmarkBanner, { backgroundColor: bmBg, borderColor: bmBorder }];
-              const bmBannerTextStyle = [styles.benchmarkBannerText, { color: bmTextColor }];
               <View style={bmBannerStyle}>
                 {summary.benchmark.better ? (
                   <Text style={bmBannerTextStyle}>You saved {summary.benchmark.savedKg.toFixed(1)} kg ({Math.abs(summary.benchmark.savedPct).toFixed(0)}% less) vs the {summary.benchmark.benchmarkLabel}</Text>
@@ -232,20 +232,24 @@ let items = [1];
               {(summary.recentLogs.length === 0) ? (
                 <Muted>No logs yet. Tap \"+ Log Activity\" to get started.</Muted>
               ) : (
-                {summary.recentLogs.map((item, __idx) => (
-                  <View style={styles.logRow} accessibilityLabel={`${item.label}, ${(item.co2Kg || 0).toFixed(2)} kg CO2`} key={__idx}>
-                    <Text style={{ fontSize: 18, width: 28 }}>{(CATEGORIES[item.category || 'transport'])?.icon || ''}</Text>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.logTitle}>{item.label}</Text>
-                      <Muted style={{ fontSize: 11 }}>{new Date(item.dateISO).toLocaleDateString()}</Muted>
-                    </View>
+                <>
+                  {summary.recentLogs.map((item, __idx) => {
                     const logColor = pickLogColor((item.co2Kg || 0));
                     const logKgStyle = [styles.logKg, { color: logColor }];
                     const logPrefix = pickLogPrefix((item.co2Kg || 0));
                     const logVal = (item.co2Kg || 0).toFixed(2);
-                    <Text style={logKgStyle}>{logPrefix}{logVal} kg</Text>
-                  </View>
-                ))}
+                    return (
+                      <View accessibilityLabel={`${item.label}, ${(item.co2Kg || 0).toFixed(2)} kg CO2`} key={__idx} style={styles.logRow}>
+                        <Text style={{ fontSize: 18, width: 28 }}>{(CATEGORIES[item.category || 'transport'])?.icon || ''}</Text>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.logTitle}>{item.label}</Text>
+                          <Muted style={{ fontSize: 11 }}>{new Date(item.dateISO).toLocaleDateString()}</Muted>
+                        </View>
+                        <Text style={logKgStyle}>{logPrefix}{logVal} kg</Text>
+                      </View>
+                    );
+                  })}
+                </>
               )}
             </Card>
             <View style={{ marginTop: 14 }}>
@@ -260,24 +264,6 @@ let items = [1];
 }
 
 const styles = StyleSheet.create({
-  benchmarkCol: {
-    flex: 1,
-    alignItems: "center",
-  },
-  streakWarningText: {
-    color: "#f59e0b",
-    fontWeight: "700",
-    fontSize: 13,
-    textAlign: "center",
-  },
-  catRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 14,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.12)",
-  },
   catMiniKg: {
     fontWeight: "900",
     fontSize: 16,
@@ -286,15 +272,45 @@ const styles = StyleSheet.create({
   benchmarkVs: {
     paddingHorizontal: 12,
   },
+  catMiniLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  ringMainText: {
+    color: "rgba(255,255,255,0.92)",
+    fontSize: 26,
+    fontWeight: "900",
+  },
   benchmarkAvg: {
     color: "rgba(255,255,255,0.68)",
     fontSize: 22,
     fontWeight: "900",
   },
+  benchmarkBannerText: {
+    fontWeight: "700",
+    fontSize: 13,
+    textAlign: "center",
+  },
+  scoreLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 9,
+    fontWeight: "700",
+  },
+  benchmarkRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 10,
+  },
   benchmarkBanner: {
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
+  },
+  benchmarkCol: {
+    flex: 1,
+    alignItems: "center",
   },
   logRow: {
     flexDirection: "row",
@@ -304,37 +320,10 @@ const styles = StyleSheet.create({
     borderBottomColor: "rgba(255,255,255,0.12)",
     gap: 8,
   },
-  streakWarning: {
-    backgroundColor: "rgba(245,158,11,0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(245,158,11,0.35)",
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 10,
-  },
-  ringMainText: {
+  logTitle: {
     color: "rgba(255,255,255,0.92)",
-    fontSize: 26,
-    fontWeight: "900",
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  catMiniLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
     fontWeight: "700",
-  },
-  benchmarkYou: {
-    color: "#2dd4bf",
-    fontSize: 22,
-    fontWeight: "900",
-  },
-  benchmarkBannerText: {
-    fontWeight: "700",
-    fontSize: 13,
-    textAlign: "center",
+    fontSize: 14,
   },
   scoreCircle: {
     width: 68,
@@ -346,12 +335,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(45,212,191,0.08)",
   },
-  scoreLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 9,
+  streakWarningText: {
+    color: "#f59e0b",
     fontWeight: "700",
+    fontSize: 13,
+    textAlign: "center",
   },
-  catMini: {
+  headerRow: {
+    flexDirection: "row",
     alignItems: "center",
   },
   ringSubText: {
@@ -359,24 +350,37 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
   },
-  logKg: {
-    fontWeight: "900",
-    fontSize: 13,
-  },
-  benchmarkRow: {
-    flexDirection: "row",
+  catMini: {
     alignItems: "center",
-    marginTop: 10,
-    marginBottom: 10,
   },
-  logTitle: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "700",
-    fontSize: 14,
+  benchmarkYou: {
+    color: "#2dd4bf",
+    fontSize: 22,
+    fontWeight: "900",
   },
   scoreNum: {
     color: "#2dd4bf",
     fontSize: 22,
     fontWeight: "900",
+  },
+  logKg: {
+    fontWeight: "900",
+    fontSize: 13,
+  },
+  streakWarning: {
+    backgroundColor: "rgba(245,158,11,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(245,158,11,0.35)",
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+  },
+  catRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.12)",
   },
 });

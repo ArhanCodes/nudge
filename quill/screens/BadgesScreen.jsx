@@ -62,7 +62,7 @@ export default function BadgesScreen() {
             </View>
           </View>
           {(result.streakInfo.currentStreak > 0) && (
-            <View accessibilityRole={"alert"} style={styles.graceNote}>
+            <View style={styles.graceNote} accessibilityRole={"alert"}>
               <Muted style={styles.graceNoteText}>Streaks include a 1-day grace period — if you miss today, you have until tomorrow to log and keep your streak alive.</Muted>
             </View>
           )}
@@ -104,24 +104,26 @@ export default function BadgesScreen() {
           <Title style={styles.sectionTitle16}>All Badges</Title>
           <View style={styles.spacerTop10}>
             {BADGES.map((b, __idx) => (
-              {result.earned.some((e) => (e.id === b.id)) ? (
-                <View style={styles.allBadgeRow}>
-                  <Text style={styles.allBadgeIcon}>{b.icon}</Text>
-                  <View style={styles.flex1}>
-                    <Text style={styles.allBadgeName}>{b.name}</Text>
-                    <Text style={styles.allBadgeDesc}>{b.desc}</Text>
+              <React.Fragment key={__idx}>
+                {result.earned.some((e) => (e.id === b.id)) ? (
+                  <View style={styles.allBadgeRow}>
+                    <Text style={styles.allBadgeIcon}>{b.icon}</Text>
+                    <View style={styles.flex1}>
+                      <Text style={styles.allBadgeName}>{b.name}</Text>
+                      <Text style={styles.allBadgeDesc}>{b.desc}</Text>
+                    </View>
+                    <Chip kind={"brand"} label={"Earned"} />
                   </View>
-                  <Chip label={"Earned"} kind={"brand"} />
-                </View>
-              ) : (
-                <View style={[styles.allBadgeRow, styles.dimmed]}>
-                  <Text style={styles.allBadgeIcon}>{b.icon}</Text>
-                  <View style={styles.flex1}>
-                    <Text style={styles.allBadgeName}>{b.name}</Text>
-                    <Text style={styles.allBadgeDesc}>{b.desc}</Text>
+                ) : (
+                  <View style={[styles.allBadgeRow, styles.dimmed]}>
+                    <Text style={styles.allBadgeIcon}>{b.icon}</Text>
+                    <View style={styles.flex1}>
+                      <Text style={styles.allBadgeName}>{b.name}</Text>
+                      <Text style={styles.allBadgeDesc}>{b.desc}</Text>
+                    </View>
                   </View>
-                </View>
-              )}
+                )}
+              </React.Fragment>
             ))}
           </View>
         </Card>
@@ -132,45 +134,20 @@ export default function BadgesScreen() {
 }
 
 const styles = StyleSheet.create({
-  graceNoteText: {
-    fontSize: 12,
-    textAlign: "center",
-  },
-  flex1: {
+  streakMeta: {
     flex: 1,
+    marginLeft: 16,
   },
-  spacer30: {
-    height: 30,
-  },
-  badgeCard: {
-    backgroundColor: "rgba(255,255,255,0.04)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    borderRadius: 12,
-    padding: 12,
-    alignItems: "center",
-    width: "47%",
-  },
-  nextBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
-  },
-  dimmed: {
-    opacity: 0.4,
-  },
-  streakNumber: {
-    color: "#f59e0b",
-    fontSize: 28,
-    fontWeight: "900",
-  },
-  streakUnit: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
-    fontWeight: "700",
+  allBadgeIcon: {
+    fontSize: 24,
+    width: 36,
   },
   streakMetaDetail: {
     marginTop: 4,
+  },
+  badgeIcon: {
+    fontSize: 36,
+    marginBottom: 6,
   },
   graceNote: {
     backgroundColor: "rgba(245,158,11,0.08)",
@@ -178,73 +155,11 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 12,
   },
-  sectionTitle16: {
-    fontSize: 16,
-  },
-  nextBadgeMeta: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  badgeGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-  nextBadgeDesc: {
+  badgeDesc: {
     color: "rgba(255,255,255,0.68)",
-    fontSize: 13,
-    marginTop: 2,
-  },
-  badgeIcon: {
-    fontSize: 36,
-    marginBottom: 6,
-  },
-  nextBadgeCard: {
-    borderWidth: 1,
-    borderColor: "rgba(45,212,191,0.3)",
-  },
-  spacerTop10: {
-    marginTop: 10,
-  },
-  sectionTitle18: {
-    fontSize: 18,
-  },
-  badgeName: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
-    fontSize: 13,
+    fontSize: 11,
     textAlign: "center",
-  },
-  nextBadgeName: {
-    color: "#2dd4bf",
-    fontWeight: "900",
-    fontSize: 16,
-  },
-  allBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.12)",
-    gap: 8,
-  },
-  allBadgeName: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
-    fontSize: 14,
-  },
-  spacer12: {
-    height: 12,
-  },
-  nextBadgeIcon: {
-    fontSize: 40,
-  },
-  streakMeta: {
-    flex: 1,
-    marginLeft: 16,
-  },
-  spacerTop4: {
-    marginTop: 4,
+    marginTop: 2,
   },
   streakCircle: {
     width: 80,
@@ -256,22 +171,109 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(245,158,11,0.08)",
   },
-  allBadgeIcon: {
-    fontSize: 24,
-    width: 36,
+  flex1: {
+    flex: 1,
   },
-  streakRow: {
+  spacerTop10: {
+    marginTop: 10,
+  },
+  spacer30: {
+    height: 30,
+  },
+  nextBadgeIcon: {
+    fontSize: 40,
+  },
+  allBadgeRow: {
     flexDirection: "row",
     alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.12)",
+    gap: 8,
+  },
+  nextBadgeDesc: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 13,
+    marginTop: 2,
+  },
+  allBadgeName: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+    fontSize: 14,
   },
   allBadgeDesc: {
     color: "rgba(255,255,255,0.68)",
     fontSize: 12,
   },
-  badgeDesc: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 11,
+  streakNumber: {
+    color: "#f59e0b",
+    fontSize: 28,
+    fontWeight: "900",
+  },
+  nextBadgeCard: {
+    borderWidth: 1,
+    borderColor: "rgba(45,212,191,0.3)",
+  },
+  nextBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  sectionTitle18: {
+    fontSize: 18,
+  },
+  badgeCard: {
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    borderRadius: 12,
+    padding: 12,
+    alignItems: "center",
+    width: "47%",
+  },
+  graceNoteText: {
+    fontSize: 12,
     textAlign: "center",
-    marginTop: 2,
+  },
+  spacer12: {
+    height: 12,
+  },
+  badgeName: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+    fontSize: 13,
+    textAlign: "center",
+  },
+  nextBadgeMeta: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  streakUnit: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  sectionTitle16: {
+    fontSize: 16,
+  },
+  nextBadgeName: {
+    color: "#2dd4bf",
+    fontWeight: "900",
+    fontSize: 16,
+  },
+  spacerTop4: {
+    marginTop: 4,
+  },
+  dimmed: {
+    opacity: 0.4,
+  },
+  streakRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  badgeGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
   },
 });
