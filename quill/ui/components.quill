@@ -53,13 +53,31 @@ component Button with label onPress kind disabled accessibilityLabel:
     give back accessibilityLabel or label
   to render:
     al is accessLabel()
-    pressable disabled disabled onPress onPress accessibilityRole "button" accessibilityLabel al:
-      if kind is "ghost":
+    if kind is "ghost":
+      pressable disabled disabled onPress onPress pressStyle [btnGhost, btnGhostPressed] accessibilityRole "button" accessibilityLabel al:
         text style btnGhostText: label
-      otherwise:
+    otherwise:
+      pressable disabled disabled onPress onPress pressStyle [btnPrimary, btnPrimaryPressed] accessibilityRole "button" accessibilityLabel al:
         text style btnPrimaryText: label
 
   style native:
+    btnPrimary:
+      background color is "#2dd4bf"
+      padding vertical is 12
+      padding horizontal is 20
+      border radius is 12
+      align items is "center"
+    btnPrimaryPressed:
+      opacity is 0.75
+    btnGhost:
+      padding vertical is 10
+      padding horizontal is 16
+      border radius is 10
+      border width is 1
+      border color is "rgba(255,255,255,0.18)"
+      align items is "center"
+    btnGhostPressed:
+      opacity is 0.6
     btnPrimaryText:
       color is "#081019"
       font weight is "900"

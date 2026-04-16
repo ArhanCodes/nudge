@@ -119,7 +119,7 @@ export default function LocationPickerScreen({ navigation }) {
           <Muted>No location selected yet.</Muted>
         )}
         <View style={styles.buttonGroup}>
-          <Button label={"Save Home Location"} onPress={onSave} disabled={noCoord} />
+          <Button disabled={noCoord} label={"Save Home Location"} onPress={onSave} />
           <Button kind={"ghost"} label={"Cancel"} onPress={onCancel} />
         </View>
       </Card>
@@ -128,9 +128,6 @@ export default function LocationPickerScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  mutedTopSmall: {
-    marginTop: 6,
-  },
   spacerMedium: {
     height: 12,
   },
@@ -159,5 +156,8 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.12)",
     justifyContent: "center",
     alignItems: "center",
+  },
+  mutedTopSmall: {
+    marginTop: 6,
   },
 });

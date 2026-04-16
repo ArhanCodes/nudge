@@ -85,6 +85,27 @@ export default function TrendsScreen() {
 }
 
 const styles = StyleSheet.create({
+  weekSubtitle: {
+    marginTop: 6,
+  },
+  spacer: {
+    height: 12,
+  },
+  chartTitle: {
+    fontSize: 18,
+  },
+  chartSubtitle: {
+    marginTop: 6,
+  },
+  dayRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  dayLabel: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+  },
   barBg: {
     height: 10,
     borderRadius: 999,
@@ -94,31 +115,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginTop: 6,
   },
-  dayLabel: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
-  },
   barFill: {
     height: "100%",
     backgroundColor: "#7c5cff",
-  },
-  footerWrap: {
-    marginTop: 8,
-  },
-  weekSubtitle: {
-    marginTop: 6,
-  },
-  spacer: {
-    height: 12,
-  },
-  dayRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  kgLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
   },
   chipRow: {
     flexDirection: "row",
@@ -129,10 +128,11 @@ const styles = StyleSheet.create({
   barRow: {
     marginBottom: 10,
   },
-  chartTitle: {
-    fontSize: 18,
+  kgLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
   },
-  chartSubtitle: {
-    marginTop: 6,
+  footerWrap: {
+    marginTop: 8,
   },
 });

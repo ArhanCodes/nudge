@@ -232,7 +232,7 @@ if ((lastWeek?.totalKg > 0)) {
               const pct = ((kg / totalKg) * 100);
               const catStyle = catBarFillStyle(pct, cat.color);
               return (
-                <View key={__idx} style={{ marginBottom: 12 }}>
+                <View style={{ marginBottom: 12 }} key={__idx}>
                   <View style={styles.catHeader}>
                     <Text style={styles.catName}>{cat.icon} {cat.label}</Text>
                     <Text style={styles.catKg}>{kg.toFixed(2)} kg</Text>
@@ -309,28 +309,31 @@ if ((lastWeek?.totalKg > 0)) {
 }
 
 const styles = StyleSheet.create({
-  scoreNumber: {
-    color: "#2dd4bf",
-    fontSize: 28,
-    fontWeight: "900",
+  scoreRow: {
+    flexDirection: "row",
+    alignItems: "center",
   },
-  scoreLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
-    fontWeight: "700",
+  catHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
   },
-  catKg: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    fontSize: 13,
+  barBg: {
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    overflow: "hidden",
   },
   dayScoreBadge: {
     width: 30,
     alignItems: "flex-end",
   },
-  barFill: {
-    height: "100%",
-    borderRadius: 999,
+  dayLabelStyle: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "700",
+    fontSize: 13,
+    flex: 1,
   },
   dayKg: {
     color: "rgba(255,255,255,0.68)",
@@ -342,17 +345,20 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     fontSize: 13,
   },
-  barBg: {
-    height: 8,
-    borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.06)",
-    overflow: "hidden",
-  },
-  catHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  scoreCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: "#2dd4bf",
     alignItems: "center",
-    marginBottom: 4,
+    justifyContent: "center",
+    backgroundColor: "rgba(45,212,191,0.08)",
+  },
+  scoreNumber: {
+    color: "#2dd4bf",
+    fontSize: 28,
+    fontWeight: "900",
   },
   catName: {
     color: "rgba(255,255,255,0.92)",
@@ -365,24 +371,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 4,
   },
-  dayLabelStyle: {
-    color: "rgba(255,255,255,0.92)",
+  scoreLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 10,
     fontWeight: "700",
+  },
+  catKg: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
     fontSize: 13,
-    flex: 1,
   },
-  scoreRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  scoreCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: "#2dd4bf",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(45,212,191,0.08)",
+  barFill: {
+    height: "100%",
+    borderRadius: 999,
   },
 });

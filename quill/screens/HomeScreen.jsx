@@ -143,7 +143,7 @@ const bmBannerTextStyle = [styles.benchmarkBannerText, { color: bmTextColor }];
                 </View>
               </View>
               {((!summary.hasLoggedToday) && (summary.currentStreak > 0)) && (
-                <View style={styles.streakWarning} accessibilityRole={"alert"}>
+                <View accessibilityRole={"alert"} style={styles.streakWarning}>
                   <Text style={styles.streakWarningText}>Log an activity today to keep your {summary.currentStreak}-day streak!</Text>
                 </View>
               )}
@@ -176,13 +176,13 @@ const bmBannerTextStyle = [styles.benchmarkBannerText, { color: bmTextColor }];
                 </View>
                 <View style={{ flexDirection: "row", gap: 10 }}>
                   <View style={{ flex: 1 }}>
-                    <Button kind={"ghost"} label={"Badges"} onPress={goBadges} accessibilityLabel={"View badges and streaks"} />
+                    <Button onPress={goBadges} accessibilityLabel={"View badges and streaks"} kind={"ghost"} label={"Badges"} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Button kind={"ghost"} label={"Settings"} onPress={goSettings} accessibilityLabel={"Open settings"} />
+                    <Button label={"Settings"} onPress={goSettings} accessibilityLabel={"Open settings"} kind={"ghost"} />
                   </View>
                 </View>
-                <Button onPress={goExport} accessibilityLabel={"Export data as CSV"} kind={"ghost"} label={"Export Data"} />
+                <Button kind={"ghost"} label={"Export Data"} onPress={goExport} accessibilityLabel={"Export data as CSV"} />
               </View>
             </Card>
             <View style={{ height: 12 }} />
@@ -239,7 +239,7 @@ const bmBannerTextStyle = [styles.benchmarkBannerText, { color: bmTextColor }];
                     const logPrefix = pickLogPrefix((item.co2Kg || 0));
                     const logVal = (item.co2Kg || 0).toFixed(2);
                     return (
-                      <View accessibilityLabel={`${item.label}, ${(item.co2Kg || 0).toFixed(2)} kg CO2`} key={__idx} style={styles.logRow}>
+                      <View style={styles.logRow} accessibilityLabel={`${item.label}, ${(item.co2Kg || 0).toFixed(2)} kg CO2`} key={__idx}>
                         <Text style={{ fontSize: 18, width: 28 }}>{(CATEGORIES[item.category || 'transport'])?.icon || ''}</Text>
                         <View style={{ flex: 1 }}>
                           <Text style={styles.logTitle}>{item.label}</Text>
@@ -264,53 +264,55 @@ const bmBannerTextStyle = [styles.benchmarkBannerText, { color: bmTextColor }];
 }
 
 const styles = StyleSheet.create({
-  catMiniKg: {
-    fontWeight: "900",
-    fontSize: 16,
-    marginTop: 2,
-  },
-  benchmarkVs: {
-    paddingHorizontal: 12,
-  },
-  catMiniLabel: {
+  ringSubText: {
     color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: "700",
   },
-  ringMainText: {
-    color: "rgba(255,255,255,0.92)",
-    fontSize: 26,
-    fontWeight: "900",
-  },
-  benchmarkAvg: {
-    color: "rgba(255,255,255,0.68)",
+  benchmarkYou: {
+    color: "#2dd4bf",
     fontSize: 22,
     fontWeight: "900",
-  },
-  benchmarkBannerText: {
-    fontWeight: "700",
-    fontSize: 13,
-    textAlign: "center",
-  },
-  scoreLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 9,
-    fontWeight: "700",
-  },
-  benchmarkRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
-    marginBottom: 10,
   },
   benchmarkBanner: {
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
   },
-  benchmarkCol: {
-    flex: 1,
+  benchmarkVs: {
+    paddingHorizontal: 12,
+  },
+  logKg: {
+    fontWeight: "900",
+    fontSize: 13,
+  },
+  headerRow: {
+    flexDirection: "row",
     alignItems: "center",
+  },
+  scoreLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 9,
+    fontWeight: "700",
+  },
+  streakWarning: {
+    backgroundColor: "rgba(245,158,11,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(245,158,11,0.35)",
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+  },
+  streakWarningText: {
+    color: "#f59e0b",
+    fontWeight: "700",
+    fontSize: 13,
+    textAlign: "center",
+  },
+  benchmarkAvg: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 22,
+    fontWeight: "900",
   },
   logRow: {
     flexDirection: "row",
@@ -320,10 +322,16 @@ const styles = StyleSheet.create({
     borderBottomColor: "rgba(255,255,255,0.12)",
     gap: 8,
   },
-  logTitle: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "700",
-    fontSize: 14,
+  catMiniKg: {
+    fontWeight: "900",
+    fontSize: 16,
+    marginTop: 2,
+  },
+  benchmarkRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 10,
   },
   scoreCircle: {
     width: 68,
@@ -335,45 +343,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(45,212,191,0.08)",
   },
-  streakWarningText: {
-    color: "#f59e0b",
+  benchmarkCol: {
+    flex: 1,
+    alignItems: "center",
+  },
+  benchmarkBannerText: {
     fontWeight: "700",
     fontSize: 13,
     textAlign: "center",
   },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
+  ringMainText: {
+    color: "rgba(255,255,255,0.92)",
+    fontSize: 26,
+    fontWeight: "900",
   },
-  ringSubText: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 12,
+  logTitle: {
+    color: "rgba(255,255,255,0.92)",
     fontWeight: "700",
+    fontSize: 14,
   },
   catMini: {
     alignItems: "center",
-  },
-  benchmarkYou: {
-    color: "#2dd4bf",
-    fontSize: 22,
-    fontWeight: "900",
-  },
-  scoreNum: {
-    color: "#2dd4bf",
-    fontSize: 22,
-    fontWeight: "900",
-  },
-  logKg: {
-    fontWeight: "900",
-    fontSize: 13,
-  },
-  streakWarning: {
-    backgroundColor: "rgba(245,158,11,0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(245,158,11,0.35)",
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 10,
   },
   catRow: {
     flexDirection: "row",
@@ -382,5 +372,15 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: "rgba(255,255,255,0.12)",
+  },
+  scoreNum: {
+    color: "#2dd4bf",
+    fontSize: 22,
+    fontWeight: "900",
+  },
+  catMiniLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 10,
+    fontWeight: "700",
   },
 });

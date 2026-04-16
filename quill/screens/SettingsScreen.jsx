@@ -36,7 +36,7 @@ export function RegionPill({ entry, region, onSelect }) {
           <Text style={styles.rtActive}>{label}</Text>
         </Pressable>
       ) : (
-        <Pressable onPress={handlePress} style={styles.rpBase} accessibilityLabel={`Region: ${label}`} accessibilityRole={"button"}>
+        <Pressable accessibilityRole={"button"} onPress={handlePress} style={styles.rpBase} accessibilityLabel={`Region: ${label}`}>
           <Text style={styles.rtBase}>{label}</Text>
         </Pressable>
       )}
@@ -44,7 +44,7 @@ export function RegionPill({ entry, region, onSelect }) {
   );
 }
 
-export default function SettingsScreen({ navigation }) {
+export function SettingsScreen({ navigation }) {
   const ctx = useContext(AppContext);
   const [schoolName, setSchoolName] = useState((ctx.state?.school?.name || ""));
   const [schoolLat, setSchoolLat] = useState("");
@@ -177,18 +177,18 @@ export default function SettingsScreen({ navigation }) {
           <Title>School</Title>
           <Muted style={styles.marginTop6}>Set your school location to estimate commute distance.</Muted>
           <Text style={styles.label}>School name</Text>
-          <TextInput placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"School name"} value={schoolName} onChangeText={onSchoolNameChange} placeholder={"e.g. Dubai College"} />
+          <TextInput value={schoolName} onChangeText={onSchoolNameChange} placeholder={"e.g. Dubai College"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"School name"} />
           <View style={styles.coordRow}>
             <View style={styles.flex1}>
               <Text style={styles.label}>Latitude</Text>
-              <TextInput placeholder={"25.2048"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"Latitude"} value={schoolLat} onChangeText={onSchoolLatChange} />
+              <TextInput accessibilityLabel={"Latitude"} value={schoolLat} onChangeText={onSchoolLatChange} placeholder={"25.2048"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} />
             </View>
             <View style={styles.flex1}>
               <Text style={styles.label}>Longitude</Text>
-              <TextInput accessibilityLabel={"Longitude"} value={schoolLon} onChangeText={onSchoolLonChange} placeholder={"55.2708"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} />
+              <TextInput value={schoolLon} onChangeText={onSchoolLonChange} placeholder={"55.2708"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"Longitude"} />
             </View>
           </View>
-          <Button kind={"ghost"} label={"Pick my home location (map)"} onPress={goPickLocation} accessibilityLabel={"Pick home location on map"} />
+          <Button label={"Pick my home location (map)"} onPress={goPickLocation} accessibilityLabel={"Pick home location on map"} kind={"ghost"} />
           <View style={styles.marginTop10}>
             <Chip kind={chipKind} label={chipLabel} />
           </View>
@@ -199,7 +199,7 @@ export default function SettingsScreen({ navigation }) {
           <Muted style={styles.marginTop6}>Electricity grid carbon intensity varies by region. This adjusts your energy emission estimates.</Muted>
           <View style={styles.regionGrid}>
             {REGION_ENTRIES.map((entry, __idx) => (
-              <RegionPill onSelect={selectRegion} key={__idx} entry={entry} region={region} />
+              <RegionPill entry={entry} region={region} onSelect={selectRegion} key={__idx} />
             ))}
           </View>
         </Card>
@@ -208,12 +208,12 @@ export default function SettingsScreen({ navigation }) {
           <Title>Targets & Reminders</Title>
           <Muted style={styles.marginTop6}>Weekly CO2 goal (kg).</Muted>
           <Text style={styles.label}>Target kg CO2 / week</Text>
-          <TextInput placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"Target kg CO2 / week"} value={target} onChangeText={onTargetChange} placeholder={"10"} keyboardType={"numeric"} />
+          <TextInput accessibilityLabel={"Target kg CO2 / week"} value={target} onChangeText={onTargetChange} placeholder={"10"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} />
           <View style={styles.marginTop4}>
             <Button kind={"ghost"} label={remLabel} onPress={toggleReminder} accessibilityLabel={remAccessLabel} />
           </View>
           <View style={styles.marginTop14}>
-            <Button accessibilityLabel={"Save all settings"} label={"Save Settings"} onPress={onSave} />
+            <Button label={"Save Settings"} onPress={onSave} accessibilityLabel={"Save all settings"} />
           </View>
         </Card>
         <View style={styles.marginTop12}>
@@ -225,21 +225,28 @@ export default function SettingsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  spacer12: {
-    height: 12,
+  marginTop12: {
+    marginTop: 12,
   },
-  rpActive: {
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    borderColor: "rgba(45,212,191,0.6)",
-    backgroundColor: "rgba(45,212,191,0.15)",
+  marginTop14: {
+    marginTop: 14,
   },
   rtBase: {
     color: "rgba(255,255,255,0.68)",
     fontWeight: "700",
     fontSize: 12,
+  },
+  marginTop4: {
+    marginTop: 4,
+  },
+  marginTop6: {
+    marginTop: 6,
+  },
+  spacer12: {
+    height: 12,
+  },
+  flex1: {
+    flex: 1,
   },
   inputStyle: {
     color: "rgba(255,255,255,0.92)",
@@ -250,35 +257,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.03)",
     marginBottom: 10,
   },
-  marginTop4: {
-    marginTop: 4,
-  },
-  flex1: {
-    flex: 1,
-  },
-  coordRow: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  regionGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    marginTop: 10,
-  },
-  label: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    marginBottom: 6,
-  },
-  marginTop6: {
-    marginTop: 6,
-  },
   marginTop10: {
     marginTop: 10,
-  },
-  marginTop12: {
-    marginTop: 12,
   },
   rpBase: {
     borderWidth: 1,
@@ -288,12 +268,32 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: "rgba(255,255,255,0.02)",
   },
+  label: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+    marginBottom: 6,
+  },
+  regionGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginTop: 10,
+  },
+  rpActive: {
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderColor: "rgba(45,212,191,0.6)",
+    backgroundColor: "rgba(45,212,191,0.15)",
+  },
   rtActive: {
     color: textColor,
     fontWeight: "700",
     fontSize: 12,
   },
-  marginTop14: {
-    marginTop: 14,
+  coordRow: {
+    flexDirection: "row",
+    gap: 10,
   },
 });

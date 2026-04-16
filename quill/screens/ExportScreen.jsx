@@ -105,8 +105,8 @@ export default function ExportScreen() {
 }
 
 const styles = StyleSheet.create({
-  hintStyle: {
-    marginTop: 6,
+  spacerSmall: {
+    height: 12,
   },
   statBox: {
     flex: 1,
@@ -115,11 +115,27 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: "center",
   },
-  spacerLarge: {
-    height: 30,
+  statLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 11,
+    fontWeight: "700",
+    marginTop: 2,
   },
   previewTitle: {
     fontSize: 16,
+  },
+  previewBox: {
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 8,
+  },
+  spacerLarge: {
+    height: 30,
+  },
+  successHint: {
+    marginTop: 8,
+    textAlign: "center",
   },
   statsRow: {
     flexDirection: "row",
@@ -131,29 +147,13 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "900",
   },
-  previewBox: {
-    backgroundColor: "rgba(255,255,255,0.03)",
-    borderRadius: 8,
-    padding: 10,
-    marginTop: 8,
-  },
   previewText: {
     color: "rgba(255,255,255,0.68)",
     fontSize: 10,
     fontFamily: "monospace",
     lineHeight: 14,
   },
-  spacerSmall: {
-    height: 12,
-  },
-  successHint: {
-    marginTop: 8,
-    textAlign: "center",
-  },
-  statLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 11,
-    fontWeight: "700",
-    marginTop: 2,
+  hintStyle: {
+    marginTop: 6,
   },
 });

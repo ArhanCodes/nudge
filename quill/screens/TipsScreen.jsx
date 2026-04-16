@@ -100,40 +100,24 @@ export default function TipsScreen() {
 }
 
 const styles = StyleSheet.create({
-  tipHeader: {
-    marginBottom: 6,
+  worstIcon: {
+    fontSize: 32,
   },
-  summaryHighlight: {
-    color: "#ef4444",
+  worstTitle: {
+    color: "rgba(255,255,255,0.92)",
     fontWeight: "900",
-  },
-  flex1: {
-    flex: 1,
-  },
-  spacer10: {
-    height: 10,
-  },
-  tipCat: {
-    fontWeight: "900",
-    fontSize: 12,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
+    fontSize: 16,
   },
   summaryLabel: {
     color: "rgba(255,255,255,0.92)",
     fontWeight: "700",
     fontSize: 14,
   },
-  summaryValue: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "700",
-    fontSize: 14,
+  spacer30: {
+    height: 30,
   },
-  mutedMarginTop6: {
-    marginTop: 6,
-  },
-  tipCard: {
-    borderLeftWidth: 3,
+  tipHeader: {
+    marginBottom: 6,
   },
   worstBox: {
     flexDirection: "row",
@@ -146,17 +130,14 @@ const styles = StyleSheet.create({
     marginTop: 14,
     gap: 12,
   },
+  mutedMarginTop6: {
+    marginTop: 6,
+  },
+  flex1: {
+    flex: 1,
+  },
   spacer12: {
     height: 12,
-  },
-  spacer30: {
-    height: 30,
-  },
-  worstIcon: {
-    fontSize: 32,
-  },
-  marginTop10: {
-    marginTop: 10,
   },
   summaryRow: {
     flexDirection: "row",
@@ -165,22 +146,41 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,255,255,0.12)",
   },
-  worstSub: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 12,
-    marginTop: 2,
+  summaryHighlight: {
+    color: "#ef4444",
+    fontWeight: "900",
   },
   tipText: {
     color: "rgba(255,255,255,0.92)",
     fontSize: 14,
     lineHeight: 20,
   },
-  titleSmall: {
-    fontSize: 16,
+  spacer10: {
+    height: 10,
   },
-  worstTitle: {
-    color: "rgba(255,255,255,0.92)",
+  tipCard: {
+    borderLeftWidth: 3,
+  },
+  worstSub: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 12,
+    marginTop: 2,
+  },
+  summaryValue: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  tipCat: {
     fontWeight: "900",
+    fontSize: 12,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  marginTop10: {
+    marginTop: 10,
+  },
+  titleSmall: {
     fontSize: 16,
   },
 });

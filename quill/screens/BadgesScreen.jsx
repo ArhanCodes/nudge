@@ -134,32 +134,38 @@ export default function BadgesScreen() {
 }
 
 const styles = StyleSheet.create({
-  streakMeta: {
+  nextBadgeCard: {
+    borderWidth: 1,
+    borderColor: "rgba(45,212,191,0.3)",
+  },
+  nextBadgeMeta: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: 12,
   },
-  allBadgeIcon: {
-    fontSize: 24,
-    width: 36,
+  dimmed: {
+    opacity: 0.4,
   },
-  streakMetaDetail: {
-    marginTop: 4,
-  },
-  badgeIcon: {
-    fontSize: 36,
-    marginBottom: 6,
-  },
-  graceNote: {
-    backgroundColor: "rgba(245,158,11,0.08)",
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 12,
-  },
-  badgeDesc: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 11,
+  graceNoteText: {
+    fontSize: 12,
     textAlign: "center",
-    marginTop: 2,
+  },
+  spacer30: {
+    height: 30,
+  },
+  spacerTop10: {
+    marginTop: 10,
+  },
+  sectionTitle16: {
+    fontSize: 16,
+  },
+  streakUnit: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  streakRow: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   streakCircle: {
     width: 80,
@@ -171,17 +177,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(245,158,11,0.08)",
   },
-  flex1: {
-    flex: 1,
-  },
-  spacerTop10: {
-    marginTop: 10,
-  },
-  spacer30: {
-    height: 30,
-  },
-  nextBadgeIcon: {
-    fontSize: 40,
+  streakNumber: {
+    color: "#f59e0b",
+    fontSize: 28,
+    fontWeight: "900",
   },
   allBadgeRow: {
     flexDirection: "row",
@@ -191,33 +190,71 @@ const styles = StyleSheet.create({
     borderBottomColor: "rgba(255,255,255,0.12)",
     gap: 8,
   },
+  graceNote: {
+    backgroundColor: "rgba(245,158,11,0.08)",
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 12,
+  },
+  streakMetaDetail: {
+    marginTop: 4,
+  },
+  badgeGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  nextBadgeName: {
+    color: "#2dd4bf",
+    fontWeight: "900",
+    fontSize: 16,
+  },
+  spacer12: {
+    height: 12,
+  },
   nextBadgeDesc: {
     color: "rgba(255,255,255,0.68)",
     fontSize: 13,
     marginTop: 2,
   },
-  allBadgeName: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
-    fontSize: 14,
+  badgeDesc: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 11,
+    textAlign: "center",
+    marginTop: 2,
+  },
+  allBadgeIcon: {
+    fontSize: 24,
+    width: 36,
   },
   allBadgeDesc: {
     color: "rgba(255,255,255,0.68)",
     fontSize: 12,
   },
-  streakNumber: {
-    color: "#f59e0b",
-    fontSize: 28,
-    fontWeight: "900",
-  },
-  nextBadgeCard: {
-    borderWidth: 1,
-    borderColor: "rgba(45,212,191,0.3)",
+  flex1: {
+    flex: 1,
   },
   nextBadgeRow: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 10,
+  },
+  badgeIcon: {
+    fontSize: 36,
+    marginBottom: 6,
+  },
+  streakMeta: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  spacerTop4: {
+    marginTop: 4,
+  },
+  badgeName: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+    fontSize: 13,
+    textAlign: "center",
   },
   sectionTitle18: {
     fontSize: 18,
@@ -231,49 +268,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "47%",
   },
-  graceNoteText: {
-    fontSize: 12,
-    textAlign: "center",
+  nextBadgeIcon: {
+    fontSize: 40,
   },
-  spacer12: {
-    height: 12,
-  },
-  badgeName: {
+  allBadgeName: {
     color: "rgba(255,255,255,0.92)",
     fontWeight: "900",
-    fontSize: 13,
-    textAlign: "center",
-  },
-  nextBadgeMeta: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  streakUnit: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  sectionTitle16: {
-    fontSize: 16,
-  },
-  nextBadgeName: {
-    color: "#2dd4bf",
-    fontWeight: "900",
-    fontSize: 16,
-  },
-  spacerTop4: {
-    marginTop: 4,
-  },
-  dimmed: {
-    opacity: 0.4,
-  },
-  streakRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  badgeGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
+    fontSize: 14,
   },
 });
