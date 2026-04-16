@@ -67,7 +67,7 @@ export default function ExportScreen() {
           <Title>Export Your Data</Title>
           <Muted style={styles.hintStyle}>Share your carbon footprint logs as CSV. You can paste this into Google Sheets, Excel, or use it in your EPQ analysis.</Muted>
           <View style={styles.statsRow}>
-            <View style={styles.statBox} accessibilityLabel={`Activities: ${stats.count}`}>
+            <View accessibilityLabel={`Activities: ${stats.count}`} style={styles.statBox}>
               <Text style={styles.statValue}>{stats.count}</Text>
               <Text style={styles.statLabel}>Activities</Text>
             </View>
@@ -85,12 +85,12 @@ export default function ExportScreen() {
         <Card>
           <Title style={styles.previewTitle}>CSV Preview</Title>
           <View style={styles.previewBox}>
-            <Text style={styles.previewText}>{csv or 'No data to export yet.'}</Text>
+            <Text style={styles.previewText}>{csv || 'No data to export yet.'}</Text>
           </View>
         </Card>
         <View style={styles.spacerSmall} />
         <Card>
-          <Button label={"Share CSV"} onPress={() => onShare()} disabled={isEmpty} />
+          <Button disabled={isEmpty} label={"Share CSV"} onPress={() => onShare()} />
           {shared && (
             <Muted style={styles.successHint}>Data shared successfully!</Muted>
           )}
@@ -105,11 +105,29 @@ export default function ExportScreen() {
 }
 
 const styles = StyleSheet.create({
-  statLabel: {
+  previewText: {
     color: "rgba(255,255,255,0.68)",
-    fontSize: 11,
-    fontWeight: "700",
-    marginTop: 2,
+    fontSize: 10,
+    fontFamily: "monospace",
+    lineHeight: 14,
+  },
+  spacerSmall: {
+    height: 12,
+  },
+  spacerLarge: {
+    height: 30,
+  },
+  previewTitle: {
+    fontSize: 16,
+  },
+  successHint: {
+    marginTop: 8,
+    textAlign: "center",
+  },
+  statValue: {
+    color: "#2dd4bf",
+    fontSize: 22,
+    fontWeight: "900",
   },
   previewBox: {
     backgroundColor: "rgba(255,255,255,0.03)",
@@ -117,13 +135,13 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 8,
   },
-  spacerSmall: {
-    height: 12,
+  hintStyle: {
+    marginTop: 6,
   },
-  statValue: {
-    color: "#2dd4bf",
-    fontSize: 22,
-    fontWeight: "900",
+  statsRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 14,
   },
   statBox: {
     flex: 1,
@@ -132,28 +150,10 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: "center",
   },
-  successHint: {
-    marginTop: 8,
-    textAlign: "center",
-  },
-  statsRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 14,
-  },
-  previewText: {
+  statLabel: {
     color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
-    fontFamily: "monospace",
-    lineHeight: 14,
-  },
-  hintStyle: {
-    marginTop: 6,
-  },
-  spacerLarge: {
-    height: 30,
-  },
-  previewTitle: {
-    fontSize: 16,
+    fontSize: 11,
+    fontWeight: "700",
+    marginTop: 2,
   },
 });

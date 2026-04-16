@@ -87,7 +87,7 @@ export default function TipsScreen() {
                 const svs = summaryValueStyle(key);
                 <View style={styles.summaryRow}>
                   <Text style={styles.summaryLabel}>{cat.icon} {cat.label}</Text>
-                  <Text style={{ color: svs.color, fontWeight: svs.fontWeight, fontSize: 14 }}>{(result.catTotals[key] or 0).toFixed(2)} kg</Text>
+                  <Text style={{ color: svs.color, fontWeight: svs.fontWeight, fontSize: 14 }}>{(result.catTotals[key] || 0).toFixed(2)} kg</Text>
                 </View>
               </>
             ))}
@@ -105,45 +105,22 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     fontSize: 16,
   },
-  tipHeader: {
-    marginBottom: 6,
-  },
-  summaryHighlight: {
-    color: "#ef4444",
-    fontWeight: "900",
-  },
-  mutedMarginTop6: {
-    marginTop: 6,
-  },
-  spacer10: {
-    height: 10,
-  },
-  tipText: {
-    color: "rgba(255,255,255,0.92)",
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  worstIcon: {
-    fontSize: 32,
-  },
   tipCat: {
     fontWeight: "900",
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
-  spacer12: {
-    height: 12,
+  summaryLabel: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "700",
+    fontSize: 14,
   },
-  titleSmall: {
-    fontSize: 16,
+  marginTop10: {
+    marginTop: 10,
   },
-  summaryRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.12)",
+  tipHeader: {
+    marginBottom: 6,
   },
   worstBox: {
     flexDirection: "row",
@@ -156,31 +133,54 @@ const styles = StyleSheet.create({
     marginTop: 14,
     gap: 12,
   },
-  summaryLabel: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "700",
-    fontSize: 14,
-  },
-  flex1: {
-    flex: 1,
-  },
-  summaryValue: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "700",
-    fontSize: 14,
+  mutedMarginTop6: {
+    marginTop: 6,
   },
   worstSub: {
     color: "rgba(255,255,255,0.68)",
     fontSize: 12,
     marginTop: 2,
   },
-  marginTop10: {
-    marginTop: 10,
+  worstIcon: {
+    fontSize: 32,
+  },
+  titleSmall: {
+    fontSize: 16,
+  },
+  spacer10: {
+    height: 10,
+  },
+  flex1: {
+    flex: 1,
+  },
+  spacer12: {
+    height: 12,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.12)",
+  },
+  spacer30: {
+    height: 30,
   },
   tipCard: {
     borderLeftWidth: 3,
   },
-  spacer30: {
-    height: 30,
+  tipText: {
+    color: "rgba(255,255,255,0.92)",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  summaryHighlight: {
+    color: "#ef4444",
+    fontWeight: "900",
+  },
+  summaryValue: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "700",
+    fontSize: 14,
   },
 });

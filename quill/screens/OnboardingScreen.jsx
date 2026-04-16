@@ -105,14 +105,14 @@ export default function OnboardingScreen() {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"handled"}>
+      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps={"handled"} contentContainerStyle={styles.scrollContent}>
         {(current === "welcome") && (
           <Card>
             <Text style={styles.emoji}>🌍</Text>
             <Title style={styles.welcomeTitle}>Welcome to Nudge</Title>
             <Muted style={styles.welcomeBody}>Track your carbon footprint, earn badges, and get personalised tips to reduce your environmental impact.</Muted>
             <View style={styles.spacerLg}>
-              <Button onPress={() => goStep1()} label={"Get Started"} />
+              <Button label={"Get Started"} onPress={() => goStep1()} />
             </View>
           </Card>
         )}
@@ -125,15 +125,15 @@ export default function OnboardingScreen() {
             <View style={styles.coordRow}>
               <View style={styles.flexOne}>
                 <Text style={styles.label}>Latitude</Text>
-                <TextInput accessibilityLabel={"Latitude"} value={schoolLat} onChangeText={onSchoolLatChange} placeholder={"25.2048"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} />
+                <TextInput value={schoolLat} onChangeText={onSchoolLatChange} placeholder={"25.2048"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"Latitude"} />
               </View>
               <View style={styles.flexOne}>
                 <Text style={styles.label}>Longitude</Text>
-                <TextInput style={styles.inputStyle} accessibilityLabel={"Longitude"} value={schoolLon} onChangeText={onSchoolLonChange} placeholder={"55.2708"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} />
+                <TextInput value={schoolLon} onChangeText={onSchoolLonChange} placeholder={"55.2708"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"Longitude"} />
               </View>
             </View>
             <View style={styles.buttonGroup}>
-              <Button label={"Next"} onPress={() => goStep2()} />
+              <Button onPress={() => goStep2()} label={"Next"} />
               <Button kind={"ghost"} label={"Skip for now"} onPress={() => goStep2()} />
             </View>
           </Card>
@@ -150,12 +150,12 @@ export default function OnboardingScreen() {
                   const bk = regionButtonKind(rKey);
                   const rl = rVal.label;
                   const handler = selectRegion.bind(null, rKey);
-                  <Button label={rl} onPress={() => handler()} kind={bk} />
+                  <Button kind={bk} label={rl} onPress={() => handler()} />
                 </>
               ))}
             </View>
             <View style={styles.buttonGroup}>
-              <Button label={"Next"} onPress={() => goStep3()} />
+              <Button onPress={() => goStep3()} label={"Next"} />
             </View>
           </Card>
         )}
@@ -175,8 +175,8 @@ export default function OnboardingScreen() {
             <>
               const idx = STEPS.indexOf(s);
               const ds = dotStyleForIndex(idx);
-              const al = `Step \{idx + 1} of ${STEPS.length}`;
-              <View style={styles.ds} accessibilityLabel={al} />
+              const al = `Step ${idx + 1} of ${STEPS.length}`;
+              <View style={ds} accessibilityLabel={al} />
             </>
           ))}
         </View>
@@ -186,60 +186,8 @@ export default function OnboardingScreen() {
 }
 
 const styles = StyleSheet.create({
-  dots: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 8,
-    marginTop: 24,
-  },
-  emoji: {
-    fontSize: 56,
-    textAlign: "center",
-    marginBottom: 12,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "rgba(255,255,255,0.2)",
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 40,
-  },
-  dotActive: {
-    backgroundColor: "#2dd4bf",
-    width: 24,
-  },
-  welcomeTitle: {
-    textAlign: "center",
-    fontSize: 28,
-  },
-  spacerSm: {
-    marginTop: 6,
-  },
-  flexOne: {
-    flex: 1,
-  },
-  coordRow: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  buttonGroup: {
-    marginTop: 14,
-    gap: 10,
-  },
   spacerLg: {
     marginTop: 24,
-  },
-  regionGrid: {
-    gap: 8,
-    marginTop: 12,
-  },
-  welcomeBody: {
-    textAlign: "center",
-    marginTop: 10,
-    lineHeight: 20,
   },
   inputStyle: {
     color: "rgba(255,255,255,0.92)",
@@ -249,10 +197,62 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: "rgba(255,255,255,0.03)",
   },
+  dots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 24,
+  },
+  coordRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  emoji: {
+    fontSize: 56,
+    textAlign: "center",
+    marginBottom: 12,
+  },
   label: {
     color: "rgba(255,255,255,0.68)",
     fontWeight: "900",
     marginBottom: 6,
     marginTop: 10,
+  },
+  buttonGroup: {
+    marginTop: 14,
+    gap: 10,
+  },
+  welcomeBody: {
+    textAlign: "center",
+    marginTop: 10,
+    lineHeight: 20,
+  },
+  spacerSm: {
+    marginTop: 6,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 40,
+  },
+  welcomeTitle: {
+    textAlign: "center",
+    fontSize: 28,
+  },
+  flexOne: {
+    flex: 1,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "rgba(255,255,255,0.2)",
+  },
+  dotActive: {
+    backgroundColor: "#2dd4bf",
+    width: 24,
+  },
+  regionGrid: {
+    gap: 8,
+    marginTop: 12,
   },
 });

@@ -129,13 +129,13 @@ let items = [1];
                 <View style={{ flex: 1, marginLeft: 14 }}>
                   <Title>Nudge</Title>
                   <View style={{ flexDirection: "row", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
-                    <Chip kind={"brand"} label={`${summary.totalKg.toFixed(1)} kg this week`} />
+                    <Chip label={`${summary.totalKg.toFixed(1)} kg this week`} kind={"brand"} />
                     <Chip label={`${summary.currentStreak} day streak`} />
                   </View>
                 </View>
               </View>
               {((!summary.hasLoggedToday) && (summary.currentStreak > 0)) && (
-                <View accessibilityRole={"alert"} style={styles.streakWarning}>
+                <View style={styles.streakWarning} accessibilityRole={"alert"}>
                   <Text style={styles.streakWarningText}>Log an activity today to keep your {summary.currentStreak}-day streak!</Text>
                 </View>
               )}
@@ -145,10 +145,10 @@ let items = [1];
                   <>
                     const key = entry[0];
                     const cat = entry[1];
-                    <View style={styles.catMini} accessibilityLabel={`${cat.label}: \{(summary.catTotals[key] or 0).toFixed(1)} kilograms`}>
+                    <View style={styles.catMini} accessibilityLabel={`${cat.label}: ${(summary.catTotals[key] || 0).toFixed(1)} kilograms`}>
                       <Text style={{ fontSize: 18 }}>{cat.icon}</Text>
                       const catMiniKgStyle = [catMiniKg, { color: cat.color }];
-                      <Text style={styles.catMiniKgStyle}>{(summary.catTotals[key] or 0).toFixed(1)}</Text>
+                      <Text style={catMiniKgStyle}>{(summary.catTotals[key] || 0).toFixed(1)}</Text>
                       <Text style={styles.catMiniLabel}>kg</Text>
                     </View>
                   </>
@@ -158,13 +158,13 @@ let items = [1];
             <View style={{ height: 12 }} />
             <Card>
               <View style={{ gap: 10 }}>
-                <Button label={"+ Log Activity"} onPress={() => goLogActivity()} accessibilityLabel={"Log a new activity"} />
+                <Button onPress={() => goLogActivity()} accessibilityLabel={"Log a new activity"} label={"+ Log Activity"} />
                 <View style={{ flexDirection: "row", gap: 10 }}>
                   <View style={{ flex: 1 }}>
                     <Button kind={"ghost"} label={"Dashboard"} onPress={() => goDashboard()} accessibilityLabel={"View progress dashboard"} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Button label={"Tips"} onPress={() => goTips()} accessibilityLabel={"View weekly tips"} kind={"ghost"} />
+                    <Button kind={"ghost"} label={"Tips"} onPress={() => goTips()} accessibilityLabel={"View weekly tips"} />
                   </View>
                 </View>
                 <View style={{ flexDirection: "row", gap: 10 }}>
@@ -172,7 +172,7 @@ let items = [1];
                     <Button kind={"ghost"} label={"Badges"} onPress={() => goBadges()} accessibilityLabel={"View badges and streaks"} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Button kind={"ghost"} label={"Settings"} onPress={() => goSettings()} accessibilityLabel={"Open settings"} />
+                    <Button accessibilityLabel={"Open settings"} kind={"ghost"} label={"Settings"} onPress={() => goSettings()} />
                   </View>
                 </View>
                 <Button onPress={() => goExport()} accessibilityLabel={"Export data as CSV"} kind={"ghost"} label={"Export Data"} />
@@ -184,7 +184,7 @@ let items = [1];
               <View style={{ alignItems: "center" }}>
                 const goalColor = pickGoalColor(summary.over);
                 const goalProgress = Math.min((summary.totalKg / summary.target), 1);
-                <ProgressRing progress={goalProgress} size={140} strokeWidth={12} color={goalColor}>
+                <ProgressRing size={140} strokeWidth={12} color={goalColor} progress={goalProgress}>
                   <Text style={styles.ringMainText}>{summary.totalKg.toFixed(1)}</Text>
                   <Text style={styles.ringSubText}>/ {summary.target.toFixed(0)} kg</Text>
                 </ProgressRing>
@@ -216,11 +216,11 @@ let items = [1];
               const bmTextColor = pickBenchmarkTextColor(summary.benchmark.better);
               const bmBannerStyle = [benchmarkBanner, { backgroundColor: bmBg, borderColor: bmBorder }];
               const bmBannerTextStyle = [benchmarkBannerText, { color: bmTextColor }];
-              <View style={styles.bmBannerStyle}>
+              <View style={bmBannerStyle}>
                 {summary.benchmark.better ? (
-                  <Text style={styles.bmBannerTextStyle}>You saved {summary.benchmark.savedKg.toFixed(1)} kg ({Math.abs(summary.benchmark.savedPct).toFixed(0)}% less) vs the {summary.benchmark.benchmarkLabel}</Text>
+                  <Text style={bmBannerTextStyle}>You saved {summary.benchmark.savedKg.toFixed(1)} kg ({Math.abs(summary.benchmark.savedPct).toFixed(0)}% less) vs the {summary.benchmark.benchmarkLabel}</Text>
                 ) : (
-                  <Text style={styles.bmBannerTextStyle}>{Math.abs(summary.benchmark.savedKg).toFixed(1)} kg above the {summary.benchmark.benchmarkLabel} â small changes add up!</Text>
+                  <Text style={bmBannerTextStyle}>{Math.abs(summary.benchmark.savedKg).toFixed(1)} kg above the {summary.benchmark.benchmarkLabel} â small changes add up!</Text>
                 )}
               </View>
               <Muted style={{ marginTop: 6, fontSize: 10 }}>Source: {summary.benchmark.benchmarkSource}</Muted>
@@ -233,8 +233,8 @@ let items = [1];
                 <Muted>No logs yet. Tap \"+ Log Activity\" to get started.</Muted>
               ) : (
                 {summary.recentLogs.map((item, __idx) => (
-                  <View style={styles.logRow} accessibilityLabel={`${item.label}, \{(item.co2Kg or 0).toFixed(2)} kg CO2`}>
-                    <Text style={{ fontSize: 18, width: 28 }}>{(CATEGORIES[item.category or 'transport'])?.icon or ''}</Text>
+                  <View style={styles.logRow} accessibilityLabel={`${item.label}, ${(item.co2Kg || 0).toFixed(2)} kg CO2`}>
+                    <Text style={{ fontSize: 18, width: 28 }}>{(CATEGORIES[item.category || 'transport'])?.icon || ''}</Text>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.logTitle}>{item.label}</Text>
                       <Muted style={{ fontSize: 11 }}>{new Date(item.dateISO).toLocaleDateString()}</Muted>
@@ -243,7 +243,7 @@ let items = [1];
                     const logKgStyle = [logKg, { color: logColor }];
                     const logPrefix = pickLogPrefix((item.co2Kg || 0));
                     const logVal = (item.co2Kg || 0).toFixed(2);
-                    <Text style={styles.logKgStyle}>{logPrefix}{logVal} kg</Text>
+                    <Text style={logKgStyle}>{logPrefix}{logVal} kg</Text>
                   </View>
                 ))}
               )}
@@ -260,20 +260,16 @@ let items = [1];
 }
 
 const styles = StyleSheet.create({
-  benchmarkBanner: {
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 10,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
   streakWarningText: {
     color: "#f59e0b",
     fontWeight: "700",
     fontSize: 13,
     textAlign: "center",
+  },
+  logTitle: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "700",
+    fontSize: 14,
   },
   scoreCircle: {
     width: 68,
@@ -285,48 +281,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(45,212,191,0.08)",
   },
-  logTitle: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "700",
-    fontSize: 14,
-  },
-  ringSubText: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  benchmarkCol: {
-    flex: 1,
-    alignItems: "center",
-  },
-  catMiniLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  logRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.12)",
-    gap: 8,
-  },
-  logKg: {
-    fontWeight: "900",
-    fontSize: 13,
-  },
-  catMini: {
-    alignItems: "center",
-  },
-  benchmarkVs: {
-    paddingHorizontal: 12,
-  },
-  catMiniKg: {
-    fontWeight: "900",
-    fontSize: 16,
-    marginTop: 2,
-  },
   streakWarning: {
     backgroundColor: "rgba(245,158,11,0.12)",
     borderWidth: 1,
@@ -335,20 +289,11 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
   },
-  scoreNum: {
-    color: "#2dd4bf",
-    fontSize: 22,
-    fontWeight: "900",
-  },
-  scoreLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 9,
-    fontWeight: "700",
-  },
-  benchmarkAvg: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 22,
-    fontWeight: "900",
+  benchmarkRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 10,
   },
   catRow: {
     flexDirection: "row",
@@ -358,25 +303,80 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "rgba(255,255,255,0.12)",
   },
-  benchmarkYou: {
-    color: "#2dd4bf",
-    fontSize: 22,
+  ringSubText: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  logKg: {
     fontWeight: "900",
+    fontSize: 13,
+  },
+  catMiniLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  benchmarkCol: {
+    flex: 1,
+    alignItems: "center",
+  },
+  catMiniKg: {
+    fontWeight: "900",
+    fontSize: 16,
+    marginTop: 2,
+  },
+  benchmarkBanner: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+  },
+  scoreLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 9,
+    fontWeight: "700",
   },
   benchmarkBannerText: {
     fontWeight: "700",
     fontSize: 13,
     textAlign: "center",
   },
-  benchmarkRow: {
+  logRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 10,
-    marginBottom: 10,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.12)",
+    gap: 8,
   },
   ringMainText: {
     color: "rgba(255,255,255,0.92)",
     fontSize: 26,
+    fontWeight: "900",
+  },
+  catMini: {
+    alignItems: "center",
+  },
+  benchmarkYou: {
+    color: "#2dd4bf",
+    fontSize: 22,
+    fontWeight: "900",
+  },
+  benchmarkAvg: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 22,
+    fontWeight: "900",
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  benchmarkVs: {
+    paddingHorizontal: 12,
+  },
+  scoreNum: {
+    color: "#2dd4bf",
+    fontSize: 22,
     fontWeight: "900",
   },
 });

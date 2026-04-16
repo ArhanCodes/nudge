@@ -111,7 +111,7 @@ export default function BadgesScreen() {
                     <Text style={styles.allBadgeName}>{b.name}</Text>
                     <Text style={styles.allBadgeDesc}>{b.desc}</Text>
                   </View>
-                  <Chip kind={"brand"} label={"Earned"} />
+                  <Chip label={"Earned"} kind={"brand"} />
                 </View>
               ) : (
                 <View style={[styles.allBadgeRow, styles.dimmed]}>
@@ -132,86 +132,11 @@ export default function BadgesScreen() {
 }
 
 const styles = StyleSheet.create({
-  allBadgeIcon: {
-    fontSize: 24,
-    width: 36,
-  },
-  sectionTitle18: {
-    fontSize: 18,
-  },
-  nextBadgeName: {
-    color: "#2dd4bf",
+  badgeName: {
+    color: "rgba(255,255,255,0.92)",
     fontWeight: "900",
-    fontSize: 16,
-  },
-  nextBadgeMeta: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  nextBadgeCard: {
-    borderWidth: 1,
-    borderColor: "rgba(45,212,191,0.3)",
-  },
-  dimmed: {
-    opacity: 0.4,
-  },
-  graceNote: {
-    backgroundColor: "rgba(245,158,11,0.08)",
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 12,
-  },
-  allBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.12)",
-    gap: 8,
-  },
-  badgeIcon: {
-    fontSize: 36,
-    marginBottom: 6,
-  },
-  streakUnit: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  nextBadgeDesc: {
-    color: "rgba(255,255,255,0.68)",
     fontSize: 13,
-    marginTop: 2,
-  },
-  badgeCard: {
-    backgroundColor: "rgba(255,255,255,0.04)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    borderRadius: 12,
-    padding: 12,
-    alignItems: "center",
-    width: "47%",
-  },
-  streakNumber: {
-    color: "#f59e0b",
-    fontSize: 28,
-    fontWeight: "900",
-  },
-  spacerTop4: {
-    marginTop: 4,
-  },
-  streakMeta: {
-    flex: 1,
-    marginLeft: 16,
-  },
-  badgeDesc: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 11,
     textAlign: "center",
-    marginTop: 2,
-  },
-  nextBadgeIcon: {
-    fontSize: 40,
   },
   streakCircle: {
     width: 80,
@@ -223,55 +148,130 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(245,158,11,0.08)",
   },
-  spacerTop10: {
-    marginTop: 10,
+  spacerTop4: {
+    marginTop: 4,
   },
-  spacer30: {
-    height: 30,
+  badgeIcon: {
+    fontSize: 36,
+    marginBottom: 6,
   },
   graceNoteText: {
     fontSize: 12,
     textAlign: "center",
+  },
+  spacer30: {
+    height: 30,
+  },
+  flex1: {
+    flex: 1,
+  },
+  dimmed: {
+    opacity: 0.4,
+  },
+  streakNumber: {
+    color: "#f59e0b",
+    fontSize: 28,
+    fontWeight: "900",
+  },
+  sectionTitle16: {
+    fontSize: 16,
+  },
+  spacer12: {
+    height: 12,
+  },
+  badgeDesc: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 11,
+    textAlign: "center",
+    marginTop: 2,
   },
   nextBadgeRow: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 10,
   },
-  streakRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  flex1: {
-    flex: 1,
-  },
-  sectionTitle16: {
-    fontSize: 16,
-  },
-  badgeName: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
-    fontSize: 13,
-    textAlign: "center",
-  },
-  spacer12: {
-    height: 12,
-  },
   allBadgeName: {
     color: "rgba(255,255,255,0.92)",
     fontWeight: "900",
     fontSize: 14,
   },
-  allBadgeDesc: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 12,
-  },
-  streakMetaDetail: {
-    marginTop: 4,
-  },
   badgeGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
+  },
+  nextBadgeIcon: {
+    fontSize: 40,
+  },
+  streakRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  streakMeta: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  streakMetaDetail: {
+    marginTop: 4,
+  },
+  nextBadgeDesc: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 13,
+    marginTop: 2,
+  },
+  streakUnit: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  spacerTop10: {
+    marginTop: 10,
+  },
+  sectionTitle18: {
+    fontSize: 18,
+  },
+  badgeCard: {
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    borderRadius: 12,
+    padding: 12,
+    alignItems: "center",
+    width: "47%",
+  },
+  nextBadgeName: {
+    color: "#2dd4bf",
+    fontWeight: "900",
+    fontSize: 16,
+  },
+  allBadgeDesc: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 12,
+  },
+  allBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.12)",
+    gap: 8,
+  },
+  nextBadgeMeta: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  nextBadgeCard: {
+    borderWidth: 1,
+    borderColor: "rgba(45,212,191,0.3)",
+  },
+  graceNote: {
+    backgroundColor: "rgba(245,158,11,0.08)",
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 12,
+  },
+  allBadgeIcon: {
+    fontSize: 24,
+    width: 36,
   },
 });

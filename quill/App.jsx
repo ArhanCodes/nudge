@@ -76,11 +76,11 @@ let needsOnboarding = ((booted && appState) && (!appState.onboarded));
           ) : (
             <StackNavigator screenOptions={screenOptions}>
               <StackScreen name={"Home"} component={HomeScreen} options={optHome} />
-              <StackScreen options={optLog} name={"LogActivity"} component={LogActivityScreen} />
-              <StackScreen name={"Dashboard"} component={DashboardScreen} options={optDash} />
-              <StackScreen name={"Tips"} component={TipsScreen} options={optTips} />
-              <StackScreen name={"Badges"} component={BadgesScreen} options={optBadges} />
-              <StackScreen name={"Trends"} component={TrendsScreen} options={optTrends} />
+              <StackScreen name={"LogActivity"} component={LogActivityScreen} options={optLog} />
+              <StackScreen options={optDash} name={"Dashboard"} component={DashboardScreen} />
+              <StackScreen options={optTips} name={"Tips"} component={TipsScreen} />
+              <StackScreen options={optBadges} name={"Badges"} component={BadgesScreen} />
+              <StackScreen component={TrendsScreen} options={optTrends} name={"Trends"} />
               <StackScreen name={"Settings"} component={SettingsScreen} options={optSettings} />
               <StackScreen name={"PickLocation"} component={LocationPickerScreen} options={optPickLoc} />
               <StackScreen options={optExport} name={"Export"} component={ExportScreen} />

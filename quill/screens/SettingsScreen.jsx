@@ -32,7 +32,7 @@ export function RegionPill({ entry, region, onSelect }) {
   return (
     <>
       {isActive ? (
-        <Pressable accessibilityRole={"button"} onPress={() => handlePress()} style={styles.rpActive} accessibilityLabel={`Region: ${label}`}>
+        <Pressable onPress={() => handlePress()} style={styles.rpActive} accessibilityLabel={`Region: ${label}`} accessibilityRole={"button"}>
           <Text style={styles.rtActive}>{label}</Text>
         </Pressable>
       ) : (
@@ -44,7 +44,7 @@ export function RegionPill({ entry, region, onSelect }) {
   );
 }
 
-export default function SettingsScreen({ navigation }) {
+export function SettingsScreen({ navigation }) {
   const ctx = useContext(AppContext);
   const [schoolName, setSchoolName] = useState((__propagate(__propagate(ctx.state).school).name || ""));
   const [schoolLat, setSchoolLat] = useState("");
@@ -177,15 +177,15 @@ export default function SettingsScreen({ navigation }) {
           <Title>School</Title>
           <Muted style={styles.marginTop6}>Set your school location to estimate commute distance.</Muted>
           <Text style={styles.label}>School name</Text>
-          <TextInput value={schoolName} onChangeText={onSchoolNameChange} placeholder={"e.g. Dubai College"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"School name"} />
+          <TextInput placeholder={"e.g. Dubai College"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"School name"} value={schoolName} onChangeText={onSchoolNameChange} />
           <View style={styles.coordRow}>
             <View style={styles.flex1}>
               <Text style={styles.label}>Latitude</Text>
-              <TextInput accessibilityLabel={"Latitude"} value={schoolLat} onChangeText={onSchoolLatChange} placeholder={"25.2048"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} />
+              <TextInput value={schoolLat} onChangeText={onSchoolLatChange} placeholder={"25.2048"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"Latitude"} />
             </View>
             <View style={styles.flex1}>
               <Text style={styles.label}>Longitude</Text>
-              <TextInput placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"Longitude"} value={schoolLon} onChangeText={onSchoolLonChange} placeholder={"55.2708"} keyboardType={"numeric"} />
+              <TextInput value={schoolLon} onChangeText={onSchoolLonChange} placeholder={"55.2708"} keyboardType={"numeric"} placeholderTextColor={"rgba(255,255,255,0.45)"} style={styles.inputStyle} accessibilityLabel={"Longitude"} />
             </View>
           </View>
           <Button label={"Pick my home location (map)"} onPress={() => goPickLocation()} accessibilityLabel={"Pick home location on map"} kind={"ghost"} />
@@ -199,7 +199,7 @@ export default function SettingsScreen({ navigation }) {
           <Muted style={styles.marginTop6}>Electricity grid carbon intensity varies by region. This adjusts your energy emission estimates.</Muted>
           <View style={styles.regionGrid}>
             {REGION_ENTRIES.map((entry, __idx) => (
-              <RegionPill region={region} onSelect={() => selectRegion()} entry={entry} />
+              <RegionPill entry={entry} region={region} onSelect={() => selectRegion()} />
             ))}
           </View>
         </Card>
@@ -225,39 +225,23 @@ export default function SettingsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  rpBase: {
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.02)",
-  },
-  rpActive: {
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    borderColor: "rgba(45,212,191,0.6)",
-    backgroundColor: "rgba(45,212,191,0.15)",
-  },
-  coordRow: {
-    flexDirection: "row",
-    gap: 10,
-  },
   marginTop10: {
     marginTop: 10,
   },
   marginTop12: {
     marginTop: 12,
   },
+  marginTop4: {
+    marginTop: 4,
+  },
+  marginTop6: {
+    marginTop: 6,
+  },
   marginTop14: {
     marginTop: 14,
   },
-  label: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    marginBottom: 6,
+  flex1: {
+    flex: 1,
   },
   inputStyle: {
     color: "rgba(255,255,255,0.92)",
@@ -268,14 +252,23 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.03)",
     marginBottom: 10,
   },
-  marginTop4: {
-    marginTop: 4,
+  rpBase: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.02)",
   },
-  marginTop6: {
-    marginTop: 6,
+  rtActive: {
+    color: textColor,
+    fontWeight: "700",
+    fontSize: 12,
   },
-  flex1: {
-    flex: 1,
+  label: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+    marginBottom: 6,
   },
   regionGrid: {
     flexDirection: "row",
@@ -283,17 +276,24 @@ const styles = StyleSheet.create({
     gap: 6,
     marginTop: 10,
   },
+  spacer12: {
+    height: 12,
+  },
+  rpActive: {
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderColor: "rgba(45,212,191,0.6)",
+    backgroundColor: "rgba(45,212,191,0.15)",
+  },
   rtBase: {
     color: "rgba(255,255,255,0.68)",
     fontWeight: "700",
     fontSize: 12,
   },
-  rtActive: {
-    color: textColor,
-    fontWeight: "700",
-    fontSize: 12,
-  },
-  spacer12: {
-    height: 12,
+  coordRow: {
+    flexDirection: "row",
+    gap: 10,
   },
 });

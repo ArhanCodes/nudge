@@ -67,7 +67,7 @@ export default function TrendsScreen() {
             const bw = (computeBarWidth(d.kg, data.max) + "%");
             <View style={styles.barRow}>
               <View style={styles.dayRow}>
-                <Text style={styles.dayLabel}>{new Date(d.day).toLocaleDateString(nothing, { weekday: 'short' })}</Text>
+                <Text style={styles.dayLabel}>{new Date(d.day).toLocaleDateString(null, { weekday: 'short' })}</Text>
                 <Text style={styles.kgLabel}>{d.kg.toFixed(2)} kg</Text>
               </View>
               <View style={styles.barBg}>
@@ -85,33 +85,22 @@ export default function TrendsScreen() {
 }
 
 const styles = StyleSheet.create({
-  footerWrap: {
-    marginTop: 8,
-  },
-  chartSubtitle: {
-    marginTop: 6,
+  chartTitle: {
+    fontSize: 18,
   },
   barRow: {
     marginBottom: 10,
-  },
-  dayRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
   kgLabel: {
     color: "rgba(255,255,255,0.68)",
     fontWeight: "900",
   },
-  chipRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 12,
-    flexWrap: "wrap",
+  barFill: {
+    height: "100%",
+    backgroundColor: "#7c5cff",
   },
-  dayLabel: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
+  footerWrap: {
+    marginTop: 8,
   },
   weekSubtitle: {
     marginTop: 6,
@@ -119,8 +108,17 @@ const styles = StyleSheet.create({
   spacer: {
     height: 12,
   },
-  chartTitle: {
-    fontSize: 18,
+  chartSubtitle: {
+    marginTop: 6,
+  },
+  dayLabel: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+  },
+  dayRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   barBg: {
     height: 10,
@@ -131,8 +129,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginTop: 6,
   },
-  barFill: {
-    height: "100%",
-    backgroundColor: "#7c5cff",
+  chipRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 12,
+    flexWrap: "wrap",
   },
 });

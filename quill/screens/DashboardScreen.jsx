@@ -237,7 +237,7 @@ let improvement = null;
                       <Text style={styles.catKg}>{kg.toFixed(2)} kg</Text>
                     </View>
                     <View style={styles.barBg}>
-                      <View style={styles.catStyle} />
+                      <View style={catStyle} />
                     </View>
                   </View>
                 </>
@@ -262,14 +262,14 @@ let improvement = null;
                   const dbStyle = dailyBarFillStyle(pct);
                   <View style={{ marginBottom: 8 }}>
                     <View style={styles.dayRow}>
-                      <Text style={styles.dlStyle}>{dlText}</Text>
+                      <Text style={dlStyle}>{dlText}</Text>
                       <Text style={styles.dayKg}>{dkText}</Text>
                       <View style={styles.dayScoreBadge}>
-                        <Text style={styles.dsStyle}>{dsText}</Text>
+                        <Text style={dsStyle}>{dsText}</Text>
                       </View>
                     </View>
                     <View style={styles.barBg}>
-                      <View style={styles.dbStyle} />
+                      <View style={dbStyle} />
                     </View>
                   </View>
                 </>
@@ -291,11 +291,11 @@ let improvement = null;
                   const tbStyle = trendBarFillStyle(pct, i);
                   <View style={{ marginBottom: 10 }}>
                     <View style={styles.dayRow}>
-                      <Text style={styles.tlStyle}>{tlText}</Text>
+                      <Text style={tlStyle}>{tlText}</Text>
                       <Text style={styles.dayKg}>{w.totalKg.toFixed(1)} kg</Text>
                     </View>
                     <View style={styles.barBg}>
-                      <View style={styles.tbStyle} />
+                      <View style={tbStyle} />
                     </View>
                   </View>
                 </>
@@ -310,16 +310,56 @@ let improvement = null;
 }
 
 const styles = StyleSheet.create({
-  dayKg: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    fontSize: 12,
-    marginRight: 8,
+  catHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
   },
   catKg: {
     color: "rgba(255,255,255,0.68)",
     fontWeight: "900",
     fontSize: 13,
+  },
+  barFill: {
+    height: "100%",
+    borderRadius: 999,
+  },
+  scoreLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  dayRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  dayScoreBadge: {
+    width: 30,
+    alignItems: "flex-end",
+  },
+  scoreRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  scoreNumber: {
+    color: "#2dd4bf",
+    fontSize: 28,
+    fontWeight: "900",
+  },
+  dayLabelStyle: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "700",
+    fontSize: 13,
+    flex: 1,
+  },
+  dayKg: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+    fontSize: 12,
+    marginRight: 8,
   },
   scoreCircle: {
     width: 80,
@@ -330,26 +370,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(45,212,191,0.08)",
-  },
-  dayLabelStyle: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "700",
-    fontSize: 13,
-    flex: 1,
-  },
-  dayScoreText: {
-    fontWeight: "900",
-    fontSize: 13,
-  },
-  scoreRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  catHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 4,
   },
   catName: {
     color: "rgba(255,255,255,0.92)",
@@ -362,28 +382,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.06)",
     overflow: "hidden",
   },
-  dayRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  dayScoreBadge: {
-    width: 30,
-    alignItems: "flex-end",
-  },
-  scoreNumber: {
-    color: "#2dd4bf",
-    fontSize: 28,
+  dayScoreText: {
     fontWeight: "900",
-  },
-  scoreLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  barFill: {
-    height: "100%",
-    borderRadius: 999,
+    fontSize: 13,
   },
 });

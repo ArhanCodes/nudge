@@ -56,9 +56,9 @@ export default function LocationPickerScreen({ navigation }) {
     }
     setSelectedCoord(coord);
     try {
-      results = await Location.reverseGeocodeAsync(coord);
+      let results = await Location.reverseGeocodeAsync(coord);
       if ((results.length > 0)) {
-        r = results[0];
+        let r = results[0];
         setSelectedLabel([r.street, r.city, r.region].filter(Boolean).join(", "));
       } else {
         setSelectedLabel("");
@@ -127,6 +127,19 @@ export default function LocationPickerScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  mapContainer: {
+    height: 300,
+    borderRadius: 16,
+    overflow: "hidden",
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  mutedTopSmall: {
+    marginTop: 6,
+  },
   spacerMedium: {
     height: 12,
   },
@@ -145,18 +158,5 @@ const styles = StyleSheet.create({
   buttonGroup: {
     marginTop: 14,
     gap: 10,
-  },
-  mapContainer: {
-    height: 300,
-    borderRadius: 16,
-    overflow: "hidden",
-    backgroundColor: "rgba(255,255,255,0.06)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  mutedTopSmall: {
-    marginTop: 6,
   },
 });

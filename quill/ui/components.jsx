@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { bg, card, border, textColor, muted, brand } from './theme';
 export function Screen({ children, extraStyle }) {
   return (
-    <View style={[styles.screenBase, styles.extraStyle]}>
+    <View style={[styles.screenBase, extraStyle]}>
       {children}
     </View>
   );
@@ -13,7 +13,7 @@ export function Screen({ children, extraStyle }) {
 
 export function Card({ children, extraStyle }) {
   return (
-    <View accessibilityRole={"summary"} style={[styles.cardBase, styles.extraStyle]}>
+    <View accessibilityRole={"summary"} style={[styles.cardBase, extraStyle]}>
       {children}
     </View>
   );
@@ -21,7 +21,7 @@ export function Card({ children, extraStyle }) {
 
 export function Title({ children, extraStyle }) {
   return (
-    <Text style={[styles.titleBase, styles.extraStyle]} accessibilityRole={"header"}>
+    <Text style={[styles.titleBase, extraStyle]} accessibilityRole={"header"}>
       {children}
     </Text>
   );
@@ -29,7 +29,7 @@ export function Title({ children, extraStyle }) {
 
 export function Muted({ children, extraStyle }) {
   return (
-    <Text style={[styles.mutedBase, styles.extraStyle]}>
+    <Text style={[styles.mutedBase, extraStyle]}>
       {children}
     </Text>
   );
@@ -43,7 +43,7 @@ export function Button({ label, onPress, kind, disabled, accessibilityLabel }) {
 let al = accessLabel();
 
   return (
-    <Pressable accessibilityLabel={al} disabled={disabled} onPress={() => onPress()} accessibilityRole={"button"}>
+    <Pressable onPress={() => onPress()} accessibilityRole={"button"} accessibilityLabel={al} disabled={disabled}>
       {(kind === "ghost") ? (
         <Text style={styles.btnGhostText}>{label}</Text>
       ) : (
@@ -72,13 +72,13 @@ let vs = chipViewStyle();
 let ls = chipLabelStyle();
 
   return (
-    <View style={styles.vs} accessibilityLabel={label}>
-      <Text style={styles.ls}>{label}</Text>
+    <View style={vs} accessibilityLabel={label}>
+      <Text style={ls}>{label}</Text>
     </View>
   );
 }
 
-export default function ProgressRing({ progress, size, strokeWidth, color, bgColor, children }) {
+export function ProgressRing({ progress, size, strokeWidth, color, bgColor, children }) {
   const p = useMemo(() => Math.max(0, Math.min(1, (progress || 0))), [progress]);
   const sz = useMemo(() => (size || 120), [size]);
   const sw = useMemo(() => (strokeWidth || 10), [strokeWidth]);
@@ -111,39 +111,15 @@ export default function ProgressRing({ progress, size, strokeWidth, color, bgCol
 }
 
 const styles = StyleSheet.create({
-  cardBase: {
-    backgroundColor: "rgba(255,255,255,0.06)",
-    borderColor: "rgba(255,255,255,0.12)",
-    borderWidth: 1,
-    borderRadius: 16,
-    padding: 14,
+  screenBase: {
+    flex: 1,
+    backgroundColor: "#0b1020",
+    padding: 16,
   },
   titleBase: {
     color: "rgba(255,255,255,0.92)",
     fontSize: 22,
     fontWeight: "900",
-  },
-  chipBase: {
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    backgroundColor: "rgba(255,255,255,0.03)",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    alignSelf: "flex-start",
-  },
-  chipText: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    fontSize: 12,
-  },
-  chipTextBrand: {
-    color: "rgba(255,255,255,0.92)",
-  },
-  screenBase: {
-    flex: 1,
-    backgroundColor: "#0b1020",
-    padding: 16,
   },
   mutedBase: {
     color: "rgba(255,255,255,0.68)",
@@ -158,8 +134,32 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.92)",
     fontWeight: "900",
   },
+  chipTextBrand: {
+    color: "rgba(255,255,255,0.92)",
+  },
+  cardBase: {
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderColor: "rgba(255,255,255,0.12)",
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 14,
+  },
+  chipBase: {
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(255,255,255,0.03)",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    alignSelf: "flex-start",
+  },
   chipBrand: {
     borderColor: "rgba(45,212,191,0.55)",
     backgroundColor: "rgba(45,212,191,0.15)",
+  },
+  chipText: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+    fontSize: 12,
   },
 });
