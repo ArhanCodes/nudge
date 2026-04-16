@@ -1,88 +1,9 @@
--- Nudge - Carbon footprint tracker
--- Main app entry point with navigation and context provider
+-- Expo App built with Quill
+-- Run: quill build --expo App.quill
 
-use "react-native-gesture-handler"
-use "@react-navigation/native" as Nav
-use "@react-navigation/native-stack" as NativeStack
-use "expo-status-bar" as ExpoStatusBar
+use navigation
 
-use "./screens/HomeScreen.quill" as HomeScreen
-use "./screens/LogActivityScreen.quill" as LogActivityScreen
-use "./screens/DashboardScreen.quill" as DashboardScreen
-use "./screens/TipsScreen.quill" as TipsScreen
-use "./screens/BadgesScreen.quill" as BadgesScreen
-use "./screens/TrendsScreen.quill" as TrendsScreen
-use "./screens/SettingsScreen.quill" as SettingsScreen
-use "./screens/LocationPickerScreen.quill" as LocationPickerScreen
-use "./screens/OnboardingScreen.quill" as OnboardingScreen
-use "./screens/ExportScreen.quill" as ExportScreen
-
-from "./state/context.quill" use AppContext
-from "./state/storage.quill" use loadState, saveState, seedIfEmpty
-from "./lib/notifications.quill" use scheduleDailyReminder
-from "./ui/ErrorBoundary.quill" use ErrorBoundary
-
-screenOptions is {
-  headerStyle: { backgroundColor: "#0b1020" },
-  headerTintColor: "rgba(255,255,255,0.92)",
-  headerTitleStyle: { fontWeight: "900" }
-}
-
-Stack is NativeStack.createNativeStackNavigator()
-NavigationContainer is Nav.NavigationContainer
-StatusBar is ExpoStatusBar.StatusBar
-StackNavigator is Stack["Navigator"]
-StackScreen is Stack["Screen"]
-noHeaderOptions is { headerShown: no }
-optHome is { title: "Nudge" }
-optLog is { title: "Log Activity" }
-optDash is { title: "Progress Dashboard" }
-optTips is { title: "Weekly Tips" }
-optBadges is { title: "Badges & Streaks" }
-optTrends is { title: "Weekly Trends" }
-optSettings is { title: "Settings" }
-optPickLoc is { title: "Pick Location" }
-optExport is { title: "Export Data" }
-
-component App:
-  state appState is nothing
-  state booted is no
-
-  use effect:
-    to boot:
-      await seedIfEmpty()
-      s is await loadState()
-      appState is s
-      booted is yes
-      try:
-        await scheduleDailyReminder(20, 0)
-      fails with error:
-        say "reminder setup skipped"
-    boot()
-
-  to updateState next:
-    appState is next
-    await saveState(next)
-
-  memo api is { booted: booted, state: appState, setState: updateState } when [booted, appState]
-
-  to render:
-    needsOnboarding is booted and appState and not appState.onboarded
-    ErrorBoundary:
-      provide AppContext with api:
-        NavigationContainer:
-          StatusBar style "light"
-          if needsOnboarding:
-            StackNavigator screenOptions noHeaderOptions:
-              StackScreen name "Onboarding" component OnboardingScreen
-          otherwise:
-            StackNavigator screenOptions screenOptions:
-              StackScreen name "Home" component HomeScreen options optHome
-              StackScreen name "LogActivity" component LogActivityScreen options optLog
-              StackScreen name "Dashboard" component DashboardScreen options optDash
-              StackScreen name "Tips" component TipsScreen options optTips
-              StackScreen name "Badges" component BadgesScreen options optBadges
-              StackScreen name "Trends" component TrendsScreen options optTrends
-              StackScreen name "Settings" component SettingsScreen options optSettings
-              StackScreen name "PickLocation" component LocationPickerScreen options optPickLoc
-              StackScreen name "Export" component ExportScreen options optExport
+app navigation:
+  stack:
+    screen "Home" component HomeScreen
+    screen "Details" component DetailsScreen

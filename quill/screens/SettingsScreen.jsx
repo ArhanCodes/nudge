@@ -44,7 +44,7 @@ export function RegionPill({ entry, region, onSelect }) {
   );
 }
 
-export function SettingsScreen({ navigation }) {
+export default function SettingsScreen({ navigation }) {
   const ctx = useContext(AppContext);
   const [schoolName, setSchoolName] = useState((ctx.state?.school?.name || ""));
   const [schoolLat, setSchoolLat] = useState("");
