@@ -3,9 +3,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 
 import 'react-native-gesture-handler';
-import * as Nav from '@react-navigation/native';
-import * as NativeStack from '@react-navigation/native-stack';
-import * as ExpoStatusBar from 'expo-status-bar';
+import Nav from '@react-navigation/native';
+import NativeStack from '@react-navigation/native-stack';
+import ExpoStatusBar from 'expo-status-bar';
 import HomeScreen from './screens/HomeScreen';
 import LogActivityScreen from './screens/LogActivityScreen';
 import DashboardScreen from './screens/DashboardScreen';
@@ -40,6 +40,11 @@ export default function App() {
   const [appState, setAppState] = useState(null);
   const [booted, setBooted] = useState(false);
 
+  const updateState = async (next) => {
+    setAppState(next);
+    await saveState(next);
+  };
+
   const api = useMemo(() => ({ booted: booted, state: appState, setState: updateState }), [booted, appState]);
 
   useEffect(() => {
@@ -57,11 +62,6 @@ export default function App() {
     boot();
   }, []);
 
-  const updateState = async (next) => {
-    setAppState(next);
-    await saveState(next);
-  };
-
 let needsOnboarding = ((booted && appState) && (!appState.onboarded));
 
   return (
@@ -71,19 +71,19 @@ let needsOnboarding = ((booted && appState) && (!appState.onboarded));
           <StatusBar style={"light"} />
           {needsOnboarding ? (
             <StackNavigator screenOptions={noHeaderOptions}>
-              <StackScreen name={"Onboarding"} component={OnboardingScreen} />
+              <StackScreen component={OnboardingScreen} name={"Onboarding"} />
             </StackNavigator>
           ) : (
             <StackNavigator screenOptions={screenOptions}>
               <StackScreen name={"Home"} component={HomeScreen} options={optHome} />
               <StackScreen name={"LogActivity"} component={LogActivityScreen} options={optLog} />
-              <StackScreen options={optDash} name={"Dashboard"} component={DashboardScreen} />
+              <StackScreen name={"Dashboard"} component={DashboardScreen} options={optDash} />
               <StackScreen options={optTips} name={"Tips"} component={TipsScreen} />
-              <StackScreen options={optBadges} name={"Badges"} component={BadgesScreen} />
+              <StackScreen component={BadgesScreen} options={optBadges} name={"Badges"} />
               <StackScreen component={TrendsScreen} options={optTrends} name={"Trends"} />
-              <StackScreen name={"Settings"} component={SettingsScreen} options={optSettings} />
+              <StackScreen component={SettingsScreen} options={optSettings} name={"Settings"} />
               <StackScreen name={"PickLocation"} component={LocationPickerScreen} options={optPickLoc} />
-              <StackScreen options={optExport} name={"Export"} component={ExportScreen} />
+              <StackScreen name={"Export"} component={ExportScreen} options={optExport} />
             </StackNavigator>
           )}
         </NavigationContainer>

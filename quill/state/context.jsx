@@ -2,4 +2,4 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
-const AppContext = React.createContext({ booted: false, state: null, setState: () => null });
+export const AppContext = React.createContext({ booted: false, state: null, setState: () => null });

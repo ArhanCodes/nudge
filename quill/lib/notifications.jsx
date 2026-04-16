@@ -2,16 +2,16 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
-import * as Notifications from 'expo-notifications';
+import Notifications from 'expo-notifications';
 export let notificationsModule = null;
 export async function requestNotificationPermission() {
   try {
-    let permResult = await Notifications.getPermissionsAsync();
-    let existingStatus = permResult.status;
+    permResult = await Notifications.getPermissionsAsync();
+    existingStatus = permResult.status;
     if ((existingStatus === "granted")) {
       return true;
     }
-    let reqResult = await Notifications.requestPermissionsAsync();
+    reqResult = await Notifications.requestPermissionsAsync();
     return (reqResult.status === "granted");
   } catch (error) {
     return false;
@@ -25,12 +25,12 @@ export async function scheduleDailyReminder(hour, minute) {
     minute = 0;
   }
   try {
-    let granted = await requestNotificationPermission();
+    granted = await requestNotificationPermission();
     if ((!granted)) {
       return null;
     }
     await cancelAllReminders();
-    let id = await Notifications.scheduleNotificationAsync({ content: { title: "Nudge", body: "Don't forget to log your activities today! Keep your streak going." }, trigger: { type: "daily", hour: hour, minute: minute } });
+    id = await Notifications.scheduleNotificationAsync({ content: { title: "Nudge", body: "Don't forget to log your activities today! Keep your streak going." }, trigger: { type: "daily", hour: hour, minute: minute } });
     return id;
   } catch (error) {
     return null;

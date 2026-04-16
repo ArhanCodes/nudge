@@ -13,10 +13,8 @@ export function clamp(n, a, b) {
 export default function DashboardScreen() {
   const ctx = useContext(AppContext);
 
-  const data = useMemo(() => computeData(ctx.state), [ctx]);
-
   const computeData = (appData) => {
-    let logs = (__propagate(appData).logs || []);
+    let logs = (appData?.logs || []);
     let now = new Date();
     let weeks = [];
     let w = 0;
@@ -49,9 +47,9 @@ export default function DashboardScreen() {
       let kg = dayLogs.reduce((a, l) => (a + (l.co2Kg || 0)), 0);
       return { dayISO: dayISO, kg: kg, score: computeDailyScore(kg) };
     });
-    let region = (__propagate(appData).region || "world");
-    let target = (__propagate(appData).targetKgPerWeek || 10);
-    let benchmark = compareToBenchmark((__propagate(weeks[0]).totalKg || 0), region);
+    let region = (appData?.region || "world");
+    let target = (appData?.targetKgPerWeek || 10);
+    let benchmark = compareToBenchmark((weeks[0]?.totalKg || 0), region);
     return { weeks: weeks, dailyBreakdown: dailyBreakdown, benchmark: benchmark, target: target };
   };
 
@@ -95,9 +93,9 @@ export default function DashboardScreen() {
 
   const pickDayLabelStyle = (isToday) => {
     if (isToday) {
-      return [dayLabelStyle, { color: brand }];
+      return [styles.dayLabelStyle, { color: brand }];
     }
-    return [dayLabelStyle, null];
+    return [styles.dayLabelStyle, null];
   };
 
   const pickDayLabelText = (dayLabel, isToday) => {
@@ -123,9 +121,9 @@ export default function DashboardScreen() {
 
   const pickTrendLabelStyle = (idx) => {
     if ((idx === 3)) {
-      return [dayLabelStyle, { color: brand }];
+      return [styles.dayLabelStyle, { color: brand }];
     }
-    return [dayLabelStyle, null];
+    return [styles.dayLabelStyle, null];
   };
 
   const pickTrendLabelText = (startISO, idx) => {
@@ -143,20 +141,22 @@ export default function DashboardScreen() {
   };
 
   const catBarFillStyle = (pct, catColor) => {
-    return [barFill, { width: (clamp(pct, 0, 100) + "%"), backgroundColor: catColor }];
+    return [styles.barFill, { width: (clamp(pct, 0, 100) + "%"), backgroundColor: catColor }];
   };
 
   const dayScoreStyle = (score) => {
-    return [dayScoreText, { color: pickScoreColor(score) }];
+    return [styles.dayScoreText, { color: pickScoreColor(score) }];
   };
 
   const dailyBarFillStyle = (pct) => {
-    return [barFill, { width: (clamp(pct, 0, 100) + "%"), backgroundColor: brand2 }];
+    return [styles.barFill, { width: (clamp(pct, 0, 100) + "%"), backgroundColor: brand2 }];
   };
 
   const trendBarFillStyle = (pct, idx) => {
-    return [barFill, { width: (clamp(pct, 0, 100) + "%"), backgroundColor: pickTrendBarColor(idx) }];
+    return [styles.barFill, { width: (clamp(pct, 0, 100) + "%"), backgroundColor: pickTrendBarColor(idx) }];
   };
+
+  const data = useMemo(() => computeData(ctx.state), [ctx]);
 
 let thisWeek = data.weeks[0];
 let lastWeek = data.weeks[1];
@@ -168,9 +168,13 @@ let improvement = null;
 
   return (
     <>
-      {(__propagate(lastWeek).totalKg > 0) && (
+      {(() => {
         const improvement = (((lastWeek.totalKg - thisWeek.totalKg) / lastWeek.totalKg) * 100).toFixed(0);
-      )}
+        if (!((lastWeek?.totalKg > 0))) return null;
+        return (
+          <></>
+        );
+      })()}
       <Screen>
         <ScrollView showsVerticalScrollIndicator={false}>
           <Card>
@@ -182,15 +186,16 @@ let improvement = null;
               <View style={{ flex: 1, marginLeft: 16 }}>
                 <Title>This Week</Title>
                 <Muted style={{ marginTop: 4 }}>{thisWeek.totalKg.toFixed(1)} kg CO2e from {thisWeek.logCount} activities</Muted>
-                {(improvement != null) && (
-                  <>
-                    const chipKind = pickImprovementKind(improvement);
-                    const chipLabel = pickImprovementLabel(improvement);
+                {(() => {
+                  const chipKind = pickImprovementKind(improvement);
+                  const chipLabel = pickImprovementLabel(improvement);
+                  if (!((improvement != null))) return null;
+                  return (
                     <View style={{ marginTop: 6 }}>
                       <Chip kind={chipKind} label={chipLabel} />
                     </View>
-                  </>
-                )}
+                  );
+                })()}
               </View>
             </View>
           </Card>
@@ -201,7 +206,7 @@ let improvement = null;
             const ringColor = pickGoalColor(thisWeek.totalKg, data.target);
             const ringPct = Math.round(Math.min(((thisWeek.totalKg / data.target) * 100), 999));
             <View style={{ flexDirection: "row", alignItems: "center", marginTop: 12, gap: 16 }}>
-              <ProgressRing progress={ringProgress} size={100} strokeWidth={10} color={ringColor}>
+              <ProgressRing strokeWidth={10} color={ringColor} progress={ringProgress} size={100}>
                 <Text style={{ color: textColor, fontSize: 18, fontWeight: "900" }}>{ringPct}%</Text>
               </ProgressRing>
               const benchColor = pickBenchmarkColor(data.benchmark.better);
@@ -223,15 +228,15 @@ let improvement = null;
             <Title style={{ fontSize: 18 }}>Category Breakdown</Title>
             <Muted style={{ marginTop: 4 }}>This week's CO2e by domain</Muted>
             <View style={{ marginTop: 12 }}>
-              {Object.entries(CATEGORIES).map((entry, __idx) => (
-                <>
-                  const key = entry[0];
-                  const cat = entry[1];
-                  const kg = (thisWeek.catTotals[key] || 0);
-                  const totalKg = Math.max(0.01, thisWeek.totalKg);
-                  const pct = ((kg / totalKg) * 100);
-                  const catStyle = catBarFillStyle(pct, cat.color);
-                  <View style={{ marginBottom: 12 }}>
+              {Object.entries(CATEGORIES).map((entry, __idx) => {
+                const key = entry[0];
+                const cat = entry[1];
+                const kg = (thisWeek.catTotals[key] || 0);
+                const totalKg = Math.max(0.01, thisWeek.totalKg);
+                const pct = ((kg / totalKg) * 100);
+                const catStyle = catBarFillStyle(pct, cat.color);
+                return (
+                  <View style={{ marginBottom: 12 }} key={__idx}>
                     <View style={styles.catHeader}>
                       <Text style={styles.catName}>{cat.icon} {cat.label}</Text>
                       <Text style={styles.catKg}>{kg.toFixed(2)} kg</Text>
@@ -240,8 +245,8 @@ let improvement = null;
                       <View style={catStyle} />
                     </View>
                   </View>
-                </>
-              ))}
+                );
+              })}
             </View>
           </Card>
           <View style={{ height: 12 }} />
@@ -249,18 +254,18 @@ let improvement = null;
             <Title style={{ fontSize: 18 }}>Daily Emissions</Title>
             <Muted style={{ marginTop: 4 }}>CO2e per day this week</Muted>
             <View style={{ marginTop: 12 }}>
-              {data.dailyBreakdown.map((d, __idx) => (
-                <>
-                  const pct = ((d.kg / maxDailyKg) * 100);
-                  const dayLabel = new Date((d.dayISO + "T00:00:00Z")).toLocaleDateString(null, { weekday: "short" });
-                  const isToday = (d.dayISO === new Date().toISOString().slice(0, 10));
-                  const dlStyle = pickDayLabelStyle(isToday);
-                  const dlText = pickDayLabelText(dayLabel, isToday);
-                  const dkText = pickDayKgText(d.kg);
-                  const dsStyle = dayScoreStyle(d.score);
-                  const dsText = pickDayScoreText(d.kg, d.score);
-                  const dbStyle = dailyBarFillStyle(pct);
-                  <View style={{ marginBottom: 8 }}>
+              {data.dailyBreakdown.map((d, __idx) => {
+                const pct = ((d.kg / maxDailyKg) * 100);
+                const dayLabel = new Date((d.dayISO + "T00:00:00Z")).toLocaleDateString(null, { weekday: "short" });
+                const isToday = (d.dayISO === new Date().toISOString().slice(0, 10));
+                const dlStyle = pickDayLabelStyle(isToday);
+                const dlText = pickDayLabelText(dayLabel, isToday);
+                const dkText = pickDayKgText(d.kg);
+                const dsStyle = dayScoreStyle(d.score);
+                const dsText = pickDayScoreText(d.kg, d.score);
+                const dbStyle = dailyBarFillStyle(pct);
+                return (
+                  <View style={{ marginBottom: 8 }} key={__idx}>
                     <View style={styles.dayRow}>
                       <Text style={dlStyle}>{dlText}</Text>
                       <Text style={styles.dayKg}>{dkText}</Text>
@@ -272,8 +277,8 @@ let improvement = null;
                       <View style={dbStyle} />
                     </View>
                   </View>
-                </>
-              ))}
+                );
+              })}
             </View>
           </Card>
           <View style={{ height: 12 }} />
@@ -282,14 +287,14 @@ let improvement = null;
             <Muted style={{ marginTop: 4 }}>Total CO2e over recent weeks</Muted>
             <View style={{ marginTop: 12 }}>
               const reversed = data.weeks.slice().reverse();
-              {reversed.map((w, __idx) => (
-                <>
-                  const i = reversed.indexOf(w);
-                  const pct = ((w.totalKg / maxWeeklyKg) * 100);
-                  const tlStyle = pickTrendLabelStyle(i);
-                  const tlText = pickTrendLabelText(w.startISO, i);
-                  const tbStyle = trendBarFillStyle(pct, i);
-                  <View style={{ marginBottom: 10 }}>
+              {reversed.map((w, __idx) => {
+                const i = reversed.indexOf(w);
+                const pct = ((w.totalKg / maxWeeklyKg) * 100);
+                const tlStyle = pickTrendLabelStyle(i);
+                const tlText = pickTrendLabelText(w.startISO, i);
+                const tbStyle = trendBarFillStyle(pct, i);
+                return (
+                  <View style={{ marginBottom: 10 }} key={__idx}>
                     <View style={styles.dayRow}>
                       <Text style={tlStyle}>{tlText}</Text>
                       <Text style={styles.dayKg}>{w.totalKg.toFixed(1)} kg</Text>
@@ -298,8 +303,8 @@ let improvement = null;
                       <View style={tbStyle} />
                     </View>
                   </View>
-                </>
-              ))}
+                );
+              })}
             </View>
           </Card>
           <View style={{ height: 30 }} />
@@ -310,25 +315,16 @@ let improvement = null;
 }
 
 const styles = StyleSheet.create({
-  catHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 4,
-  },
   catKg: {
     color: "rgba(255,255,255,0.68)",
     fontWeight: "900",
     fontSize: 13,
   },
-  barFill: {
-    height: "100%",
-    borderRadius: 999,
-  },
-  scoreLabel: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
-    fontWeight: "700",
+  catHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
   },
   dayRow: {
     flexDirection: "row",
@@ -336,40 +332,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 4,
   },
-  dayScoreBadge: {
-    width: 30,
-    alignItems: "flex-end",
-  },
-  scoreRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  scoreNumber: {
-    color: "#2dd4bf",
-    fontSize: 28,
-    fontWeight: "900",
-  },
-  dayLabelStyle: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "700",
-    fontSize: 13,
-    flex: 1,
-  },
   dayKg: {
     color: "rgba(255,255,255,0.68)",
     fontWeight: "900",
     fontSize: 12,
     marginRight: 8,
   },
-  scoreCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: "#2dd4bf",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(45,212,191,0.08)",
+  scoreNumber: {
+    color: "#2dd4bf",
+    fontSize: 28,
+    fontWeight: "900",
   },
   catName: {
     color: "rgba(255,255,255,0.92)",
@@ -382,8 +354,41 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.06)",
     overflow: "hidden",
   },
+  dayLabelStyle: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "700",
+    fontSize: 13,
+    flex: 1,
+  },
+  dayScoreBadge: {
+    width: 30,
+    alignItems: "flex-end",
+  },
+  scoreRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  barFill: {
+    height: "100%",
+    borderRadius: 999,
+  },
   dayScoreText: {
     fontWeight: "900",
     fontSize: 13,
+  },
+  scoreCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: "#2dd4bf",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(45,212,191,0.08)",
+  },
+  scoreLabel: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 10,
+    fontWeight: "700",
   },
 });

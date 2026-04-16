@@ -11,10 +11,8 @@ import { BADGES, computeStats, computeStreak, getEarnedBadges, getNextBadge } fr
 export default function BadgesScreen() {
   const ctx = useContext(AppContext);
 
-  const result = useMemo(() => computeBadgeData(ctx.state), [ctx]);
-
   const computeBadgeData = (appData) => {
-    let logs = (__propagate(appData).logs || []);
+    let logs = (appData?.logs || []);
     let now = new Date();
     let thisWk = weekKeyISO(now);
     let prevDate = new Date(now);
@@ -46,6 +44,8 @@ export default function BadgesScreen() {
     }
   };
 
+  const result = useMemo(() => computeBadgeData(ctx.state), [ctx]);
+
   return (
     <Screen>
       <ScrollView>
@@ -62,7 +62,7 @@ export default function BadgesScreen() {
             </View>
           </View>
           {(result.streakInfo.currentStreak > 0) && (
-            <View style={styles.graceNote} accessibilityRole={"alert"}>
+            <View accessibilityRole={"alert"} style={styles.graceNote}>
               <Muted style={styles.graceNoteText}>Streaks include a 1-day grace period — if you miss today, you have until tomorrow to log and keep your streak alive.</Muted>
             </View>
           )}
@@ -75,7 +75,7 @@ export default function BadgesScreen() {
           {(result.earned.length > 0) ? (
             <View style={styles.badgeGrid}>
               {result.earned.map((b, __idx) => (
-                <View style={styles.badgeCard}>
+                <View style={styles.badgeCard} key={__idx}>
                   <Text style={styles.badgeIcon}>{b.icon}</Text>
                   <Text style={styles.badgeName}>{b.name}</Text>
                   <Text style={styles.badgeDesc}>{b.desc}</Text>
@@ -132,11 +132,119 @@ export default function BadgesScreen() {
 }
 
 const styles = StyleSheet.create({
+  graceNoteText: {
+    fontSize: 12,
+    textAlign: "center",
+  },
+  flex1: {
+    flex: 1,
+  },
+  spacer30: {
+    height: 30,
+  },
+  badgeCard: {
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+    borderRadius: 12,
+    padding: 12,
+    alignItems: "center",
+    width: "47%",
+  },
+  nextBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  dimmed: {
+    opacity: 0.4,
+  },
+  streakNumber: {
+    color: "#f59e0b",
+    fontSize: 28,
+    fontWeight: "900",
+  },
+  streakUnit: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 10,
+    fontWeight: "700",
+  },
+  streakMetaDetail: {
+    marginTop: 4,
+  },
+  graceNote: {
+    backgroundColor: "rgba(245,158,11,0.08)",
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 12,
+  },
+  sectionTitle16: {
+    fontSize: 16,
+  },
+  nextBadgeMeta: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  badgeGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  nextBadgeDesc: {
+    color: "rgba(255,255,255,0.68)",
+    fontSize: 13,
+    marginTop: 2,
+  },
+  badgeIcon: {
+    fontSize: 36,
+    marginBottom: 6,
+  },
+  nextBadgeCard: {
+    borderWidth: 1,
+    borderColor: "rgba(45,212,191,0.3)",
+  },
+  spacerTop10: {
+    marginTop: 10,
+  },
+  sectionTitle18: {
+    fontSize: 18,
+  },
   badgeName: {
     color: "rgba(255,255,255,0.92)",
     fontWeight: "900",
     fontSize: 13,
     textAlign: "center",
+  },
+  nextBadgeName: {
+    color: "#2dd4bf",
+    fontWeight: "900",
+    fontSize: 16,
+  },
+  allBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.12)",
+    gap: 8,
+  },
+  allBadgeName: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
+    fontSize: 14,
+  },
+  spacer12: {
+    height: 12,
+  },
+  nextBadgeIcon: {
+    fontSize: 40,
+  },
+  streakMeta: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  spacerTop4: {
+    marginTop: 4,
   },
   streakCircle: {
     width: 80,
@@ -148,130 +256,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(245,158,11,0.08)",
   },
-  spacerTop4: {
-    marginTop: 4,
+  allBadgeIcon: {
+    fontSize: 24,
+    width: 36,
   },
-  badgeIcon: {
-    fontSize: 36,
-    marginBottom: 6,
+  streakRow: {
+    flexDirection: "row",
+    alignItems: "center",
   },
-  graceNoteText: {
+  allBadgeDesc: {
+    color: "rgba(255,255,255,0.68)",
     fontSize: 12,
-    textAlign: "center",
-  },
-  spacer30: {
-    height: 30,
-  },
-  flex1: {
-    flex: 1,
-  },
-  dimmed: {
-    opacity: 0.4,
-  },
-  streakNumber: {
-    color: "#f59e0b",
-    fontSize: 28,
-    fontWeight: "900",
-  },
-  sectionTitle16: {
-    fontSize: 16,
-  },
-  spacer12: {
-    height: 12,
   },
   badgeDesc: {
     color: "rgba(255,255,255,0.68)",
     fontSize: 11,
     textAlign: "center",
     marginTop: 2,
-  },
-  nextBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
-  },
-  allBadgeName: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
-    fontSize: 14,
-  },
-  badgeGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-  nextBadgeIcon: {
-    fontSize: 40,
-  },
-  streakRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  streakMeta: {
-    flex: 1,
-    marginLeft: 16,
-  },
-  streakMetaDetail: {
-    marginTop: 4,
-  },
-  nextBadgeDesc: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 13,
-    marginTop: 2,
-  },
-  streakUnit: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  spacerTop10: {
-    marginTop: 10,
-  },
-  sectionTitle18: {
-    fontSize: 18,
-  },
-  badgeCard: {
-    backgroundColor: "rgba(255,255,255,0.04)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    borderRadius: 12,
-    padding: 12,
-    alignItems: "center",
-    width: "47%",
-  },
-  nextBadgeName: {
-    color: "#2dd4bf",
-    fontWeight: "900",
-    fontSize: 16,
-  },
-  allBadgeDesc: {
-    color: "rgba(255,255,255,0.68)",
-    fontSize: 12,
-  },
-  allBadgeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.12)",
-    gap: 8,
-  },
-  nextBadgeMeta: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  nextBadgeCard: {
-    borderWidth: 1,
-    borderColor: "rgba(45,212,191,0.3)",
-  },
-  graceNote: {
-    backgroundColor: "rgba(245,158,11,0.08)",
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 12,
-  },
-  allBadgeIcon: {
-    fontSize: 24,
-    width: 36,
   },
 });

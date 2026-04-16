@@ -11,15 +11,12 @@ import { weekKeyISO } from '../utils/time';
 export default function TipsScreen() {
   const ctx = useContext(AppContext);
 
-  const result = useMemo(() => computeTips(ctx.state), [ctx]);
-  const worstInfo = useMemo(() => lookupWorstInfo(result), [result]);
-
   const lookupWorstInfo = (r) => {
     return (CATEGORIES[r.worstCat] || CATEGORIES.transport);
   };
 
   const computeTips = (appData) => {
-    let logs = (__propagate(appData).logs || []);
+    let logs = (appData?.logs || []);
     let now = new Date();
     let wk = weekKeyISO(now);
     let weekLogs = logs.filter((l) => (weekKeyISO(new Date(l.dateISO)) === wk));
@@ -45,6 +42,9 @@ export default function TipsScreen() {
     }
   };
 
+  const result = useMemo(() => computeTips(ctx.state), [ctx]);
+  const worstInfo = useMemo(() => lookupWorstInfo(result), [result]);
+
   return (
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -61,7 +61,7 @@ export default function TipsScreen() {
         </Card>
         <View style={styles.spacer12} />
         {result.tips.map((t, __idx) => (
-          <View>
+          <View key={__idx}>
             <Card style={{ borderLeftWidth: 3, borderLeftColor: t.catColor }}>
               <View style={styles.tipHeader}>
                 <Text style={{ fontWeight: "900", fontSize: 12, textTransform: "uppercase", letterSpacing: 0.5, color: t.catColor }}>{t.catIcon} {t.catLabel}</Text>
@@ -80,17 +80,17 @@ export default function TipsScreen() {
         <Card>
           <Title style={styles.titleSmall}>Category Summary</Title>
           <View style={styles.marginTop10}>
-            {Object.entries(CATEGORIES).map((entry, __idx) => (
-              <>
-                const key = entry[0];
-                const cat = entry[1];
-                const svs = summaryValueStyle(key);
-                <View style={styles.summaryRow}>
+            {Object.entries(CATEGORIES).map((entry, __idx) => {
+              const key = entry[0];
+              const cat = entry[1];
+              const svs = summaryValueStyle(key);
+              return (
+                <View key={__idx} style={styles.summaryRow}>
                   <Text style={styles.summaryLabel}>{cat.icon} {cat.label}</Text>
                   <Text style={{ color: svs.color, fontWeight: svs.fontWeight, fontSize: 14 }}>{(result.catTotals[key] || 0).toFixed(2)} kg</Text>
                 </View>
-              </>
-            ))}
+              );
+            })}
           </View>
         </Card>
         <View style={styles.spacer30} />
@@ -100,27 +100,32 @@ export default function TipsScreen() {
 }
 
 const styles = StyleSheet.create({
-  worstTitle: {
-    color: "rgba(255,255,255,0.92)",
-    fontWeight: "900",
-    fontSize: 16,
-  },
-  tipCat: {
-    fontWeight: "900",
-    fontSize: 12,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
+  worstIcon: {
+    fontSize: 32,
   },
   summaryLabel: {
     color: "rgba(255,255,255,0.92)",
     fontWeight: "700",
     fontSize: 14,
   },
-  marginTop10: {
-    marginTop: 10,
+  flex1: {
+    flex: 1,
   },
-  tipHeader: {
-    marginBottom: 6,
+  mutedMarginTop6: {
+    marginTop: 6,
+  },
+  spacer12: {
+    height: 12,
+  },
+  spacer10: {
+    height: 10,
+  },
+  summaryHighlight: {
+    color: "#ef4444",
+    fontWeight: "900",
+  },
+  titleSmall: {
+    fontSize: 16,
   },
   worstBox: {
     flexDirection: "row",
@@ -133,28 +138,32 @@ const styles = StyleSheet.create({
     marginTop: 14,
     gap: 12,
   },
-  mutedMarginTop6: {
-    marginTop: 6,
-  },
   worstSub: {
     color: "rgba(255,255,255,0.68)",
     fontSize: 12,
     marginTop: 2,
   },
-  worstIcon: {
-    fontSize: 32,
+  tipCard: {
+    borderLeftWidth: 3,
   },
-  titleSmall: {
+  summaryValue: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  worstTitle: {
+    color: "rgba(255,255,255,0.92)",
+    fontWeight: "900",
     fontSize: 16,
   },
-  spacer10: {
-    height: 10,
+  tipCat: {
+    fontWeight: "900",
+    fontSize: 12,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
-  flex1: {
-    flex: 1,
-  },
-  spacer12: {
-    height: 12,
+  tipHeader: {
+    marginBottom: 6,
   },
   summaryRow: {
     flexDirection: "row",
@@ -163,24 +172,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,255,255,0.12)",
   },
-  spacer30: {
-    height: 30,
-  },
-  tipCard: {
-    borderLeftWidth: 3,
-  },
   tipText: {
     color: "rgba(255,255,255,0.92)",
     fontSize: 14,
     lineHeight: 20,
   },
-  summaryHighlight: {
-    color: "#ef4444",
-    fontWeight: "900",
+  spacer30: {
+    height: 30,
   },
-  summaryValue: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "700",
-    fontSize: 14,
+  marginTop10: {
+    marginTop: 10,
   },
 });

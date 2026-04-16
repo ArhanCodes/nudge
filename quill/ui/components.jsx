@@ -40,10 +40,11 @@ export function Button({ label, onPress, kind, disabled, accessibilityLabel }) {
     return (accessibilityLabel || label);
   };
 
+
 let al = accessLabel();
 
   return (
-    <Pressable onPress={() => onPress()} accessibilityRole={"button"} accessibilityLabel={al} disabled={disabled}>
+    <Pressable disabled={disabled} onPress={() => onPress()} accessibilityRole={"button"} accessibilityLabel={al}>
       {(kind === "ghost") ? (
         <Text style={styles.btnGhostText}>{label}</Text>
       ) : (
@@ -56,17 +57,18 @@ let al = accessLabel();
 export function Chip({ label, kind }) {
   const chipViewStyle = () => {
     if ((kind === "brand")) {
-      return [chipBase, chipBrand];
+      return [styles.chipBase, styles.chipBrand];
     }
-    return [chipBase];
+    return [styles.chipBase];
   };
 
   const chipLabelStyle = () => {
     if ((kind === "brand")) {
-      return [chipText, chipTextBrand];
+      return [styles.chipText, styles.chipTextBrand];
     }
-    return [chipText];
+    return [styles.chipText];
   };
+
 
 let vs = chipViewStyle();
 let ls = chipLabelStyle();
@@ -78,7 +80,7 @@ let ls = chipLabelStyle();
   );
 }
 
-export function ProgressRing({ progress, size, strokeWidth, color, bgColor, children }) {
+export default function ProgressRing({ progress, size, strokeWidth, color, bgColor, children }) {
   const p = useMemo(() => Math.max(0, Math.min(1, (progress || 0))), [progress]);
   const sz = useMemo(() => (size || 120), [size]);
   const sw = useMemo(() => (strokeWidth || 10), [strokeWidth]);
@@ -111,6 +113,26 @@ export function ProgressRing({ progress, size, strokeWidth, color, bgColor, chil
 }
 
 const styles = StyleSheet.create({
+  cardBase: {
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderColor: "rgba(255,255,255,0.12)",
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 14,
+  },
+  btnPrimaryText: {
+    color: "#081019",
+    fontWeight: "900",
+  },
+  chipBrand: {
+    borderColor: "rgba(45,212,191,0.55)",
+    backgroundColor: "rgba(45,212,191,0.15)",
+  },
+  chipText: {
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "900",
+    fontSize: 12,
+  },
   screenBase: {
     flex: 1,
     backgroundColor: "#0b1020",
@@ -126,23 +148,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
   },
-  btnPrimaryText: {
-    color: "#081019",
-    fontWeight: "900",
-  },
   btnGhostText: {
     color: "rgba(255,255,255,0.92)",
     fontWeight: "900",
-  },
-  chipTextBrand: {
-    color: "rgba(255,255,255,0.92)",
-  },
-  cardBase: {
-    backgroundColor: "rgba(255,255,255,0.06)",
-    borderColor: "rgba(255,255,255,0.12)",
-    borderWidth: 1,
-    borderRadius: 16,
-    padding: 14,
   },
   chipBase: {
     borderWidth: 1,
@@ -153,13 +161,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignSelf: "flex-start",
   },
-  chipBrand: {
-    borderColor: "rgba(45,212,191,0.55)",
-    backgroundColor: "rgba(45,212,191,0.15)",
-  },
-  chipText: {
-    color: "rgba(255,255,255,0.68)",
-    fontWeight: "900",
-    fontSize: 12,
+  chipTextBrand: {
+    color: "rgba(255,255,255,0.92)",
   },
 });

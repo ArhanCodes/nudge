@@ -7,13 +7,13 @@ export function computeStreak(logs) {
   if ((logs.length === 0)) {
     return { currentStreak: 0, longestStreak: 0 };
   }
-  let dates = new Set(logs.map((l) => new Date(l.dateISO).toISOString().slice(0, 10)));
-  let sorted = Array.from(dates).sort().reverse();
-  let today = new Date().toISOString().slice(0, 10);
-  let current = 0;
-  let checkDate = today;
+  dates = new Set(logs.map((l) => new Date(l.dateISO).toISOString().slice(0, 10)));
+  sorted = Array.from(dates).sort().reverse();
+  today = new Date().toISOString().slice(0, 10);
+  current = 0;
+  checkDate = today;
   if ((!dates.has(checkDate))) {
-    let yesterday = new Date();
+    yesterday = new Date();
     yesterday.setDate((yesterday.getDate() - 1));
     checkDate = yesterday.toISOString().slice(0, 10);
     if ((!dates.has(checkDate))) {
@@ -22,7 +22,7 @@ export function computeStreak(logs) {
   }
   while (dates.has(checkDate)) {
     current = (current + 1);
-    let d = new Date((checkDate + "T00:00:00Z"));
+    d = new Date((checkDate + "T00:00:00Z"));
     d.setUTCDate((d.getUTCDate() - 1));
     checkDate = d.toISOString().slice(0, 10);
   }
@@ -32,13 +32,13 @@ export function computeLongest(sortedDatesDesc) {
   if ((sortedDatesDesc.length === 0)) {
     return 0;
   }
-  let longest = 1;
-  let run = 1;
-  let i = 1;
+  longest = 1;
+  run = 1;
+  i = 1;
   while ((i < sortedDatesDesc.length)) {
-    let prev = new Date((sortedDatesDesc[(i - 1)] + "T00:00:00Z"));
-    let curr = new Date((sortedDatesDesc[i] + "T00:00:00Z"));
-    let diff = ((prev - curr) / 86400000);
+    prev = new Date((sortedDatesDesc[(i - 1)] + "T00:00:00Z"));
+    curr = new Date((sortedDatesDesc[i] + "T00:00:00Z"));
+    diff = ((prev - curr) / 86400000);
     if ((diff === 1)) {
       run = (run + 1);
       longest = Math.max(longest, run);
@@ -50,20 +50,20 @@ export function computeLongest(sortedDatesDesc) {
   return longest;
 }
 export function computeStats(logs, weeklyScoreThisWeek, weeklyScorePrevWeek) {
-  let streakResult = computeStreak(logs);
-  let currentStreak = streakResult.currentStreak;
-  let longestStreak = streakResult.longestStreak;
-  let dayTotals = {};
+  streakResult = computeStreak(logs);
+  currentStreak = streakResult.currentStreak;
+  longestStreak = streakResult.longestStreak;
+  dayTotals = {};
   for (const l of logs) {
-    let day = new Date(l.dateISO).toISOString().slice(0, 10);
+    day = new Date(l.dateISO).toISOString().slice(0, 10);
     dayTotals[day] = ((dayTotals[day] || 0) + (l.co2Kg || 0));
   }
-  let bestDailyScore = 0;
+  bestDailyScore = 0;
   for (const kg of Object.values(dayTotals)) {
-    let score = Math.max(0, Math.round((100 - (kg * 5))));
+    score = Math.max(0, Math.round((100 - (kg * 5))));
     bestDailyScore = Math.max(bestDailyScore, score);
   }
-  let dayCats = {};
+  dayCats = {};
   for (const l of logs) {
     day = new Date(l.dateISO).toISOString().slice(0, 10);
     if ((!dayCats[day])) {
@@ -71,7 +71,7 @@ export function computeStats(logs, weeklyScoreThisWeek, weeklyScorePrevWeek) {
     }
     dayCats[day].add((l.category || "transport"));
   }
-  let hasLoggedAll4InOneDay = Object.values(dayCats).some((s) => (!(s.size < 4)));
+  hasLoggedAll4InOneDay = Object.values(dayCats).some((s) => (!(s.size < 4)));
   return { totalLogs: logs.length, currentStreak: currentStreak, longestStreak: longestStreak, bestDailyScore: bestDailyScore, hasLoggedAll4InOneDay: hasLoggedAll4InOneDay, weeklyImproved: ((weeklyScorePrevWeek > 0) && (weeklyScoreThisWeek > weeklyScorePrevWeek)) };
 }
 export function getEarnedBadges(stats) {

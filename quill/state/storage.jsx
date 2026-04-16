@@ -2,19 +2,19 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
-import * as AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export let KEY = "scfd_state_v2";
 export let OLD_KEY = "scfd_state_v1";
 export function defaultState() {
   return { school: null, home: null, targetKgPerWeek: 10, region: "world", onboarded: false, logs: [] };
 }
 export function migrateV1(v1) {
-  let logs = (v1.logs || []).map((l) => Object.assign({}, l, { category: "transport", itemKey: (l.transport || "car"), label: ((l.transportLabel || l.transport) || "Car"), quantity: 1 }));
+  logs = (v1.logs || []).map((l) => Object.assign({}, l, { category: "transport", itemKey: (l.transport || "car"), label: ((l.transportLabel || l.transport) || "Car"), quantity: 1 }));
   return Object.assign({}, defaultState(), { school: (v1.school || null), home: (v1.home || null), targetKgPerWeek: (v1.targetKgPerWeek || 10), onboarded: true, logs: logs });
 }
 export async function readStore(key) {
   try {
-    let raw = await AsyncStorage.getItem(key);
+    raw = await AsyncStorage.getItem(key);
     if ((!raw)) {
       return null;
     }
@@ -29,13 +29,13 @@ export async function writeStore(key, value) {
 }
 export async function seedIfEmpty() {
   try {
-    let existing = await readStore(KEY);
+    existing = await readStore(KEY);
     if (existing) {
       return null;
     }
-    let v1Raw = await readStore(OLD_KEY);
+    v1Raw = await readStore(OLD_KEY);
     if (v1Raw) {
-      let migrated = migrateV1(v1Raw);
+      migrated = migrateV1(v1Raw);
       await writeStore(KEY, migrated);
       return null;
     }
@@ -46,7 +46,7 @@ export async function seedIfEmpty() {
 }
 export async function loadState() {
   try {
-    let raw = await readStore(KEY);
+    raw = await readStore(KEY);
     if ((!raw)) {
       return defaultState();
     }
