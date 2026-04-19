@@ -36,12 +36,12 @@ export default function OnboardingScreen() {
 
       await setState({
         ...state,
-        school: schoolName.trim()
-          ? { name: schoolName.trim(), latitude: lat, longitude: lon }
-          : null,
+        school: schoolName.trim() ?
+        { name: schoolName.trim(), latitude: lat, longitude: lon } :
+        null,
         region,
         targetKgPerWeek: t,
-        onboarded: true,
+        onboarded: true
       });
     } catch (e) {
       Alert.alert('Setup', e?.message || 'Could not save');
@@ -55,10 +55,10 @@ export default function OnboardingScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1, justifyContent: step <= 1 ? 'center' : undefined, paddingBottom: 40 }}
-      >
-        {current === 'welcome' && (
-          <Card>
+        contentContainerStyle={{ flexGrow: 1, justifyContent: step <= 1 ? 'center' : undefined, paddingBottom: 40 }}>
+        
+        {current === 'welcome' &&
+        <Card>
             <Text style={styles.emoji}>🌍</Text>
             <Title style={{ textAlign: 'center', fontSize: 28 }}>Welcome to Nudge</Title>
             <Muted style={{ textAlign: 'center', marginTop: 10, lineHeight: 20 }}>
@@ -69,10 +69,10 @@ export default function OnboardingScreen() {
               <Button label="Get Started" onPress={() => setStep(1)} />
             </View>
           </Card>
-        )}
+        }
 
-        {current === 'school' && (
-          <Card>
+        {current === 'school' &&
+        <Card>
             <Title>Your School</Title>
             <Muted style={{ marginTop: 6 }}>
               Enter your school details to estimate commute distance. You can skip this and set it
@@ -95,10 +95,10 @@ export default function OnboardingScreen() {
               <Button kind="ghost" label="Skip for now" onPress={() => setStep(2)} />
             </View>
           </Card>
-        )}
+        }
 
-        {current === 'region' && (
-          <Card>
+        {current === 'region' &&
+        <Card>
             <Title>Your Region</Title>
             <Muted style={{ marginTop: 6 }}>
               Electricity grid carbon intensity varies by region. Pick yours for more accurate energy
@@ -106,25 +106,25 @@ export default function OnboardingScreen() {
             </Muted>
 
             <View style={styles.regionGrid}>
-              {Object.entries(REGIONS).map(([key, r]) => (
-                <RegionPill
-                  key={key}
-                  id={key}
-                  label={r.label}
-                  selected={region === key}
-                  onPress={() => setRegion(key)}
-                />
-              ))}
+              {Object.entries(REGIONS).map(([key, r]) =>
+            <RegionPill
+              key={key}
+              id={key}
+              label={r.label}
+              selected={region === key}
+              onPress={() => setRegion(key)} />
+
+            )}
             </View>
 
             <View style={{ marginTop: 14, gap: 10 }}>
               <Button label="Next" onPress={() => setStep(3)} />
             </View>
           </Card>
-        )}
+        }
 
-        {current === 'target' && (
-          <Card>
+        {current === 'target' &&
+        <Card>
             <Title>Weekly Target</Title>
             <Muted style={{ marginTop: 6 }}>
               Set a weekly CO₂ budget in kg. The average person produces about 22 kg/day. A
@@ -132,32 +132,32 @@ export default function OnboardingScreen() {
             </Muted>
 
             <Field
-              label="Target (kg CO₂ / week)"
-              value={target}
-              onChangeText={setTarget}
-              placeholder="10"
-              keyboardType="numeric"
-            />
+            label="Target (kg CO₂ / week)"
+            value={target}
+            onChangeText={setTarget}
+            placeholder="10"
+            keyboardType="numeric" />
+          
 
             <View style={{ marginTop: 14, gap: 10 }}>
               <Button label="Start Tracking" onPress={onFinish} />
             </View>
           </Card>
-        )}
+        }
 
-        {/* Progress dots */}
+        {}
         <View style={styles.dots}>
-          {STEPS.map((_, i) => (
-            <View
-              key={i}
-              style={[styles.dot, i === step && styles.dotActive]}
-              accessibilityLabel={`Step ${i + 1} of ${STEPS.length}`}
-            />
-          ))}
+          {STEPS.map((_, i) =>
+          <View
+            key={i}
+            style={[styles.dot, i === step && styles.dotActive]}
+            accessibilityLabel={`Step ${i + 1} of ${STEPS.length}`} />
+
+          )}
         </View>
       </ScrollView>
-    </Screen>
-  );
+    </Screen>);
+
 }
 
 function Field({ label, ...props }) {
@@ -168,10 +168,10 @@ function Field({ label, ...props }) {
         style={styles.input}
         placeholderTextColor="rgba(255,255,255,0.45)"
         accessibilityLabel={label}
-        {...props}
-      />
-    </View>
-  );
+        {...props} />
+      
+    </View>);
+
 }
 
 function RegionPill({ id, label, selected, onPress }) {
@@ -179,9 +179,9 @@ function RegionPill({ id, label, selected, onPress }) {
     <Button
       kind={selected ? 'primary' : 'ghost'}
       label={label}
-      onPress={onPress}
-    />
-  );
+      onPress={onPress} />);
+
+
 }
 
 const styles = StyleSheet.create({
@@ -193,23 +193,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     padding: 12,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: 'rgba(255,255,255,0.03)'
   },
   regionGrid: { gap: 8, marginTop: 12 },
   dots: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 8,
-    marginTop: 24,
+    marginTop: 24
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.2)'
   },
   dotActive: {
     backgroundColor: colors.brand,
-    width: 24,
-  },
+    width: 24
+  }
 });

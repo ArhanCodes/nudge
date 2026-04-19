@@ -68,38 +68,38 @@ export default function TipsScreen() {
                 <Text style={styles.tipText}>{t.tip}</Text>
               </Card>
               <View style={{ height: 10 }} />
-            </View>
-          );
+            </View>);
+
         })}
 
-        {tips.length === 0 && (
-          <Card>
+        {tips.length === 0 &&
+        <Card>
             <Muted>
               Log some activities this week to get personalised tips!
             </Muted>
           </Card>
-        )}
+        }
 
         <View style={{ height: 12 }} />
 
         <Card>
           <Title style={{ fontSize: 16 }}>Category Summary</Title>
           <View style={{ marginTop: 10 }}>
-            {Object.entries(CATEGORIES).map(([key, cat]) => (
-              <View key={key} style={styles.summaryRow}>
+            {Object.entries(CATEGORIES).map(([key, cat]) =>
+            <View key={key} style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>{cat.icon} {cat.label}</Text>
                 <Text style={[styles.summaryValue, key === worstCat && { color: '#ef4444', fontWeight: '900' }]}>
                   {(catTotals[key] || 0).toFixed(2)} kg
                 </Text>
               </View>
-            ))}
+            )}
           </View>
         </Card>
 
         <View style={{ height: 30 }} />
       </ScrollView>
-    </Screen>
-  );
+    </Screen>);
+
 }
 
 const styles = StyleSheet.create({
@@ -112,50 +112,50 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     marginTop: 14,
-    gap: 12,
+    gap: 12
   },
   worstIcon: {
-    fontSize: 32,
+    fontSize: 32
   },
   worstTitle: {
     color: colors.text,
     fontWeight: '900',
-    fontSize: 16,
+    fontSize: 16
   },
   worstSub: {
     color: colors.muted,
     fontSize: 12,
-    marginTop: 2,
+    marginTop: 2
   },
   tipHeader: {
-    marginBottom: 6,
+    marginBottom: 6
   },
   tipCat: {
     fontWeight: '900',
     fontSize: 12,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 0.5
   },
   tipText: {
     color: colors.text,
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 20
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: colors.border
   },
   summaryLabel: {
     color: colors.text,
     fontWeight: '700',
-    fontSize: 14,
+    fontSize: 14
   },
   summaryValue: {
     color: colors.muted,
     fontWeight: '700',
-    fontSize: 14,
-  },
+    fontSize: 14
+  }
 });

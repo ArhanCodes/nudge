@@ -29,11 +29,11 @@ export class ErrorBoundary extends React.Component {
           <View style={{ marginTop: 24, width: '80%' }}>
             <Button
               label="Try Again"
-              onPress={() => this.setState({ hasError: false, error: null })}
-            />
+              onPress={() => this.setState({ hasError: false, error: null })} />
+            
           </View>
-        </View>
-      );
+        </View>);
+
     }
     return this.props.children;
   }
@@ -45,24 +45,24 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 32,
+    padding: 32
   },
   icon: {
     fontSize: 48,
     color: colors.danger,
     fontWeight: '900',
-    marginBottom: 16,
+    marginBottom: 16
   },
   title: {
     color: colors.text,
     fontSize: 22,
     fontWeight: '900',
-    marginBottom: 8,
+    marginBottom: 8
   },
   message: {
     color: colors.muted,
     fontSize: 14,
     textAlign: 'center',
-    lineHeight: 20,
-  },
+    lineHeight: 20
+  }
 });

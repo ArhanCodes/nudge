@@ -9,8 +9,8 @@ import {
   WEEKLY_BENCHMARKS,
   DIET_ITEMS,
   ENERGY_ITEMS,
-  WASTE_ITEMS,
-} from '../src/lib/co2';
+  WASTE_ITEMS } from
+'../src/lib/co2';
 
 describe('CO2_FACTORS', () => {
   it('has zero emissions for walking and cycling', () => {
@@ -32,7 +32,7 @@ describe('CO2_FACTORS', () => {
 describe('computeCo2Kg', () => {
   it('computes round-trip CO₂ for car', () => {
     const result = computeCo2Kg({ transport: 'car', oneWayKm: 10 });
-    // 0.171 * 10 * 2 = 3.42
+
     expect(result).toBeCloseTo(3.42, 2);
   });
 
@@ -74,12 +74,12 @@ describe('computeWeeklyScore', () => {
   });
 
   it('averages daily scores', () => {
-    // Days: 0 kg (score 100), 10 kg (score 50) => average 75
+
     expect(computeWeeklyScore([0, 10])).toBe(75);
   });
 
   it('handles single day', () => {
-    expect(computeWeeklyScore([4])).toBe(80); // 100 - 4*5
+    expect(computeWeeklyScore([4])).toBe(80);
   });
 });
 
@@ -98,7 +98,7 @@ describe('getCategoryItems', () => {
 
   it('returns region-adjusted energy items', () => {
     const items = getCategoryItems('energy', 'france');
-    // France multiplier is 0.2, so values should be much lower
+
     expect(items.ac_1hr.co2).toBeLessThan(ENERGY_ITEMS.ac_1hr.co2);
   });
 });
@@ -111,7 +111,7 @@ describe('getRegionAdjustedEnergy', () => {
 
   it('scales values for UK region', () => {
     const items = getRegionAdjustedEnergy('uk');
-    // UK multiplier is 0.45
+
     expect(items.ac_1hr.co2).toBeCloseTo(1.5 * 0.45, 2);
   });
 
@@ -132,16 +132,16 @@ describe('WEEKLY_BENCHMARKS', () => {
   });
 
   it('has reasonable benchmark values', () => {
-    // India should be lower than UAE
+
     expect(WEEKLY_BENCHMARKS.india.kgPerWeek).toBeLessThan(WEEKLY_BENCHMARKS.uae.kgPerWeek);
-    // France (nuclear) should be lower than US
+
     expect(WEEKLY_BENCHMARKS.france.kgPerWeek).toBeLessThan(WEEKLY_BENCHMARKS.us.kgPerWeek);
   });
 });
 
 describe('compareToBenchmark', () => {
   it('shows savings when user is below national average', () => {
-    const result = compareToBenchmark(10, 'uk'); // UK avg is 78
+    const result = compareToBenchmark(10, 'uk');
     expect(result.better).toBe(true);
     expect(result.savedKg).toBeCloseTo(68, 0);
     expect(result.savedPct).toBeGreaterThan(80);

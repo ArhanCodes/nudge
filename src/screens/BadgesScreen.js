@@ -19,7 +19,7 @@ export default function BadgesScreen() {
     prevDate.setDate(prevDate.getDate() - 7);
     const prevWk = weekKeyISO(prevDate);
 
-    // Compute weekly scores
+
     const weekScore = (wk) => {
       const wLogs = logs.filter((l) => weekKeyISO(new Date(l.dateISO)) === wk);
       const daily = {};
@@ -44,14 +44,14 @@ export default function BadgesScreen() {
   return (
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Streak card */}
+        {}
         <Card>
           <View style={styles.streakRow}>
             <View
               style={styles.streakCircle}
               accessibilityLabel={`Current streak: ${streakInfo.currentStreak} days`}
-              accessibilityRole="text"
-            >
+              accessibilityRole="text">
+              
               <Text style={styles.streakNumber}>{streakInfo.currentStreak}</Text>
               <Text style={styles.streakUnit}>day{streakInfo.currentStreak !== 1 ? 's' : ''}</Text>
             </View>
@@ -63,18 +63,18 @@ export default function BadgesScreen() {
               <Muted>Total activities logged: {stats.totalLogs}</Muted>
             </View>
           </View>
-          {streakInfo.currentStreak > 0 && (
-            <View style={styles.graceNote} accessibilityRole="alert">
+          {streakInfo.currentStreak > 0 &&
+          <View style={styles.graceNote} accessibilityRole="alert">
               <Muted style={{ fontSize: 12, textAlign: 'center' }}>
                 Streaks include a 1-day grace period — if you miss today, you have until tomorrow to log and keep your streak alive.
               </Muted>
             </View>
-          )}
+          }
         </Card>
 
         <View style={{ height: 12 }} />
 
-        {/* Earned badges */}
+        {}
         <Card>
           <Title style={{ fontSize: 18 }}>
             Badges Earned ({earned.length}/{BADGES.length})
@@ -83,26 +83,26 @@ export default function BadgesScreen() {
 
           <View style={{ height: 12 }} />
 
-          {earned.length > 0 ? (
-            <View style={styles.badgeGrid}>
-              {earned.map((b) => (
-                <View key={b.id} style={styles.badgeCard}>
+          {earned.length > 0 ?
+          <View style={styles.badgeGrid}>
+              {earned.map((b) =>
+            <View key={b.id} style={styles.badgeCard}>
                   <Text style={styles.badgeIcon}>{b.icon}</Text>
                   <Text style={styles.badgeName}>{b.name}</Text>
                   <Text style={styles.badgeDesc}>{b.desc}</Text>
                 </View>
-              ))}
-            </View>
-          ) : (
-            <Muted>No badges yet. Start logging activities to earn them!</Muted>
-          )}
+            )}
+            </View> :
+
+          <Muted>No badges yet. Start logging activities to earn them!</Muted>
+          }
         </Card>
 
         <View style={{ height: 12 }} />
 
-        {/* Next badge */}
-        {nextBadge && (
-          <Card style={{ borderWidth: 1, borderColor: 'rgba(45,212,191,0.3)' }}>
+        {}
+        {nextBadge &&
+        <Card style={{ borderWidth: 1, borderColor: 'rgba(45,212,191,0.3)' }}>
             <Title style={{ fontSize: 16 }}>Next Badge</Title>
             <View style={styles.nextBadgeRow}>
               <Text style={{ fontSize: 40 }}>{nextBadge.icon}</Text>
@@ -112,11 +112,11 @@ export default function BadgesScreen() {
               </View>
             </View>
           </Card>
-        )}
+        }
 
         <View style={{ height: 12 }} />
 
-        {/* All badges overview */}
+        {}
         <Card>
           <Title style={{ fontSize: 16 }}>All Badges</Title>
           <View style={{ marginTop: 10 }}>
@@ -130,22 +130,22 @@ export default function BadgesScreen() {
                     <Text style={styles.allBadgeDesc}>{b.desc}</Text>
                   </View>
                   {isEarned && <Chip kind="brand" label="Earned" />}
-                </View>
-              );
+                </View>);
+
             })}
           </View>
         </Card>
 
         <View style={{ height: 30 }} />
       </ScrollView>
-    </Screen>
-  );
+    </Screen>);
+
 }
 
 const styles = StyleSheet.create({
   streakRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   streakCircle: {
     width: 80,
@@ -155,22 +155,22 @@ const styles = StyleSheet.create({
     borderColor: '#f59e0b',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(245,158,11,0.08)',
+    backgroundColor: 'rgba(245,158,11,0.08)'
   },
   streakNumber: {
     color: '#f59e0b',
     fontSize: 28,
-    fontWeight: '900',
+    fontWeight: '900'
   },
   streakUnit: {
     color: colors.muted,
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: '700'
   },
   badgeGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 10
   },
   badgeCard: {
     backgroundColor: 'rgba(255,255,255,0.04)',
@@ -179,38 +179,38 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
-    width: '47%',
+    width: '47%'
   },
   badgeIcon: {
     fontSize: 36,
-    marginBottom: 6,
+    marginBottom: 6
   },
   badgeName: {
     color: colors.text,
     fontWeight: '900',
     fontSize: 13,
-    textAlign: 'center',
+    textAlign: 'center'
   },
   badgeDesc: {
     color: colors.muted,
     fontSize: 11,
     textAlign: 'center',
-    marginTop: 2,
+    marginTop: 2
   },
   nextBadgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 10
   },
   nextBadgeName: {
     color: colors.brand,
     fontWeight: '900',
-    fontSize: 16,
+    fontSize: 16
   },
   nextBadgeDesc: {
     color: colors.muted,
     fontSize: 13,
-    marginTop: 2,
+    marginTop: 2
   },
   allBadgeRow: {
     flexDirection: 'row',
@@ -218,21 +218,21 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
-    gap: 8,
+    gap: 8
   },
   allBadgeName: {
     color: colors.text,
     fontWeight: '900',
-    fontSize: 14,
+    fontSize: 14
   },
   allBadgeDesc: {
     color: colors.muted,
-    fontSize: 12,
+    fontSize: 12
   },
   graceNote: {
     backgroundColor: 'rgba(245,158,11,0.08)',
     borderRadius: 10,
     padding: 10,
-    marginTop: 12,
-  },
+    marginTop: 12
+  }
 });

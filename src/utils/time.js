@@ -1,5 +1,5 @@
 export function weekKeyISO(date) {
-  // YYYY-Www (ISO-ish) based on Monday start
+
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = d.getUTCDay() || 7;
   d.setUTCDate(d.getUTCDate() + 4 - dayNum);
@@ -11,7 +11,7 @@ export function weekKeyISO(date) {
 export function startOfWeekISO(date) {
   const d = new Date(date);
   const day = d.getDay();
-  const diff = (day === 0 ? -6 : 1) - day; // Monday
+  const diff = (day === 0 ? -6 : 1) - day;
   d.setDate(d.getDate() + diff);
   return d.toISOString().slice(0, 10);
 }

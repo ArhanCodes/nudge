@@ -19,42 +19,42 @@ describe('computeStreak', () => {
 
   it('counts consecutive days from today', () => {
     const logs = [
-      makeLog(daysAgo(0)),
-      makeLog(daysAgo(1)),
-      makeLog(daysAgo(2)),
-    ];
+    makeLog(daysAgo(0)),
+    makeLog(daysAgo(1)),
+    makeLog(daysAgo(2))];
+
     const { currentStreak } = computeStreak(logs);
     expect(currentStreak).toBe(3);
   });
 
   it('grace period: streak counts from yesterday if no log today', () => {
     const logs = [
-      makeLog(daysAgo(1)),
-      makeLog(daysAgo(2)),
-    ];
+    makeLog(daysAgo(1)),
+    makeLog(daysAgo(2))];
+
     const { currentStreak } = computeStreak(logs);
     expect(currentStreak).toBe(2);
   });
 
   it('breaks streak if gap of 2+ days', () => {
     const logs = [
-      makeLog(daysAgo(3)),
-      makeLog(daysAgo(4)),
-    ];
+    makeLog(daysAgo(3)),
+    makeLog(daysAgo(4))];
+
     const { currentStreak } = computeStreak(logs);
     expect(currentStreak).toBe(0);
   });
 
   it('longest streak tracks historical best', () => {
     const logs = [
-      // Old 3-day streak
-      makeLog(daysAgo(10)),
-      makeLog(daysAgo(11)),
-      makeLog(daysAgo(12)),
-      // Gap
-      // Current 1-day streak
-      makeLog(daysAgo(0)),
-    ];
+
+    makeLog(daysAgo(10)),
+    makeLog(daysAgo(11)),
+    makeLog(daysAgo(12)),
+
+
+    makeLog(daysAgo(0))];
+
     const { currentStreak, longestStreak } = computeStreak(logs);
     expect(currentStreak).toBe(1);
     expect(longestStreak).toBe(3);
@@ -62,10 +62,10 @@ describe('computeStreak', () => {
 
   it('handles duplicate dates correctly', () => {
     const logs = [
-      makeLog(daysAgo(0)),
-      makeLog(daysAgo(0)),
-      makeLog(daysAgo(1)),
-    ];
+    makeLog(daysAgo(0)),
+    makeLog(daysAgo(0)),
+    makeLog(daysAgo(1))];
+
     const { currentStreak } = computeStreak(logs);
     expect(currentStreak).toBe(2);
   });
@@ -91,11 +91,11 @@ describe('computeStats', () => {
   it('detects all 4 categories in one day', () => {
     const today = daysAgo(0);
     const logs = [
-      makeLog(today, 'transport'),
-      makeLog(today, 'diet'),
-      makeLog(today, 'energy'),
-      makeLog(today, 'waste'),
-    ];
+    makeLog(today, 'transport'),
+    makeLog(today, 'diet'),
+    makeLog(today, 'energy'),
+    makeLog(today, 'waste')];
+
     const stats = computeStats(logs, 50, 50);
     expect(stats.hasLoggedAll4InOneDay).toBe(true);
   });
@@ -109,7 +109,7 @@ describe('getEarnedBadges', () => {
       longestStreak: 0,
       bestDailyScore: 0,
       hasLoggedAll4InOneDay: false,
-      weeklyImproved: false,
+      weeklyImproved: false
     };
     const earned = getEarnedBadges(stats);
     expect(earned.some((b) => b.id === 'first_log')).toBe(true);
@@ -122,7 +122,7 @@ describe('getEarnedBadges', () => {
       longestStreak: 0,
       bestDailyScore: 0,
       hasLoggedAll4InOneDay: false,
-      weeklyImproved: false,
+      weeklyImproved: false
     };
     expect(getEarnedBadges(stats)).toHaveLength(0);
   });
@@ -136,7 +136,7 @@ describe('getNextBadge', () => {
       longestStreak: 0,
       bestDailyScore: 0,
       hasLoggedAll4InOneDay: false,
-      weeklyImproved: false,
+      weeklyImproved: false
     };
     const next = getNextBadge(stats);
     expect(next).not.toBeNull();
@@ -150,7 +150,7 @@ describe('getNextBadge', () => {
       longestStreak: 30,
       bestDailyScore: 100,
       hasLoggedAll4InOneDay: true,
-      weeklyImproved: true,
+      weeklyImproved: true
     };
     expect(getNextBadge(stats)).toBeNull();
   });

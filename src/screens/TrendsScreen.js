@@ -21,7 +21,7 @@ export default function TrendsScreen() {
 
     const daily = Array.from({ length: 7 }).map((_, i) => ({
       day: addDaysISO(startISO, i),
-      kg: 0,
+      kg: 0
     }));
 
     for (const l of logs) {
@@ -72,8 +72,8 @@ export default function TrendsScreen() {
               <View style={styles.barBg}>
                 <View style={[styles.barFill, { width: `${widthPct}%` }]} />
               </View>
-            </View>
-          );
+            </View>);
+
         })}
 
         <View style={{ marginTop: 8 }}>
@@ -82,8 +82,8 @@ export default function TrendsScreen() {
           </Muted>
         </View>
       </Card>
-    </Screen>
-  );
+    </Screen>);
+
 }
 
 const styles = StyleSheet.create({
@@ -97,10 +97,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     overflow: 'hidden',
-    marginTop: 6,
+    marginTop: 6
   },
   barFill: {
     height: '100%',
-    backgroundColor: colors.brand2,
-  },
+    backgroundColor: colors.brand2
+  }
 });

@@ -1,11 +1,11 @@
-// Core application types for Nudge carbon tracker.
+
 
 export type Category = 'transport' | 'diet' | 'energy' | 'waste';
 
 export type RegionKey =
-  | 'world' | 'uk' | 'uae' | 'us' | 'eu'
-  | 'india' | 'china' | 'aus' | 'canada'
-  | 'brazil' | 'france' | 'nordic';
+'world' | 'uk' | 'uae' | 'us' | 'eu' |
+'india' | 'china' | 'aus' | 'canada' |
+'brazil' | 'france' | 'nordic';
 
 export interface Coordinates {
   latitude: number;
@@ -29,7 +29,7 @@ export interface ActivityLog {
   co2Kg: number;
   quantity: number;
   notes?: string;
-  // Transport-specific fields
+
   oneWayKm?: number;
   transport?: string;
   transportLabel?: string;

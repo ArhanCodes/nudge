@@ -30,26 +30,26 @@ export async function scheduleDailyReminder(hour = 20, minute = 0) {
   const granted = await requestNotificationPermission();
   if (!granted) return null;
 
-  // Cancel any existing reminders first
+
   await cancelAllReminders();
 
   if (Platform.OS === 'android') {
     await mod.setNotificationChannelAsync('daily-reminder', {
       name: 'Daily Reminder',
-      importance: mod.AndroidImportance?.DEFAULT,
+      importance: mod.AndroidImportance?.DEFAULT
     });
   }
 
   const id = await mod.scheduleNotificationAsync({
     content: {
       title: 'Nudge',
-      body: "Don't forget to log your activities today! Keep your streak going.",
+      body: "Don't forget to log your activities today! Keep your streak going."
     },
     trigger: {
       type: 'daily',
       hour,
-      minute,
-    },
+      minute
+    }
   });
 
   return id;

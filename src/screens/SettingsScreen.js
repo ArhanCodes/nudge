@@ -35,7 +35,7 @@ export default function SettingsScreen({ navigation }) {
         ...state,
         school: hasSchool ? { name: schoolName.trim(), latitude: lat, longitude: lon } : state?.school,
         targetKgPerWeek: t,
-        region,
+        region
       });
       Alert.alert('Saved', 'Settings updated.');
       navigation.goBack();
@@ -81,11 +81,11 @@ export default function SettingsScreen({ navigation }) {
           <Button kind="ghost" label="Pick my home location (map)" onPress={() => navigation.navigate('PickLocation')} accessibilityLabel="Pick home location on map" />
 
           <View style={{ marginTop: 10 }}>
-            {state?.home ? (
-              <Chip kind="brand" label={`Home set: ${state.home.label || `${state.home.latitude.toFixed(4)}, ${state.home.longitude.toFixed(4)}`}`} />
-            ) : (
-              <Chip label="Home not set yet" />
-            )}
+            {state?.home ?
+            <Chip kind="brand" label={`Home set: ${state.home.label || `${state.home.latitude.toFixed(4)}, ${state.home.longitude.toFixed(4)}`}`} /> :
+
+            <Chip label="Home not set yet" />
+            }
           </View>
         </Card>
 
@@ -97,20 +97,20 @@ export default function SettingsScreen({ navigation }) {
             Electricity grid carbon intensity varies by region. This adjusts your energy emission estimates.
           </Muted>
           <View style={styles.regionGrid}>
-            {Object.entries(REGIONS).map(([key, r]) => (
-              <Pressable
-                key={key}
-                onPress={() => setRegion(key)}
-                style={[styles.regionPill, region === key && styles.regionPillActive]}
-                accessibilityLabel={`Region: ${r.label}`}
-                accessibilityRole="button"
-                accessibilityState={{ selected: region === key }}
-              >
+            {Object.entries(REGIONS).map(([key, r]) =>
+            <Pressable
+              key={key}
+              onPress={() => setRegion(key)}
+              style={[styles.regionPill, region === key && styles.regionPillActive]}
+              accessibilityLabel={`Region: ${r.label}`}
+              accessibilityRole="button"
+              accessibilityState={{ selected: region === key }}>
+              
                 <Text style={[styles.regionText, region === key && { color: colors.text }]}>
                   {r.label}
                 </Text>
               </Pressable>
-            ))}
+            )}
           </View>
         </Card>
 
@@ -126,8 +126,8 @@ export default function SettingsScreen({ navigation }) {
               kind="ghost"
               label={reminderOn ? 'Turn Off Daily Reminder' : 'Turn On Daily Reminder (8pm)'}
               onPress={toggleReminder}
-              accessibilityLabel={reminderOn ? 'Disable daily notification reminder' : 'Enable daily notification reminder at 8pm'}
-            />
+              accessibilityLabel={reminderOn ? 'Disable daily notification reminder' : 'Enable daily notification reminder at 8pm'} />
+            
           </View>
 
           <View style={{ marginTop: 14 }}>
@@ -141,8 +141,8 @@ export default function SettingsScreen({ navigation }) {
           </Muted>
         </View>
       </View>
-    </Screen>
-  );
+    </Screen>);
+
 }
 
 function Field({ label, ...props }) {
@@ -153,10 +153,10 @@ function Field({ label, ...props }) {
         style={styles.input}
         placeholderTextColor="rgba(255,255,255,0.45)"
         accessibilityLabel={label}
-        {...props}
-      />
-    </View>
-  );
+        {...props} />
+      
+    </View>);
+
 }
 
 const styles = StyleSheet.create({
@@ -167,13 +167,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     padding: 12,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+    backgroundColor: 'rgba(255,255,255,0.03)'
   },
   regionGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
-    marginTop: 10,
+    marginTop: 10
   },
   regionPill: {
     borderWidth: 1,
@@ -181,15 +181,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.02)',
+    backgroundColor: 'rgba(255,255,255,0.02)'
   },
   regionPillActive: {
     borderColor: 'rgba(45,212,191,0.6)',
-    backgroundColor: 'rgba(45,212,191,0.15)',
+    backgroundColor: 'rgba(45,212,191,0.15)'
   },
   regionText: {
     color: colors.muted,
     fontWeight: '700',
-    fontSize: 12,
-  },
+    fontSize: 12
+  }
 });

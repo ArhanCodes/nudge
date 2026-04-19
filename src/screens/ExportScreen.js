@@ -16,13 +16,13 @@ function escapeCSV(val) {
 function logsToCSV(logs) {
   const headers = ['Date', 'Category', 'Activity', 'CO2 (kg)', 'Quantity', 'Notes'];
   const rows = logs.map((l) => [
-    l.dateISO?.slice(0, 10) ?? '',
-    l.category ?? 'transport',
-    l.label ?? l.itemKey ?? '',
-    (l.co2Kg ?? 0).toFixed(3),
-    l.quantity ?? 1,
-    l.notes ?? '',
-  ]);
+  l.dateISO?.slice(0, 10) ?? '',
+  l.category ?? 'transport',
+  l.label ?? l.itemKey ?? '',
+  (l.co2Kg ?? 0).toFixed(3),
+  l.quantity ?? 1,
+  l.notes ?? '']
+  );
 
   const csvLines = [headers, ...rows].map((row) => row.map(escapeCSV).join(','));
   return csvLines.join('\n');
@@ -45,7 +45,7 @@ export default function ExportScreen() {
     try {
       await Share.share({
         message: csv,
-        title: 'Nudge - Carbon Footprint Data',
+        title: 'Nudge - Carbon Footprint Data'
       });
       setShared(true);
     } catch (e) {
@@ -85,22 +85,22 @@ export default function ExportScreen() {
 
         <Card>
           <Button label="Share CSV" onPress={onShare} disabled={logs.length === 0} />
-          {shared && (
-            <Muted style={{ marginTop: 8, textAlign: 'center' }}>
+          {shared &&
+          <Muted style={{ marginTop: 8, textAlign: 'center' }}>
               Data shared successfully!
             </Muted>
-          )}
-          {logs.length === 0 && (
-            <Muted style={{ marginTop: 8, textAlign: 'center' }}>
+          }
+          {logs.length === 0 &&
+          <Muted style={{ marginTop: 8, textAlign: 'center' }}>
               Log some activities first to export data.
             </Muted>
-          )}
+          }
         </Card>
 
         <View style={{ height: 30 }} />
       </ScrollView>
-    </Screen>
-  );
+    </Screen>);
+
 }
 
 function StatBox({ label, value }) {
@@ -108,44 +108,44 @@ function StatBox({ label, value }) {
     <View style={styles.statBox} accessibilityLabel={`${label}: ${value}`}>
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
-    </View>
-  );
+    </View>);
+
 }
 
 const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: 14,
+    marginTop: 14
   },
   statBox: {
     flex: 1,
     backgroundColor: 'rgba(255,255,255,0.04)',
     borderRadius: 12,
     padding: 12,
-    alignItems: 'center',
+    alignItems: 'center'
   },
   statValue: {
     color: colors.brand,
     fontSize: 22,
-    fontWeight: '900',
+    fontWeight: '900'
   },
   statLabel: {
     color: colors.muted,
     fontSize: 11,
     fontWeight: '700',
-    marginTop: 2,
+    marginTop: 2
   },
   previewBox: {
     backgroundColor: 'rgba(255,255,255,0.03)',
     borderRadius: 8,
     padding: 10,
-    marginTop: 8,
+    marginTop: 8
   },
   previewText: {
     color: colors.muted,
     fontSize: 10,
     fontFamily: 'monospace',
-    lineHeight: 14,
-  },
+    lineHeight: 14
+  }
 });

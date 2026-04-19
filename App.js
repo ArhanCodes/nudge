@@ -25,7 +25,7 @@ const Stack = createNativeStackNavigator();
 const screenOptions = {
   headerStyle: { backgroundColor: '#0b1020' },
   headerTintColor: 'rgba(255,255,255,0.92)',
-  headerTitleStyle: { fontWeight: '900' },
+  headerTitleStyle: { fontWeight: '900' }
 };
 
 export default function App() {
@@ -39,7 +39,7 @@ export default function App() {
       setState(s);
       setBooted(true);
 
-      // Schedule daily reminder notification (8pm)
+
       scheduleDailyReminder(20, 0).catch(() => {});
     })();
   }, []);
@@ -51,7 +51,7 @@ export default function App() {
       setState: async (next) => {
         setState(next);
         await saveState(next);
-      },
+      }
     };
   }, [booted, state]);
 
@@ -62,12 +62,12 @@ export default function App() {
       <AppContext.Provider value={api}>
         <NavigationContainer>
           <StatusBar style="light" />
-          {needsOnboarding ? (
-            <Stack.Navigator screenOptions={{ ...screenOptions, headerShown: false }}>
+          {needsOnboarding ?
+          <Stack.Navigator screenOptions={{ ...screenOptions, headerShown: false }}>
               <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-            </Stack.Navigator>
-          ) : (
-            <Stack.Navigator screenOptions={screenOptions}>
+            </Stack.Navigator> :
+
+          <Stack.Navigator screenOptions={screenOptions}>
               <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Nudge' }} />
               <Stack.Screen name="LogActivity" component={LogActivityScreen} options={{ title: 'Log Activity' }} />
               <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Progress Dashboard' }} />
@@ -78,9 +78,9 @@ export default function App() {
               <Stack.Screen name="PickLocation" component={LocationPickerScreen} options={{ title: 'Pick Location' }} />
               <Stack.Screen name="Export" component={ExportScreen} options={{ title: 'Export Data' }} />
             </Stack.Navigator>
-          )}
+          }
         </NavigationContainer>
       </AppContext.Provider>
-    </ErrorBoundary>
-  );
+    </ErrorBoundary>);
+
 }

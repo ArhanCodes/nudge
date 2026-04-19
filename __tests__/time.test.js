@@ -7,7 +7,7 @@ describe('weekKeyISO', () => {
   });
 
   it('same week for Mon and Sun', () => {
-    // 2024-01-15 is Monday, 2024-01-21 is Sunday
+
     const mon = weekKeyISO(new Date('2024-01-15'));
     const sun = weekKeyISO(new Date('2024-01-21'));
     expect(mon).toBe(sun);
@@ -22,7 +22,7 @@ describe('weekKeyISO', () => {
 
 describe('startOfWeekISO', () => {
   it('returns Monday for a Wednesday', () => {
-    // 2024-01-17 is Wednesday => Monday is 2024-01-15
+
     expect(startOfWeekISO(new Date('2024-01-17'))).toBe('2024-01-15');
   });
 
@@ -31,7 +31,7 @@ describe('startOfWeekISO', () => {
   });
 
   it('returns previous Monday for Sunday', () => {
-    // 2024-01-21 is Sunday => Monday is 2024-01-15
+
     expect(startOfWeekISO(new Date('2024-01-21'))).toBe('2024-01-15');
   });
 });

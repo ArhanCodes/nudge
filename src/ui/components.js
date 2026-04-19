@@ -27,36 +27,36 @@ export function Button({ label, onPress, kind = 'primary', disabled, accessibili
       accessibilityLabel={accessibilityLabel || label}
       accessibilityState={{ disabled: !!disabled }}
       style={({ pressed }) => [
-        styles.btn,
-        kind === 'primary' ? styles.btnPrimary : styles.btnGhost,
-        pressed && !disabled ? { opacity: 0.86 } : null,
-        disabled ? { opacity: 0.5 } : null,
-      ]}
-    >
+      styles.btn,
+      kind === 'primary' ? styles.btnPrimary : styles.btnGhost,
+      pressed && !disabled ? { opacity: 0.86 } : null,
+      disabled ? { opacity: 0.5 } : null]
+      }>
+      
       <Text style={kind === 'primary' ? styles.btnPrimaryText : styles.btnGhostText}>{label}</Text>
-    </Pressable>
-  );
+    </Pressable>);
+
 }
 
 export function Chip({ label, kind = 'default' }) {
   return (
     <View style={[styles.chip, kind === 'brand' && styles.chipBrand]} accessibilityLabel={label}>
       <Text style={[styles.chipText, kind === 'brand' && styles.chipTextBrand]}>{label}</Text>
-    </View>
-  );
+    </View>);
+
 }
 
-/**
- * SVG-free progress ring using bordered Views.
- * Props: { progress (0-1), size, strokeWidth, color, children }
- */
+
+
+
+
 export function ProgressRing({
   progress = 0,
   size = 120,
   strokeWidth = 10,
   color = colors.brand,
   bgColor = 'rgba(255,255,255,0.08)',
-  children,
+  children
 }) {
   const clampedProgress = Math.max(0, Math.min(1, progress));
   const pct = Math.round(clampedProgress * 100);
@@ -64,8 +64,8 @@ export function ProgressRing({
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - clampedProgress);
 
-  // We build the ring with two half-circles (CSS-style trick)
-  // Left half and right half, clipped and rotated based on progress.
+
+
   const isOver50 = pct > 50;
   const rotation = clampedProgress * 360;
 
@@ -73,9 +73,9 @@ export function ProgressRing({
     <View
       style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}
       accessibilityLabel={`Progress: ${pct}%`}
-      accessibilityRole="progressbar"
-    >
-      {/* Background ring */}
+      accessibilityRole="progressbar">
+      
+      {}
       <View
         style={{
           position: 'absolute',
@@ -83,18 +83,18 @@ export function ProgressRing({
           height: size,
           borderRadius: size / 2,
           borderWidth: strokeWidth,
-          borderColor: bgColor,
-        }}
-      />
+          borderColor: bgColor
+        }} />
+      
 
-      {/* Right half (0-180°) */}
+      {}
       <View style={{ position: 'absolute', width: size, height: size, overflow: 'hidden' }}>
         <View style={{
           position: 'absolute',
           width: size / 2,
           height: size,
           right: 0,
-          overflow: 'hidden',
+          overflow: 'hidden'
         }}>
           <View style={{
             width: size,
@@ -104,65 +104,65 @@ export function ProgressRing({
             borderColor: color,
             borderLeftColor: 'transparent',
             borderBottomColor: 'transparent',
-            transform: [{ rotate: `${Math.min(rotation, 180)}deg` }],
+            transform: [{ rotate: `${Math.min(rotation, 180)}deg` }]
           }} />
         </View>
       </View>
 
-      {/* Left half (180-360°) — only visible when > 50% */}
-      {isOver50 && (
-        <View style={{ position: 'absolute', width: size, height: size, overflow: 'hidden' }}>
+      {}
+      {isOver50 &&
+      <View style={{ position: 'absolute', width: size, height: size, overflow: 'hidden' }}>
           <View style={{
-            position: 'absolute',
-            width: size / 2,
-            height: size,
-            left: 0,
-            overflow: 'hidden',
-          }}>
+          position: 'absolute',
+          width: size / 2,
+          height: size,
+          left: 0,
+          overflow: 'hidden'
+        }}>
             <View style={{
-              width: size,
-              height: size,
-              borderRadius: size / 2,
-              borderWidth: strokeWidth,
-              borderColor: color,
-              borderRightColor: 'transparent',
-              borderTopColor: 'transparent',
-              transform: [{ rotate: `${rotation - 180}deg` }],
-            }} />
+            width: size,
+            height: size,
+            borderRadius: size / 2,
+            borderWidth: strokeWidth,
+            borderColor: color,
+            borderRightColor: 'transparent',
+            borderTopColor: 'transparent',
+            transform: [{ rotate: `${rotation - 180}deg` }]
+          }} />
           </View>
         </View>
-      )}
+      }
 
-      {/* Center content */}
+      {}
       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
         {children}
       </View>
-    </View>
-  );
+    </View>);
+
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.bg,
-    padding: 16,
+    padding: 16
   },
   card: {
     backgroundColor: colors.card,
     borderColor: colors.border,
     borderWidth: 1,
     borderRadius: 16,
-    padding: 14,
+    padding: 14
   },
   title: {
     color: colors.text,
     fontSize: 22,
-    fontWeight: '900',
+    fontWeight: '900'
   },
   muted: {
     color: colors.muted,
     fontSize: 13,
-    lineHeight: 18,
+    lineHeight: 18
   },
   btn: {
     paddingVertical: 12,
@@ -170,23 +170,23 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: 1
   },
   btnPrimary: {
     borderColor: 'rgba(45,212,191,0.55)',
-    backgroundColor: colors.brand,
+    backgroundColor: colors.brand
   },
   btnPrimaryText: {
     color: '#081019',
-    fontWeight: '900',
+    fontWeight: '900'
   },
   btnGhost: {
     borderColor: colors.border,
-    backgroundColor: 'transparent',
+    backgroundColor: 'transparent'
   },
   btnGhostText: {
     color: colors.text,
-    fontWeight: '900',
+    fontWeight: '900'
   },
   chip: {
     borderWidth: 1,
@@ -195,18 +195,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 999,
-    alignSelf: 'flex-start',
+    alignSelf: 'flex-start'
   },
   chipBrand: {
     borderColor: 'rgba(45,212,191,0.55)',
-    backgroundColor: 'rgba(45,212,191,0.15)',
+    backgroundColor: 'rgba(45,212,191,0.15)'
   },
   chipText: {
     color: colors.muted,
     fontWeight: '900',
-    fontSize: 12,
+    fontSize: 12
   },
   chipTextBrand: {
-    color: colors.text,
-  },
+    color: colors.text
+  }
 });

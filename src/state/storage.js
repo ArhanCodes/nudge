@@ -5,16 +5,16 @@ const OLD_KEY = 'scfd_state_v1';
 
 export function defaultState() {
   return {
-    school: null, // user must set via onboarding or settings
+    school: null,
     home: null,
     targetKgPerWeek: 10,
-    region: 'world', // CO₂ grid region — see lib/co2.js
-    onboarded: false, // has the user completed onboarding?
+    region: 'world',
+    onboarded: false,
 
-    // Unified logs across all 4 domains
-    // { id, dateISO, category, itemKey, label, co2Kg, quantity, notes? }
-    // category: 'transport' | 'diet' | 'energy' | 'waste'
-    logs: [],
+
+
+
+    logs: []
   };
 }
 
@@ -24,7 +24,7 @@ function migrateV1(v1) {
     category: 'transport',
     itemKey: l.transport || 'car',
     label: l.transportLabel || l.transport || 'Car',
-    quantity: 1,
+    quantity: 1
   }));
 
   return {
@@ -32,8 +32,8 @@ function migrateV1(v1) {
     school: v1.school || null,
     home: v1.home || null,
     targetKgPerWeek: v1.targetKgPerWeek ?? 10,
-    onboarded: true, // existing users don't need onboarding
-    logs,
+    onboarded: true,
+    logs
   };
 }
 
@@ -42,7 +42,7 @@ export async function seedIfEmpty() {
     const existing = await AsyncStorage.getItem(KEY);
     if (existing) return;
 
-    // Check for v1 data to migrate
+
     const v1Raw = await AsyncStorage.getItem(OLD_KEY);
     if (v1Raw) {
       const v1 = JSON.parse(v1Raw);
@@ -62,7 +62,7 @@ export async function loadState() {
     const raw = await AsyncStorage.getItem(KEY);
     if (!raw) return defaultState();
     const parsed = JSON.parse(raw);
-    // Ensure new fields exist after app updates
+
     return { ...defaultState(), ...parsed };
   } catch (e) {
     console.warn('loadState failed, using defaults:', e);

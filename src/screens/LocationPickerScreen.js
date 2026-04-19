@@ -27,7 +27,7 @@ export default function LocationPickerScreen({ navigation }) {
         latitude: loc.coords.latitude,
         longitude: loc.coords.longitude,
         latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
+        longitudeDelta: 0.05
       };
       setRegion(initial);
       setPicked({ latitude: initial.latitude, longitude: initial.longitude });
@@ -47,8 +47,8 @@ export default function LocationPickerScreen({ navigation }) {
       ...state,
       home: {
         ...picked,
-        label: 'Home',
-      },
+        label: 'Home'
+      }
     });
     navigation.goBack();
   }
@@ -68,56 +68,56 @@ export default function LocationPickerScreen({ navigation }) {
       <View style={{ height: 12 }} />
 
       <View style={styles.mapWrap}>
-        {region ? (
-          <MapView
-            style={styles.map}
-            initialRegion={region}
-            onLongPress={(e) => {
-              const { latitude, longitude } = e.nativeEvent.coordinate;
-              if (
-                Number.isFinite(latitude) && Number.isFinite(longitude) &&
-                latitude >= -90 && latitude <= 90 &&
-                longitude >= -180 && longitude <= 180
-              ) {
-                setPicked({ latitude, longitude });
-              }
-            }}
-          >
+        {region ?
+        <MapView
+          style={styles.map}
+          initialRegion={region}
+          onLongPress={(e) => {
+            const { latitude, longitude } = e.nativeEvent.coordinate;
+            if (
+            Number.isFinite(latitude) && Number.isFinite(longitude) &&
+            latitude >= -90 && latitude <= 90 &&
+            longitude >= -180 && longitude <= 180)
+            {
+              setPicked({ latitude, longitude });
+            }
+          }}>
+          
             {picked ? <Marker coordinate={picked} title="Home" /> : null}
-            {school ? (
-              <Marker
-                coordinate={{ latitude: school.latitude, longitude: school.longitude }}
-                title={school.name || 'School'}
-                pinColor={colors.brand}
-              />
-            ) : null}
-          </MapView>
-        ) : (
-          <View style={[styles.map, styles.loading]}>
+            {school ?
+          <Marker
+            coordinate={{ latitude: school.latitude, longitude: school.longitude }}
+            title={school.name || 'School'}
+            pinColor={colors.brand} /> :
+
+          null}
+          </MapView> :
+
+        <View style={[styles.map, styles.loading]}>
             <Text style={{ color: colors.muted, fontWeight: '900' }}>Loading map…</Text>
           </View>
-        )}
+        }
       </View>
 
       <View style={{ height: 12 }} />
 
       <Card>
         <Title style={{ fontSize: 18 }}>Selected</Title>
-        {picked ? (
-          <Muted style={{ marginTop: 6 }}>
+        {picked ?
+        <Muted style={{ marginTop: 6 }}>
             {picked.latitude.toFixed(5)}, {picked.longitude.toFixed(5)}
-          </Muted>
-        ) : (
-          <Muted style={{ marginTop: 6 }}>Long-press the map to choose a point.</Muted>
-        )}
+          </Muted> :
+
+        <Muted style={{ marginTop: 6 }}>Long-press the map to choose a point.</Muted>
+        }
 
         <View style={{ marginTop: 12, gap: 10 }}>
           <Button label="Save" onPress={onSave} disabled={!picked} />
           <Button kind="ghost" label="Cancel" onPress={() => navigation.goBack()} />
         </View>
       </Card>
-    </Screen>
-  );
+    </Screen>);
+
 }
 
 const styles = StyleSheet.create({
@@ -126,14 +126,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.border
   },
   map: {
-    flex: 1,
+    flex: 1
   },
   loading: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.03)',
-  },
+    backgroundColor: 'rgba(255,255,255,0.03)'
+  }
 });

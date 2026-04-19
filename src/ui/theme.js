@@ -6,5 +6,5 @@ export const colors = {
   muted: 'rgba(255,255,255,0.68)',
   brand: '#2dd4bf',
   brand2: '#7c5cff',
-  danger: '#ef4444',
+  danger: '#ef4444'
 };
