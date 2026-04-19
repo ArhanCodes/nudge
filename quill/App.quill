@@ -1,9 +1,0 @@
--- Expo App built with Quill
--- Run: quill build --expo App.quill
-
-use navigation
-
-app navigation:
-  stack:
-    screen "Home" component HomeScreen
-    screen "Details" component DetailsScreen
