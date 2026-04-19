@@ -1,4 +1,3 @@
--- App context for global state
 
 context AppContext is {
   booted: no,

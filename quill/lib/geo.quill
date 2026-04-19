@@ -1,4 +1,3 @@
--- Haversine distance calculation
 
 to haversineKm a b:
   R is 6371

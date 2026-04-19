@@ -1,4 +1,3 @@
--- Activity logging screen
 
 from "../state/context.quill" use AppContext
 from "../ui/components.quill" use Screen, Card, Title, Muted, Button

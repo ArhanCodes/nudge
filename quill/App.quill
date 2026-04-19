@@ -1,5 +1,3 @@
--- Expo App built with Quill
--- Run: quill build --expo App.quill
 
 use navigation
 

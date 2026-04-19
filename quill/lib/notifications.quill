@@ -1,4 +1,3 @@
--- Push notification reminders
 
 use "expo-notifications" as Notifications
 
@@ -47,4 +46,4 @@ to cancelAllReminders:
   try:
     await Notifications.cancelAllScheduledNotificationsAsync()
   if it fails error:
-    say "Could not cancel reminders" -- silently fail
+    say "Could not cancel reminders"

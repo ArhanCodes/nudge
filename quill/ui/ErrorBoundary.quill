@@ -1,6 +1,3 @@
--- Error boundary wrapper
--- React error boundaries require class components.
--- This generates a functional wrapper that uses react-error-boundary.
 
 from "react-error-boundary" use ErrorBoundary as RawErrorBoundary
 

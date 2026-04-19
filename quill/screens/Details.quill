@@ -1,4 +1,3 @@
--- Details Screen
 
 component DetailsScreen with route navigation:
   state liked is no

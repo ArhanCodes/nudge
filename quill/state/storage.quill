@@ -1,4 +1,3 @@
--- AsyncStorage persistence with migration support
 
 use "@react-native-async-storage/async-storage" as AsyncStorage
 
@@ -50,7 +49,6 @@ to seedIfEmpty:
     if existing:
       give back nothing
 
-    -- Check for v1 data to migrate
     v1Raw is await readStore(OLD_KEY)
     if v1Raw:
       migrated is migrateV1(v1Raw)

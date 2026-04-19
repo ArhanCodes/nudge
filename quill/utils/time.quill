@@ -1,4 +1,3 @@
--- ISO week utilities
 
 to weekKeyISO date:
   d is new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))

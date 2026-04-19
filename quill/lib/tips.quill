@@ -1,4 +1,3 @@
--- Personalised weekly tips based on worst-performing category
 
 TIPS is {
   transport: [
@@ -57,7 +56,6 @@ to getPersonalisedTips categoryTotals count:
     if not (tips.length is less than count):
       break
 
-  -- Fill from worst category if needed
   if tips.length is less than count:
     firstSorted is sorted[0]
     worstCat is "transport"

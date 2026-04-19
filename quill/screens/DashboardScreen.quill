@@ -1,4 +1,3 @@
--- Analytics dashboard screen
 
 from "../state/context.quill" use AppContext
 from "../ui/components.quill" use Screen, Card, Title, Muted, Chip, ProgressRing
@@ -18,7 +17,6 @@ component DashboardScreen:
     logs are appData?.logs or []
     now is new Date()
 
-    -- Build last 4 weeks
     weeks are []
     w is 0
     while w is less than 4:
@@ -44,7 +42,6 @@ component DashboardScreen:
       push(weeks, { wk: wk, startISO: startISO, totalKg: totalKg, catTotals: catTotals, weeklyScore: weeklyScore, logCount: weekLogs.length })
       w is w + 1
 
-    -- Current week daily breakdown
     currentWk is weekKeyISO(now)
     currentStart is startOfWeekISO(now)
     dailyBreakdown are Array.from({ length: 7 }).map(with _ i:
@@ -60,7 +57,6 @@ component DashboardScreen:
 
     give back { weeks: weeks, dailyBreakdown: dailyBreakdown, benchmark: benchmark, target: target }
 
-  -- Helper methods to replace ternaries
 
   to pickScoreColor score:
     if not (score is less than 70):
@@ -166,7 +162,6 @@ component DashboardScreen:
 
         view style { height: 12 }
 
-        -- Goal + benchmark
         Card:
           Title style { fontSize: 18 }: "Goal & Benchmark"
           ringProgress is Math.min(thisWeek.totalKg / data.target, 1)
@@ -188,7 +183,6 @@ component DashboardScreen:
 
         view style { height: 12 }
 
-        -- Category breakdown
         Card:
           Title style { fontSize: 18 }: "Category Breakdown"
           Muted style { marginTop: 4 }: "This week's CO2e by domain"
@@ -209,7 +203,6 @@ component DashboardScreen:
 
         view style { height: 12 }
 
-        -- Daily chart
         Card:
           Title style { fontSize: 18 }: "Daily Emissions"
           Muted style { marginTop: 4 }: "CO2e per day this week"
@@ -235,7 +228,6 @@ component DashboardScreen:
 
         view style { height: 12 }
 
-        -- 4 week trend
         Card:
           Title style { fontSize: 18 }: "4-Week Trend"
           Muted style { marginTop: 4 }: "Total CO2e over recent weeks"

@@ -1,4 +1,3 @@
--- Main dashboard screen
 
 from "../state/context.quill" use AppContext
 from "../ui/components.quill" use Screen, Card, Title, Muted, Button, Chip, ProgressRing
@@ -77,29 +76,24 @@ component HomeScreen with navigation:
     totalKg is weekLogs.reduce(with a l: a + (l.co2Kg or 0), 0)
     target is appData?.targetKgPerWeek or 10
 
-    -- Category breakdown
     catTotals is { transport: 0, diet: 0, energy: 0, waste: 0 }
     for each l in weekLogs:
       catTotals[l.category or "transport"] is catTotals[l.category or "transport"] + (l.co2Kg or 0)
 
-    -- Today's score
     todayLogs are logs.filter(with l: new Date(l.dateISO).toISOString().slice(0, 10) is today)
     todayKg is todayLogs.reduce(with a l: a + (l.co2Kg or 0), 0)
     todayScore is computeDailyScore(todayKg)
 
-    -- Weekly score
     daily is {}
     for each l in weekLogs:
       day is new Date(l.dateISO).toISOString().slice(0, 10)
       daily[day] is (daily[day] or 0) + (l.co2Kg or 0)
     weeklyScore is computeWeeklyScore(Object.values(daily))
 
-    -- Streak
     streakResult is computeStreak(logs)
     currentStreak is streakResult.currentStreak
     hasLoggedToday is todayLogs.length is greater than 0
 
-    -- Benchmark
     region is appData?.region or "world"
     benchmark is compareToBenchmark(totalKg, region)
 
@@ -136,12 +130,10 @@ component HomeScreen with navigation:
                   Chip kind "brand" label "{summary.totalKg.toFixed(1)} kg this week"
                   Chip label "{summary.currentStreak} day streak"
 
-            -- Streak grace period warning
             if not summary.hasLoggedToday and summary.currentStreak is greater than 0:
               view style streakWarning accessibilityRole "alert":
                 text style streakWarningText: "Log an activity today to keep your {summary.currentStreak}-day streak!"
 
-            -- Category summary
             catEntries is Object.entries(CATEGORIES)
             view style catRow:
               for each entry in catEntries:
@@ -155,7 +147,6 @@ component HomeScreen with navigation:
 
           view style { height: 12 }
 
-          -- Action buttons
           Card:
             view style { gap: 10 }:
               Button label "+ Log Activity" onPress goLogActivity accessibilityLabel "Log a new activity"
@@ -173,7 +164,6 @@ component HomeScreen with navigation:
 
           view style { height: 12 }
 
-          -- Weekly goal progress ring
           Card:
             Title style { fontSize: 16, textAlign: "center", marginBottom: 12 }: "Weekly Goal"
             view style { alignItems: "center" }:
@@ -189,7 +179,6 @@ component HomeScreen with navigation:
 
           view style { height: 12 }
 
-          -- National benchmark comparison
           Card:
             Title style { fontSize: 16 }: "vs {summary.benchmark.benchmarkLabel}"
             view style benchmarkRow:
@@ -217,7 +206,6 @@ component HomeScreen with navigation:
 
           view style { height: 12 }
 
-          -- Recent logs
           Card:
             Title style { fontSize: 16 }: "Recent Activity"
             view style { height: 8 }

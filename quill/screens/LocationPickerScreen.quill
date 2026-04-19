@@ -1,4 +1,3 @@
--- Map-based location picker screen
 
 from "../state/context.quill" use AppContext
 from "../ui/components.quill" use Screen, Card, Title, Muted, Button
@@ -27,7 +26,6 @@ component LocationPickerScreen with navigation:
             longitude: pos.coords.longitude
           }
           selectedCoord is coord
-          -- Reverse geocode
           try:
             results is await Location.reverseGeocodeAsync(coord)
             if results.length is greater than 0:
@@ -51,7 +49,6 @@ component LocationPickerScreen with navigation:
     if lat is less than -90 or lat is greater than 90 or lon is less than -180 or lon is greater than 180:
       give back nothing
     selectedCoord is coord
-    -- Reverse geocode
     try:
       results is await Location.reverseGeocodeAsync(coord)
       if results.length is greater than 0:

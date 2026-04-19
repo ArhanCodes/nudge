@@ -1,4 +1,3 @@
--- Reusable UI components
 
 from "./theme.quill" use bg, card, border, textColor, muted, brand
 
