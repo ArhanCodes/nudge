@@ -1,5 +1,6 @@
 
 from "./theme.quill" use bg, card, border, textColor, muted, brand
+use "react-native-svg" as Svg
 
 component Screen with children style:
   to render:
@@ -119,27 +120,24 @@ component Chip with label kind:
       color is "rgba(255,255,255,0.92)"
 
 component ProgressRing with progress size strokeWidth color bgColor children:
-  memo p is Math.max(0, Math.min(1, progress or 0)) when [progress]
   memo sz is size or 120 when [size]
   memo sw is strokeWidth or 10 when [strokeWidth]
   memo clr is color or brand when [color]
   memo bgc is bgColor or "rgba(255,255,255,0.08)" when [bgColor]
+  memo p is Math.max(0, Math.min(1, progress or 0)) when [progress]
   memo pct is Math.round(p * 100) when [p]
-  memo isOver50 is pct > 50 when [pct]
-  memo rotation is p * 360 when [p]
+  memo radius is (sz - sw) / 2 when [sz, sw]
+  memo circumference is 2 * Math.PI * radius when [radius]
+  memo dashoffset is circumference * (1 - p) when [circumference, p]
+  memo halfSz is sz / 2 when [sz]
+  memo dashArray is circumference + " " + circumference when [circumference]
+  memo svgRotate is "rotate(-90 " + halfSz + " " + halfSz + ")" when [halfSz]
 
   to render:
     view style { width: sz, height: sz, alignItems: "center", justifyContent: "center" } accessibilityLabel "Progress: {pct}%" accessibilityRole "progressbar":
-      view style { position: "absolute", width: sz, height: sz, borderRadius: sz / 2, borderWidth: sw, borderColor: bgc }
-
-      view style { position: "absolute", width: sz, height: sz, overflow: "hidden" }:
-        view style { position: "absolute", width: sz / 2, height: sz, right: 0, overflow: "hidden" }:
-          view style { width: sz, height: sz, borderRadius: sz / 2, borderWidth: sw, borderColor: clr, borderLeftColor: "transparent", borderBottomColor: "transparent", transform: [{ rotate: Math.min(rotation, 180) + "deg" }] }
-
-      if isOver50:
-        view style { position: "absolute", width: sz, height: sz, overflow: "hidden" }:
-          view style { position: "absolute", width: sz / 2, height: sz, left: 0, overflow: "hidden" }:
-            view style { width: sz, height: sz, borderRadius: sz / 2, borderWidth: sw, borderColor: clr, borderRightColor: "transparent", borderTopColor: "transparent", transform: [{ rotate: (rotation - 180) + "deg" }] }
+      Svg.default width sz height sz style { position: "absolute" }:
+        Svg.Circle cx halfSz cy halfSz r radius stroke bgc strokeWidth sw fill "none"
+        Svg.Circle cx halfSz cy halfSz r radius stroke clr strokeWidth sw fill "none" strokeLinecap "round" strokeDasharray dashArray strokeDashoffset dashoffset transform svgRotate
 
       view style { alignItems: "center", justifyContent: "center" }:
         children
