@@ -1,5 +1,6 @@
 import React from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 import { colors } from './theme';
 
 export function Screen({ children, style }) {
@@ -58,82 +59,32 @@ export function ProgressRing({
   bgColor = 'rgba(255,255,255,0.08)',
   children
 }) {
-  const clampedProgress = Math.max(0, Math.min(1, progress));
-  const pct = Math.round(clampedProgress * 100);
+  const p = Math.max(0, Math.min(1, progress));
+  const pct = Math.round(p * 100);
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference * (1 - clampedProgress);
-
-
-
-  const isOver50 = pct > 50;
-  const rotation = clampedProgress * 360;
+  const dashoffset = circumference * (1 - p);
+  const half = size / 2;
 
   return (
     <View
       style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}
       accessibilityLabel={`Progress: ${pct}%`}
       accessibilityRole="progressbar">
-      
-      {}
-      <View
-        style={{
-          position: 'absolute',
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          borderWidth: strokeWidth,
-          borderColor: bgColor
-        }} />
-      
-
-      {}
-      <View style={{ position: 'absolute', width: size, height: size, overflow: 'hidden' }}>
-        <View style={{
-          position: 'absolute',
-          width: size / 2,
-          height: size,
-          right: 0,
-          overflow: 'hidden'
-        }}>
-          <View style={{
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            borderWidth: strokeWidth,
-            borderColor: color,
-            borderLeftColor: 'transparent',
-            borderBottomColor: 'transparent',
-            transform: [{ rotate: `${Math.min(rotation, 180)}deg` }]
-          }} />
-        </View>
-      </View>
-
-      {}
-      {isOver50 &&
-      <View style={{ position: 'absolute', width: size, height: size, overflow: 'hidden' }}>
-          <View style={{
-          position: 'absolute',
-          width: size / 2,
-          height: size,
-          left: 0,
-          overflow: 'hidden'
-        }}>
-            <View style={{
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            borderWidth: strokeWidth,
-            borderColor: color,
-            borderRightColor: 'transparent',
-            borderTopColor: 'transparent',
-            transform: [{ rotate: `${rotation - 180}deg` }]
-          }} />
-          </View>
-        </View>
-      }
-
-      {}
+      <Svg width={size} height={size} style={{ position: 'absolute' }}>
+        <Circle cx={half} cy={half} r={radius} stroke={bgColor} strokeWidth={strokeWidth} fill="none" />
+        <Circle
+          cx={half}
+          cy={half}
+          r={radius}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={dashoffset}
+          transform={`rotate(-90 ${half} ${half})`} />
+      </Svg>
       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
         {children}
       </View>
