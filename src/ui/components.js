@@ -1,5 +1,5 @@
 import React from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { colors } from './theme';
 
@@ -33,7 +33,7 @@ export function Button({ label, onPress, kind = 'primary', disabled, accessibili
       pressed && !disabled ? { opacity: 0.86 } : null,
       disabled ? { opacity: 0.5 } : null]
       }>
-      
+
       <Text style={kind === 'primary' ? styles.btnPrimaryText : styles.btnGhostText}>{label}</Text>
     </Pressable>);
 
@@ -46,10 +46,6 @@ export function Chip({ label, kind = 'default' }) {
     </View>);
 
 }
-
-
-
-
 
 export function ProgressRing({
   progress = 0,

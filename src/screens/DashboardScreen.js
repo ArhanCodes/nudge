@@ -18,7 +18,6 @@ export default function DashboardScreen() {
     const logs = state?.logs || [];
     const now = new Date();
 
-
     const weeks = [];
     for (let w = 0; w < 4; w++) {
       const d = new Date(now);
@@ -29,13 +28,11 @@ export default function DashboardScreen() {
       const weekLogs = logs.filter((l) => weekKeyISO(new Date(l.dateISO)) === wk);
       const totalKg = weekLogs.reduce((a, l) => a + (l.co2Kg || 0), 0);
 
-
       const catTotals = { transport: 0, diet: 0, energy: 0, waste: 0 };
       for (const l of weekLogs) {
         const cat = l.category || 'transport';
         catTotals[cat] = (catTotals[cat] || 0) + (l.co2Kg || 0);
       }
-
 
       const daily = {};
       for (const l of weekLogs) {
@@ -48,7 +45,6 @@ export default function DashboardScreen() {
       weeks.push({ wk, startISO, totalKg, catTotals, weeklyScore, logCount: weekLogs.length });
     }
 
-
     const currentWk = weekKeyISO(now);
     const currentStart = startOfWeekISO(now);
     const dailyBreakdown = Array.from({ length: 7 }).map((_, i) => {
@@ -60,7 +56,6 @@ export default function DashboardScreen() {
       const kg = dayLogs.reduce((a, l) => a + (l.co2Kg || 0), 0);
       return { dayISO, kg, score: computeDailyScore(kg) };
     });
-
 
     const region = state?.region || 'world';
     const target = state?.targetKgPerWeek ?? 10;
@@ -81,7 +76,6 @@ export default function DashboardScreen() {
   return (
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {}
         <Card>
           <View style={styles.scoreRow}>
             <View style={styles.scoreCircle}>
@@ -98,7 +92,7 @@ export default function DashboardScreen() {
                   <Chip
                   kind={Number(improvement) > 0 ? 'brand' : 'default'}
                   label={Number(improvement) > 0 ? `${improvement}% better than last week` : `${Math.abs(improvement)}% more than last week`} />
-                
+
                 </View>
               }
             </View>
@@ -106,8 +100,6 @@ export default function DashboardScreen() {
         </Card>
 
         <View style={{ height: 12 }} />
-
-        {}
         <Card>
           <Title style={{ fontSize: 18 }}>Goal & Benchmark</Title>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, gap: 16 }}>
@@ -116,7 +108,7 @@ export default function DashboardScreen() {
               size={100}
               strokeWidth={10}
               color={thisWeek.totalKg > data.target ? '#ef4444' : colors.brand}>
-              
+
               <Text style={{ color: colors.text, fontSize: 18, fontWeight: '900' }}>
                 {Math.round(Math.min(thisWeek.totalKg / data.target * 100, 999))}%
               </Text>
@@ -142,8 +134,6 @@ export default function DashboardScreen() {
         </Card>
 
         <View style={{ height: 12 }} />
-
-        {}
         <Card>
           <Title style={{ fontSize: 18 }}>Category Breakdown</Title>
           <Muted style={{ marginTop: 4 }}>This week's CO₂e by domain</Muted>
@@ -168,8 +158,6 @@ export default function DashboardScreen() {
         </Card>
 
         <View style={{ height: 12 }} />
-
-        {}
         <Card>
           <Title style={{ fontSize: 18 }}>Daily Emissions</Title>
           <Muted style={{ marginTop: 4 }}>CO₂e per day this week</Muted>
@@ -203,8 +191,6 @@ export default function DashboardScreen() {
         </Card>
 
         <View style={{ height: 12 }} />
-
-        {}
         <Card>
           <Title style={{ fontSize: 18 }}>4-Week Trend</Title>
           <Muted style={{ marginTop: 4 }}>Total CO₂e over recent weeks</Muted>
@@ -228,7 +214,7 @@ export default function DashboardScreen() {
                         backgroundColor: i === 3 ? colors.brand : 'rgba(255,255,255,0.2)'
                       }]
                       } />
-                    
+
                   </View>
                 </View>);
 

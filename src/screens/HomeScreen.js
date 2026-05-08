@@ -1,10 +1,10 @@
 import React, { useContext, useMemo } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppContext } from '../state/context';
 import { Screen, Card, Title, Muted, Button, Chip, ProgressRing } from '../ui/components';
 import { colors } from '../ui/theme';
-import { CATEGORIES, computeDailyScore, computeWeeklyScore, compareToBenchmark, WEEKLY_BENCHMARKS } from '../lib/co2';
+import { CATEGORIES, computeDailyScore, computeWeeklyScore, compareToBenchmark } from '../lib/co2';
 import { weekKeyISO, startOfWeekISO } from '../utils/time';
 import { computeStreak } from '../lib/badges';
 
@@ -21,19 +21,16 @@ export default function HomeScreen({ navigation }) {
     const totalKg = weekLogs.reduce((a, l) => a + (l.co2Kg || 0), 0);
     const target = state?.targetKgPerWeek ?? 10;
 
-
     const catTotals = { transport: 0, diet: 0, energy: 0, waste: 0 };
     for (const l of weekLogs) {
       catTotals[l.category || 'transport'] += l.co2Kg || 0;
     }
-
 
     const todayLogs = logs.filter(
       (l) => new Date(l.dateISO).toISOString().slice(0, 10) === today
     );
     const todayKg = todayLogs.reduce((a, l) => a + (l.co2Kg || 0), 0);
     const todayScore = computeDailyScore(todayKg);
-
 
     const daily = {};
     for (const l of weekLogs) {
@@ -42,12 +39,9 @@ export default function HomeScreen({ navigation }) {
     }
     const weeklyScore = computeWeeklyScore(Object.values(daily));
 
-
     const { currentStreak } = computeStreak(logs);
 
-
     const hasLoggedToday = todayLogs.length > 0;
-
 
     const region = state?.region || 'world';
     const benchmark = compareToBenchmark(totalKg, region);
@@ -72,20 +66,15 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <Screen>
-      <FlatList
-        data={[1]}
-        keyExtractor={() => 'home'}
-        showsVerticalScrollIndicator={false}
-        renderItem={() =>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View>
-            {}
             <Card>
               <View style={styles.headerRow}>
                 <View
                 style={styles.scoreCircle}
                 accessibilityLabel={`Today's score: ${summary.todayScore} out of 100`}
                 accessibilityRole="text">
-                
+
                   <Text style={styles.scoreNum}>{summary.todayScore}</Text>
                   <Text style={styles.scoreLabel}>Today</Text>
                 </View>
@@ -97,8 +86,6 @@ export default function HomeScreen({ navigation }) {
                   </View>
                 </View>
               </View>
-
-              {}
               {!summary.hasLoggedToday && summary.currentStreak > 0 &&
             <View style={styles.streakWarning} accessibilityRole="alert">
                   <Text style={styles.streakWarningText}>
@@ -106,15 +93,13 @@ export default function HomeScreen({ navigation }) {
                   </Text>
                 </View>
             }
-
-              {}
               <View style={styles.catRow}>
                 {Object.entries(CATEGORIES).map(([key, cat]) =>
               <View
                 key={key}
                 style={styles.catMini}
                 accessibilityLabel={`${cat.label}: ${(summary.catTotals[key] || 0).toFixed(1)} kilograms`}>
-                
+
                     <Text style={{ fontSize: 18 }}>{cat.icon}</Text>
                     <Text style={[styles.catMiniKg, { color: cat.color }]}>
                       {(summary.catTotals[key] || 0).toFixed(1)}
@@ -126,8 +111,6 @@ export default function HomeScreen({ navigation }) {
             </Card>
 
             <View style={{ height: 12 }} />
-
-            {}
             <Card>
               <View style={{ gap: 10 }}>
                 <Button label="+ Log Activity" onPress={() => navigation.navigate('LogActivity')} accessibilityLabel="Log a new activity" />
@@ -152,8 +135,6 @@ export default function HomeScreen({ navigation }) {
             </Card>
 
             <View style={{ height: 12 }} />
-
-            {}
             <Card>
               <Title style={{ fontSize: 16, textAlign: 'center', marginBottom: 12 }}>Weekly Goal</Title>
               <View style={{ alignItems: 'center' }}>
@@ -162,7 +143,7 @@ export default function HomeScreen({ navigation }) {
                 size={140}
                 strokeWidth={12}
                 color={summary.over > 0 ? '#ef4444' : colors.brand}>
-                
+
                   <Text style={styles.ringMainText}>
                     {summary.totalKg.toFixed(1)}
                   </Text>
@@ -179,8 +160,6 @@ export default function HomeScreen({ navigation }) {
             </Card>
 
             <View style={{ height: 12 }} />
-
-            {}
             <Card>
               <Title style={{ fontSize: 16 }}>vs {summary.benchmark.benchmarkLabel}</Title>
               <View style={styles.benchmarkRow}>
@@ -196,8 +175,6 @@ export default function HomeScreen({ navigation }) {
                   <Muted style={{ fontSize: 11 }}>National avg</Muted>
                 </View>
               </View>
-
-              {}
               <View style={[
             styles.benchmarkBanner,
             { backgroundColor: summary.benchmark.better ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)' },
@@ -219,8 +196,6 @@ export default function HomeScreen({ navigation }) {
             </Card>
 
             <View style={{ height: 12 }} />
-
-            {}
             <Card>
               <Title style={{ fontSize: 16 }}>Recent Activity</Title>
               <View style={{ height: 8 }} />
@@ -234,7 +209,7 @@ export default function HomeScreen({ navigation }) {
                   key={item.id}
                   style={styles.logRow}
                   accessibilityLabel={`${item.label}, ${(item.co2Kg || 0).toFixed(2)} kg CO2, ${catInfo?.label || 'Transport'}`}>
-                  
+
                       <Text style={{ fontSize: 18, width: 28 }}>{catInfo?.icon || ''}</Text>
                       <View style={{ flex: 1 }}>
                         <Text style={styles.logTitle}>{item.label}</Text>
@@ -258,11 +233,10 @@ export default function HomeScreen({ navigation }) {
               </Muted>
             </View>
             <View style={{ height: 20 }} />
-          </View>
-        } />
-      
-    </Screen>);
-
+        </View>
+      </ScrollView>
+    </Screen>
+  );
 }
 
 const styles = StyleSheet.create({

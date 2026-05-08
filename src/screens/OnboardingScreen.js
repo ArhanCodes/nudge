@@ -56,7 +56,7 @@ export default function OnboardingScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ flexGrow: 1, justifyContent: step <= 1 ? 'center' : undefined, paddingBottom: 40 }}>
-        
+
         {current === 'welcome' &&
         <Card>
             <Text style={styles.emoji}>🌍</Text>
@@ -137,15 +137,12 @@ export default function OnboardingScreen() {
             onChangeText={setTarget}
             placeholder="10"
             keyboardType="numeric" />
-          
 
             <View style={{ marginTop: 14, gap: 10 }}>
               <Button label="Start Tracking" onPress={onFinish} />
             </View>
           </Card>
         }
-
-        {}
         <View style={styles.dots}>
           {STEPS.map((_, i) =>
           <View
@@ -169,7 +166,7 @@ function Field({ label, ...props }) {
         placeholderTextColor="rgba(255,255,255,0.45)"
         accessibilityLabel={label}
         {...props} />
-      
+
     </View>);
 
 }
@@ -180,7 +177,6 @@ function RegionPill({ id, label, selected, onPress }) {
       kind={selected ? 'primary' : 'ghost'}
       label={label}
       onPress={onPress} />);
-
 
 }
 

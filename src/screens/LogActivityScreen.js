@@ -30,7 +30,6 @@ export default function LogActivityScreen({ navigation }) {
   const [quantity, setQuantity] = useState('1');
   const [notes, setNotes] = useState('');
 
-
   const [transport, setTransport] = useState('car');
   const [oneWayKm, setOneWayKm] = useState('');
 
@@ -104,7 +103,6 @@ export default function LogActivityScreen({ navigation }) {
   return (
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {}
         <Card>
           <Title>Category</Title>
           <View style={styles.pillRow}>
@@ -116,7 +114,7 @@ export default function LogActivityScreen({ navigation }) {
                 setSelectedItem(null);
               }}
               style={[styles.catPill, category === k && { borderColor: CATEGORIES[k].color, backgroundColor: CATEGORIES[k].color + '22' }]}>
-              
+
                 <Text style={[styles.catPillText, category === k && { color: colors.text }]}>
                   {CATEGORIES[k].icon} {CATEGORIES[k].label}
                 </Text>
@@ -126,8 +124,6 @@ export default function LogActivityScreen({ navigation }) {
         </Card>
 
         <View style={{ height: 12 }} />
-
-        {}
         <Card>
           <Title style={{ fontSize: 18 }}>
             {CATEGORIES[category].icon} {CATEGORIES[category].label} Activity
@@ -142,7 +138,7 @@ export default function LogActivityScreen({ navigation }) {
                 key={t}
                 onPress={() => setTransport(t)}
                 style={[styles.pill, transport === t && styles.pillActive]}>
-                
+
                     <Text style={[styles.pillText, transport === t && styles.pillTextActive]}>
                       {TRANSPORT_LABELS[t]}
                     </Text>
@@ -158,7 +154,7 @@ export default function LogActivityScreen({ navigation }) {
               keyboardType="numeric"
               placeholder="e.g., 7.5"
               placeholderTextColor="rgba(255,255,255,0.45)" />
-            
+
               {suggestedKm &&
             <Button
               kind="ghost"
@@ -184,7 +180,7 @@ export default function LogActivityScreen({ navigation }) {
                       backgroundColor: CATEGORIES[category].color + '22'
                     }]
                     }>
-                    
+
                       <Text style={[styles.pillText, selectedItem === k && { color: colors.text }]}>
                         {item.icon} {item.label}
                       </Text>
@@ -206,7 +202,7 @@ export default function LogActivityScreen({ navigation }) {
                 keyboardType="numeric"
                 placeholder="1"
                 placeholderTextColor="rgba(255,255,255,0.45)" />
-              
+
                 </View>
             }
             </>
@@ -214,8 +210,6 @@ export default function LogActivityScreen({ navigation }) {
         </Card>
 
         <View style={{ height: 12 }} />
-
-        {}
         <Card>
           {preview !== null &&
           <View style={styles.previewBox}>
@@ -234,7 +228,6 @@ export default function LogActivityScreen({ navigation }) {
             multiline
             placeholder="e.g., carpooled with 2 friends"
             placeholderTextColor="rgba(255,255,255,0.45)" />
-          
 
           <View style={{ marginTop: 14, gap: 10 }}>
             <Button label="Save Activity" onPress={onSave} />

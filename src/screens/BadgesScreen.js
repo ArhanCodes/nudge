@@ -19,7 +19,6 @@ export default function BadgesScreen() {
     prevDate.setDate(prevDate.getDate() - 7);
     const prevWk = weekKeyISO(prevDate);
 
-
     const weekScore = (wk) => {
       const wLogs = logs.filter((l) => weekKeyISO(new Date(l.dateISO)) === wk);
       const daily = {};
@@ -44,14 +43,13 @@ export default function BadgesScreen() {
   return (
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {}
         <Card>
           <View style={styles.streakRow}>
             <View
               style={styles.streakCircle}
               accessibilityLabel={`Current streak: ${streakInfo.currentStreak} days`}
               accessibilityRole="text">
-              
+
               <Text style={styles.streakNumber}>{streakInfo.currentStreak}</Text>
               <Text style={styles.streakUnit}>day{streakInfo.currentStreak !== 1 ? 's' : ''}</Text>
             </View>
@@ -73,8 +71,6 @@ export default function BadgesScreen() {
         </Card>
 
         <View style={{ height: 12 }} />
-
-        {}
         <Card>
           <Title style={{ fontSize: 18 }}>
             Badges Earned ({earned.length}/{BADGES.length})
@@ -99,8 +95,6 @@ export default function BadgesScreen() {
         </Card>
 
         <View style={{ height: 12 }} />
-
-        {}
         {nextBadge &&
         <Card style={{ borderWidth: 1, borderColor: 'rgba(45,212,191,0.3)' }}>
             <Title style={{ fontSize: 16 }}>Next Badge</Title>
@@ -115,8 +109,6 @@ export default function BadgesScreen() {
         }
 
         <View style={{ height: 12 }} />
-
-        {}
         <Card>
           <Title style={{ fontSize: 16 }}>All Badges</Title>
           <View style={{ marginTop: 10 }}>
