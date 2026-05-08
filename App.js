@@ -25,8 +25,20 @@ const Stack = createNativeStackNavigator();
 const screenOptions = {
   headerStyle: { backgroundColor: '#0b1020' },
   headerTintColor: 'rgba(255,255,255,0.92)',
-  headerTitleStyle: { fontWeight: '900' }
+  headerTitleStyle: { fontWeight: '900' },
 };
+
+const SCREENS = [
+  { name: 'Home', component: HomeScreen, title: 'Nudge' },
+  { name: 'LogActivity', component: LogActivityScreen, title: 'Log Activity' },
+  { name: 'Dashboard', component: DashboardScreen, title: 'Progress Dashboard' },
+  { name: 'Tips', component: TipsScreen, title: 'Weekly Tips' },
+  { name: 'Badges', component: BadgesScreen, title: 'Badges & Streaks' },
+  { name: 'Trends', component: TrendsScreen, title: 'Weekly Trends' },
+  { name: 'Settings', component: SettingsScreen, title: 'Settings' },
+  { name: 'PickLocation', component: LocationPickerScreen, title: 'Pick Location' },
+  { name: 'Export', component: ExportScreen, title: 'Export Data' },
+];
 
 export default function App() {
   const [state, setState] = useState(null);
@@ -35,25 +47,20 @@ export default function App() {
   useEffect(() => {
     (async () => {
       await seedIfEmpty();
-      const s = await loadState();
-      setState(s);
+      setState(await loadState());
       setBooted(true);
-
-
       scheduleDailyReminder(20, 0).catch(() => {});
     })();
   }, []);
 
-  const api = useMemo(() => {
-    return {
-      booted,
-      state,
-      setState: async (next) => {
-        setState(next);
-        await saveState(next);
-      }
-    };
-  }, [booted, state]);
+  const api = useMemo(() => ({
+    booted,
+    state,
+    setState: async (next) => {
+      setState(next);
+      await saveState(next);
+    },
+  }), [booted, state]);
 
   const needsOnboarding = booted && state && !state.onboarded;
 
@@ -62,25 +69,19 @@ export default function App() {
       <AppContext.Provider value={api}>
         <NavigationContainer>
           <StatusBar style="light" />
-          {needsOnboarding ?
-          <Stack.Navigator screenOptions={{ ...screenOptions, headerShown: false }}>
+          {needsOnboarding ? (
+            <Stack.Navigator screenOptions={{ ...screenOptions, headerShown: false }}>
               <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-            </Stack.Navigator> :
-
-          <Stack.Navigator screenOptions={screenOptions}>
-              <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Nudge' }} />
-              <Stack.Screen name="LogActivity" component={LogActivityScreen} options={{ title: 'Log Activity' }} />
-              <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Progress Dashboard' }} />
-              <Stack.Screen name="Tips" component={TipsScreen} options={{ title: 'Weekly Tips' }} />
-              <Stack.Screen name="Badges" component={BadgesScreen} options={{ title: 'Badges & Streaks' }} />
-              <Stack.Screen name="Trends" component={TrendsScreen} options={{ title: 'Weekly Trends' }} />
-              <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
-              <Stack.Screen name="PickLocation" component={LocationPickerScreen} options={{ title: 'Pick Location' }} />
-              <Stack.Screen name="Export" component={ExportScreen} options={{ title: 'Export Data' }} />
             </Stack.Navigator>
-          }
+          ) : (
+            <Stack.Navigator screenOptions={screenOptions}>
+              {SCREENS.map(({ name, component, title }) => (
+                <Stack.Screen key={name} name={name} component={component} options={{ title }} />
+              ))}
+            </Stack.Navigator>
+          )}
         </NavigationContainer>
       </AppContext.Provider>
-    </ErrorBoundary>);
-
+    </ErrorBoundary>
+  );
 }

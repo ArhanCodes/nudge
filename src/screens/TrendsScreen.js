@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { AppContext } from '../state/context';
-import { Screen, Card, Title, Muted, Chip } from '../ui/components';
+import { Screen, Card, Title, Muted, Chip , Spacer } from '../ui/components';
 import { colors } from '../ui/theme';
 import { weekKeyISO, startOfWeekISO, addDaysISO } from '../utils/time';
 
@@ -52,13 +52,13 @@ export default function TrendsScreen() {
         </View>
       </Card>
 
-      <View style={{ height: 12 }} />
+      <Spacer />
 
       <Card>
         <Title style={{ fontSize: 18 }}>Trend chart</Title>
         <Muted style={{ marginTop: 6 }}>Simple bar chart (kg CO₂ per day).</Muted>
 
-        <View style={{ height: 12 }} />
+        <Spacer />
 
         {data.daily.map((d) => {
           const ratio = d.kg / data.max;
