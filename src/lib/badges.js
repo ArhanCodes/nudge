@@ -1,5 +1,4 @@
-// Gamification: badges, streaks, and stats.
-// A badge is earned when its `check` function returns true for the user's stats.
+// badges, streaks, and stats. each badge has a check() that runs on stats
 
 export const BADGES = [
   { id: 'first_log', name: 'First Step', desc: 'Log your first activity', icon: '🌱',
@@ -25,30 +24,24 @@ export const BADGES = [
 ];
 
 const dayKey = (iso) => new Date(iso).toISOString().slice(0, 10);
+const yesterday = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+};
 
-// Counts consecutive days the user has logged something, working backwards
-// from today. Includes a 1-day "grace period" — if today has no log yet, we
-// allow yesterday to count as the streak's tip so the user doesn't lose the
-// streak before the day is even over.
+// counts consecutive days logged, walking back from today.
+// 1-day grace: if no log today, start from yesterday
 export function computeStreak(logs) {
   if (!logs.length) return { currentStreak: 0, longestStreak: 0 };
 
-  // All distinct days the user has logged at least one activity.
   const days = new Set(logs.map((l) => dayKey(l.dateISO)));
   const sorted = [...days].sort().reverse();
 
-  const today = dayKey(new Date());
-  let cursor = today;
+  let cursor = dayKey(new Date());
+  if (!days.has(cursor)) cursor = yesterday();
+  if (!days.has(cursor)) return { currentStreak: 0, longestStreak: longestRun(sorted) };
 
-  // Grace period: if no log today, start from yesterday.
-  if (!days.has(cursor)) {
-    const y = new Date();
-    y.setDate(y.getDate() - 1);
-    cursor = y.toISOString().slice(0, 10);
-    if (!days.has(cursor)) return { currentStreak: 0, longestStreak: longestRun(sorted) };
-  }
-
-  // Walk backwards day-by-day while each day has a log.
   let current = 0;
   while (days.has(cursor)) {
     current++;
@@ -56,19 +49,16 @@ export function computeStreak(logs) {
     d.setUTCDate(d.getUTCDate() - 1);
     cursor = d.toISOString().slice(0, 10);
   }
-
   return { currentStreak: current, longestStreak: Math.max(current, longestRun(sorted)) };
 }
 
-// Longest run of consecutive days anywhere in the user's history.
-function longestRun(sortedDatesDesc) {
-  if (!sortedDatesDesc.length) return 0;
+// longest run of consecutive days in history
+function longestRun(sortedDesc) {
+  if (!sortedDesc.length) return 0;
   let longest = 1;
   let run = 1;
-  for (let i = 1; i < sortedDatesDesc.length; i++) {
-    const prev = new Date(sortedDatesDesc[i - 1] + 'T00:00:00Z');
-    const curr = new Date(sortedDatesDesc[i] + 'T00:00:00Z');
-    const diffDays = (prev - curr) / 86400000;
+  for (let i = 1; i < sortedDesc.length; i++) {
+    const diffDays = (new Date(sortedDesc[i - 1]) - new Date(sortedDesc[i])) / 86400000;
     if (diffDays === 1) {
       run++;
       longest = Math.max(longest, run);
@@ -79,21 +69,21 @@ function longestRun(sortedDatesDesc) {
   return longest;
 }
 
-// Computes everything the badge `check` functions need.
+// everything the badge check() functions need
 export function computeStats(logs, weeklyScoreThisWeek, weeklyScorePrevWeek) {
   const { currentStreak, longestStreak } = computeStreak(logs);
 
-  // Best score the user has ever achieved on a single day.
+  // best daily score ever
   const dayTotals = {};
   for (const l of logs) {
     dayTotals[dayKey(l.dateISO)] = (dayTotals[dayKey(l.dateISO)] || 0) + (l.co2Kg || 0);
   }
-  let bestDailyScore = 0;
-  for (const kg of Object.values(dayTotals)) {
-    bestDailyScore = Math.max(bestDailyScore, Math.max(0, Math.round(100 - kg * 5)));
-  }
+  const bestDailyScore = Object.values(dayTotals).reduce(
+    (best, kg) => Math.max(best, Math.max(0, Math.round(100 - kg * 5))),
+    0,
+  );
 
-  // Did the user log all 4 categories in a single day at any point?
+  // any day where user logged all 4 categories
   const dayCats = {};
   for (const l of logs) {
     const day = dayKey(l.dateISO);

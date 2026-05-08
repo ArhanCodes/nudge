@@ -1,4 +1,4 @@
-// Trends screen: simple bar chart of CO₂e per day for the current week.
+// trends. bar chart of co2 per day this week
 
 import React, { useContext, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -80,7 +80,7 @@ export default function TrendsScreen() {
 
         <View style={{ marginTop: 8 }}>
           <Muted>
-            Suggestions: If you’re over target, try 1–2 days of walking/cycling, public transport, or carpooling.
+            Suggestions: If you're over target, try 1-2 days of walking/cycling, public transport, or carpooling.
           </Muted>
         </View>
       </Card>

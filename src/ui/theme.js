@@ -1,5 +1,5 @@
-// Single source of truth for app colours. Every screen and component pulls
-// from here so the design stays consistent.
+// app colours, used everywhere
+
 export const colors = {
   bg: '#0b1020',
   card: 'rgba(255,255,255,0.06)',

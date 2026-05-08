@@ -1,5 +1,4 @@
-// Tips screen: shows up to 5 personalised reduction tips based on the
-// user's worst categories this week, plus a category summary.
+// tips. up to 5 personalised tips based on user's worst categories
 
 import React, { useContext, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -42,7 +41,7 @@ export default function TipsScreen() {
             <View style={{ flex: 1 }}>
               <Text style={styles.worstTitle}>Focus area: {worstInfo.label}</Text>
               <Text style={styles.worstSub}>
-                {catTotals[worstCat].toFixed(1)} kg CO₂e this week — your highest category
+                {catTotals[worstCat].toFixed(1)} kg CO₂e this week, your highest category
               </Text>
             </View>
           </View>

@@ -1,6 +1,4 @@
-// Onboarding: shown once on first launch. Walks the user through:
-// welcome → school location → region → weekly target.
-// Marks the user as `onboarded` at the end so this screen never shows again.
+// onboarding, shown once. welcome -> school -> region -> target -> mark onboarded
 
 import React, { useContext, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';

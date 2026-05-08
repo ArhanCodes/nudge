@@ -1,6 +1,4 @@
-// Dashboard screen: detailed analytics across 4 weeks.
-// Shows weekly score, goal vs target ring, category breakdown,
-// per-day emissions for the current week, and a 4-week trend.
+// dashboard. weekly score, goal ring, category breakdown, daily and 4-week trends
 
 import React, { useContext, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -14,8 +12,7 @@ import { weekKeyISO, startOfWeekISO, addDaysISO } from '../utils/time';
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 const dayKey = (iso) => new Date(iso).toISOString().slice(0, 10);
 
-// A single horizontal bar with a label and kg value. Used for category
-// breakdown, daily emissions, and the 4-week trend.
+// horizontal bar used by all 3 charts
 function Bar({ label, kg, max, barColor, isHighlight }) {
   const pct = clamp((kg / max) * 100, 0, 100);
   return (
@@ -189,10 +186,10 @@ export default function DashboardScreen() {
                     <Text style={[styles.label, isToday && { color: colors.brand }]}>
                       {dayLabel}{isToday ? ' (today)' : ''}
                     </Text>
-                    <Text style={styles.kg}>{d.kg > 0 ? `${d.kg.toFixed(2)} kg` : '—'}</Text>
+                    <Text style={styles.kg}>{d.kg > 0 ? `${d.kg.toFixed(2)} kg` : '-'}</Text>
                     <View style={styles.scoreBadge}>
                       <Text style={[styles.scoreBadgeText, { color: scoreColor(d.score) }]}>
-                        {d.kg > 0 ? d.score : '—'}
+                        {d.kg > 0 ? d.score : '-'}
                       </Text>
                     </View>
                   </View>

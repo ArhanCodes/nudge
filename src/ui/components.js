@@ -1,12 +1,10 @@
-// Reusable UI building blocks used by every screen.
-// Keeping them in one file means the design language is consistent app-wide.
+// reusable building blocks for every screen
 
 import React from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { colors } from './theme';
 
-// Page background + padding.
 export function Screen({ children, style }) {
   return <View style={[styles.screen, style]}>{children}</View>;
 }
@@ -49,7 +47,6 @@ export function Button({ label, onPress, kind = 'primary', disabled, accessibili
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || label}
-      accessibilityState={{ disabled: !!disabled }}
       style={({ pressed }) => [
         styles.btn,
         isPrimary ? styles.btnPrimary : styles.btnGhost,
@@ -71,9 +68,8 @@ export function Chip({ label, kind = 'default' }) {
   );
 }
 
-// Circular progress indicator drawn with SVG.
-// progress is a 0-1 fraction. The "stroke-dasharray + dashoffset" trick lets
-// us reveal a portion of the circle's outline equal to the progress.
+// circular progress ring drawn with svg.
+// stroke-dasharray + dashoffset reveals progress portion of the circle
 export function ProgressRing({
   progress = 0,
   size = 120,
@@ -83,15 +79,14 @@ export function ProgressRing({
   children,
 }) {
   const p = Math.max(0, Math.min(1, progress));
-  const pct = Math.round(p * 100);
   const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
+  const c = 2 * Math.PI * radius;
   const half = size / 2;
 
   return (
     <View
       style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}
-      accessibilityLabel={`Progress: ${pct}%`}
+      accessibilityLabel={`Progress: ${Math.round(p * 100)}%`}
       accessibilityRole="progressbar"
     >
       <Svg width={size} height={size} style={{ position: 'absolute' }}>
@@ -104,8 +99,8 @@ export function ProgressRing({
           strokeWidth={strokeWidth}
           fill="none"
           strokeLinecap="round"
-          strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={circumference * (1 - p)}
+          strokeDasharray={`${c} ${c}`}
+          strokeDashoffset={c * (1 - p)}
           transform={`rotate(-90 ${half} ${half})`}
         />
       </Svg>

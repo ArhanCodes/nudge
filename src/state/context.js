@@ -1,10 +1,9 @@
-// React Context that exposes the app's state and a setState function to every
-// screen, so we don't have to thread props through every component.
+// react context: gives every screen access to state and setState
 
 import React from 'react';
 
 export const AppContext = React.createContext({
   booted: false,
   state: null,
-  setState: async () => {}
+  setState: async () => {},
 });

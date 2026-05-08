@@ -1,6 +1,4 @@
-// Home screen: the dashboard the user sees first.
-// Shows today's score, this week's totals, navigation buttons,
-// the weekly goal ring, country benchmark, and recent activity.
+// home screen. shown first. score, week totals, nav, goal ring, benchmark, recent logs
 
 import React, { useContext, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -17,8 +15,7 @@ const dayKey = (iso) => new Date(iso).toISOString().slice(0, 10);
 export default function HomeScreen({ navigation }) {
   const { state } = useContext(AppContext);
 
-  // Crunch the user's logs into a single summary object that the JSX below uses.
-  // useMemo recomputes only when state changes, not on every re-render.
+  // crunch logs into a summary. useMemo only recomputes when state changes
   const summary = useMemo(() => {
     const logs = state?.logs || [];
     const now = new Date();
@@ -124,7 +121,7 @@ export default function HomeScreen({ navigation }) {
           </View>
           <Muted style={styles.goalNote}>
             {summary.over > 0
-              ? `Over target by ${summary.over.toFixed(1)} kg — check your tips for ideas!`
+              ? `Over target by ${summary.over.toFixed(1)} kg . check your tips for ideas!`
               : `${summary.remaining.toFixed(1)} kg remaining this week`}
           </Muted>
         </Card>
@@ -155,7 +152,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={[styles.benchmarkBannerText, { color: better ? colors.success : colors.danger }]}>
               {better
                 ? `🎉 You saved ${summary.benchmark.savedKg.toFixed(1)} kg (${Math.abs(summary.benchmark.savedPct).toFixed(0)}% less) vs the ${summary.benchmark.benchmarkLabel}`
-                : `📈 ${Math.abs(summary.benchmark.savedKg).toFixed(1)} kg above the ${summary.benchmark.benchmarkLabel} — small changes add up!`}
+                : `📈 ${Math.abs(summary.benchmark.savedKg).toFixed(1)} kg above the ${summary.benchmark.benchmarkLabel}. small changes add up!`}
             </Text>
           </View>
           <Muted style={styles.source}>Source: {summary.benchmark.benchmarkSource}</Muted>

@@ -1,7 +1,4 @@
-// Region multipliers for the energy category. Different countries have
-// different electricity grids — Nordic countries are mostly hydro/wind so
-// their multiplier is small (0.15), while India's grid is coal-heavy (1.5).
-// We multiply the world-average energy CO₂e values by these.
+// energy multipliers by country grid. nordic = mostly hydro/wind, india = coal-heavy
 
 export const REGIONS = {
   world: { label: 'World Average', multiplier: 1.0 },

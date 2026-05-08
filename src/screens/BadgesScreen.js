@@ -1,5 +1,4 @@
-// Badges screen: shows the user's logging streak, earned badges,
-// the next badge to unlock, and the full list of all badges.
+// badges. streak, earned, next to unlock, all
 
 import React, { useContext, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -56,7 +55,7 @@ export default function BadgesScreen() {
           {streakInfo.currentStreak > 0 && (
             <View style={styles.graceNote}>
               <Muted style={{ fontSize: 12, textAlign: 'center' }}>
-                Streaks include a 1-day grace period — if you miss today, you have until tomorrow to log and keep your streak alive.
+                Streaks include a 1-day grace period. if you miss today, you have until tomorrow to log and keep your streak alive.
               </Muted>
             </View>
           )}

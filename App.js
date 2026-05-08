@@ -1,7 +1,4 @@
-// App entry point. Sets up:
-//   1. Global state (loaded from AsyncStorage)
-//   2. React Navigation stack
-//   3. Onboarding redirect for first-time users
+// app entry. loads state, sets up navigation, redirects to onboarding if needed
 
 import 'react-native-gesture-handler';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -27,13 +24,12 @@ import { scheduleDailyReminder } from './src/lib/notifications';
 
 const Stack = createNativeStackNavigator();
 
-const screenOptions = {
+const headerStyle = {
   headerStyle: { backgroundColor: '#0b1020' },
   headerTintColor: 'rgba(255,255,255,0.92)',
   headerTitleStyle: { fontWeight: '900' },
 };
 
-// All screens shown after onboarding, in their stack order.
 const SCREENS = [
   { name: 'Home', component: HomeScreen, title: 'Nudge' },
   { name: 'LogActivity', component: LogActivityScreen, title: 'Log Activity' },
@@ -47,11 +43,10 @@ const SCREENS = [
 ];
 
 export default function App() {
-  // The single source of truth for the whole app's data.
   const [state, setState] = useState(null);
   const [booted, setBooted] = useState(false);
 
-  // On first render: load saved state from disk, then schedule the 8pm reminder.
+  // on first render: load state, then schedule the 8pm reminder
   useEffect(() => {
     (async () => {
       await seedIfEmpty();
@@ -61,8 +56,7 @@ export default function App() {
     })();
   }, []);
 
-  // The value provided to every screen via React Context.
-  // setState() updates state in memory AND saves it to disk.
+  // setState updates memory and saves to disk
   const api = useMemo(() => ({
     booted,
     state,
@@ -80,11 +74,11 @@ export default function App() {
         <NavigationContainer>
           <StatusBar style="light" />
           {needsOnboarding ? (
-            <Stack.Navigator screenOptions={{ ...screenOptions, headerShown: false }}>
+            <Stack.Navigator screenOptions={{ ...headerStyle, headerShown: false }}>
               <Stack.Screen name="Onboarding" component={OnboardingScreen} />
             </Stack.Navigator>
           ) : (
-            <Stack.Navigator screenOptions={screenOptions}>
+            <Stack.Navigator screenOptions={headerStyle}>
               {SCREENS.map(({ name, component, title }) => (
                 <Stack.Screen key={name} name={name} component={component} options={{ title }} />
               ))}

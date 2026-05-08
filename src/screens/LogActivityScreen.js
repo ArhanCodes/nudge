@@ -1,7 +1,4 @@
-// Log Activity screen: the form for recording a single CO₂e activity.
-// Users pick a category, then either a transport mode + distance, or a
-// pre-defined item (meal, energy use, waste). Saving appends to the logs
-// array in global state, which persists to AsyncStorage.
+// log activity form. pick a category, then transport+distance or an item. saves to state
 
 import React, { useContext, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -12,7 +9,7 @@ import { colors } from '../ui/theme';
 import { CATEGORIES, TRANSPORT_LABELS, getCategoryItems, computeCo2Kg } from '../lib/co2';
 import { haversineKm } from '../lib/geo';
 
-// Generate a random unique id so each log can be referenced/edited later.
+// random uuid v4 so each log has a unique id
 function uid() {
   const bytes = new Uint8Array(16);
   for (let i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256);

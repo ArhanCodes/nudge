@@ -1,13 +1,11 @@
-// Persists app state to the device using AsyncStorage (iOS Keychain / Android
-// SharedPreferences via Expo). All data stays on the user's phone — nothing
-// is sent over the network.
+// persists app state to the device. all data stays local
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const KEY = 'scfd_state_v2';
 const OLD_KEY = 'scfd_state_v1';
 
-// Empty starting state for first-time users.
+// starting state for first-time users
 export function defaultState() {
   return {
     school: null,
@@ -19,7 +17,7 @@ export function defaultState() {
   };
 }
 
-// v1 → v2 schema migration: v1 only tracked transport.
+// v1 only had transport logs. add the new fields
 function migrateV1(v1) {
   const logs = (v1.logs || []).map((l) => ({
     ...l,
@@ -28,45 +26,33 @@ function migrateV1(v1) {
     label: l.transportLabel || l.transport || 'Car',
     quantity: 1,
   }));
-  return {
-    ...defaultState(),
-    school: v1.school || null,
-    home: v1.home || null,
-    targetKgPerWeek: v1.targetKgPerWeek ?? 10,
-    onboarded: true,
-    logs,
-  };
+  return { ...defaultState(), ...v1, onboarded: true, logs };
 }
 
-// On first launch: create a default state, or migrate from v1 if present.
+// on first launch: migrate v1 if present, else write defaults
 export async function seedIfEmpty() {
   try {
     if (await AsyncStorage.getItem(KEY)) return;
     const v1Raw = await AsyncStorage.getItem(OLD_KEY);
-    if (v1Raw) {
-      const migrated = migrateV1(JSON.parse(v1Raw));
-      await AsyncStorage.setItem(KEY, JSON.stringify(migrated));
-      return;
-    }
-    await AsyncStorage.setItem(KEY, JSON.stringify(defaultState()));
+    const seed = v1Raw ? migrateV1(JSON.parse(v1Raw)) : defaultState();
+    await AsyncStorage.setItem(KEY, JSON.stringify(seed));
   } catch (e) {
-    console.warn('seedIfEmpty failed, using defaults:', e);
+    console.warn('seedIfEmpty failed:', e);
   }
 }
 
-// Read state from disk. Always falls back to defaults so the app never crashes.
+// read state, fall back to defaults on any error
 export async function loadState() {
   try {
     const raw = await AsyncStorage.getItem(KEY);
-    if (!raw) return defaultState();
-    return { ...defaultState(), ...JSON.parse(raw) };
+    return raw ? { ...defaultState(), ...JSON.parse(raw) } : defaultState();
   } catch (e) {
-    console.warn('loadState failed, using defaults:', e);
+    console.warn('loadState failed:', e);
     return defaultState();
   }
 }
 
-// Write the entire state blob to disk.
+// write entire state to disk
 export async function saveState(state) {
   try {
     await AsyncStorage.setItem(KEY, JSON.stringify(state));

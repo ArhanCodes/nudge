@@ -1,4 +1,4 @@
-// Settings screen: edit school location, region, weekly target, and reminders.
+// settings. edit school, region, weekly target, reminders
 
 import React, { useContext, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';

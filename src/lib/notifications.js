@@ -1,65 +1,43 @@
-// Daily reminder notification (default 8pm). Wraps expo-notifications and
-// fails silently when the module isn't installed (e.g. in Expo Go web).
+// daily reminder via expo-notifications. fails silently if module missing
 
 import { Platform } from 'react-native';
 
-let Notifications = null;
-
-async function getNotificationsModule() {
-  if (Notifications) return Notifications;
-  try {
-    Notifications = require('expo-notifications');
-    return Notifications;
-  } catch {
-    return null;
-  }
+let mod = null;
+function getMod() {
+  if (mod) return mod;
+  try { mod = require('expo-notifications'); } catch { mod = null; }
+  return mod;
 }
 
 export async function requestNotificationPermission() {
-  const mod = await getNotificationsModule();
-  if (!mod) return false;
-
-  const { status: existing } = await mod.getPermissionsAsync();
+  const m = getMod();
+  if (!m) return false;
+  const { status: existing } = await m.getPermissionsAsync();
   if (existing === 'granted') return true;
-
-  const { status } = await mod.requestPermissionsAsync();
+  const { status } = await m.requestPermissionsAsync();
   return status === 'granted';
 }
 
 export async function scheduleDailyReminder(hour = 20, minute = 0) {
-  const mod = await getNotificationsModule();
-  if (!mod) return null;
-
-  const granted = await requestNotificationPermission();
-  if (!granted) return null;
-
+  const m = getMod();
+  if (!m || !(await requestNotificationPermission())) return null;
 
   await cancelAllReminders();
 
   if (Platform.OS === 'android') {
-    await mod.setNotificationChannelAsync('daily-reminder', {
+    await m.setNotificationChannelAsync('daily-reminder', {
       name: 'Daily Reminder',
-      importance: mod.AndroidImportance?.DEFAULT
+      importance: m.AndroidImportance?.DEFAULT,
     });
   }
 
-  const id = await mod.scheduleNotificationAsync({
-    content: {
-      title: 'Nudge',
-      body: "Don't forget to log your activities today! Keep your streak going."
-    },
-    trigger: {
-      type: 'daily',
-      hour,
-      minute
-    }
+  return m.scheduleNotificationAsync({
+    content: { title: 'Nudge', body: "Don't forget to log your activities today! Keep your streak going." },
+    trigger: { type: 'daily', hour, minute },
   });
-
-  return id;
 }
 
 export async function cancelAllReminders() {
-  const mod = await getNotificationsModule();
-  if (!mod) return;
-  await mod.cancelAllScheduledNotificationsAsync();
+  const m = getMod();
+  if (m) await m.cancelAllScheduledNotificationsAsync();
 }

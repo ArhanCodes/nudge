@@ -1,5 +1,4 @@
-// Export screen: generates a CSV of all the user's logs and lets them share
-// it (e.g. into Google Sheets or Excel for the EPQ analysis).
+// export. builds a csv of all logs and shares it via the os share sheet
 
 import React, { useContext, useMemo, useState } from 'react';
 import { Alert, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
