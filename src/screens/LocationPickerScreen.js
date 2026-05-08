@@ -1,3 +1,7 @@
+// Location picker: shows a map and lets the user long-press to pick their
+// home coordinates. We use this with the Haversine formula to estimate
+// commute distance for transport logs.
+
 import React, { useContext, useEffect, useState } from 'react';
 import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';

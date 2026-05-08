@@ -1,8 +1,12 @@
+// Reusable UI building blocks used by every screen.
+// Keeping them in one file means the design language is consistent app-wide.
+
 import React from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { colors } from './theme';
 
+// Page background + padding.
 export function Screen({ children, style }) {
   return <View style={[styles.screen, style]}>{children}</View>;
 }
@@ -67,6 +71,9 @@ export function Chip({ label, kind = 'default' }) {
   );
 }
 
+// Circular progress indicator drawn with SVG.
+// progress is a 0-1 fraction. The "stroke-dasharray + dashoffset" trick lets
+// us reveal a portion of the circle's outline equal to the progress.
 export function ProgressRing({
   progress = 0,
   size = 120,

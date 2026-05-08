@@ -1,3 +1,6 @@
+// Tips screen: shows up to 5 personalised reduction tips based on the
+// user's worst categories this week, plus a category summary.
+
 import React, { useContext, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 

@@ -1,3 +1,6 @@
+// React Error Boundary: catches crashes in any child component and shows a
+// friendly fallback screen with a Try Again button instead of a white screen.
+
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from './theme';

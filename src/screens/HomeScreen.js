@@ -1,3 +1,7 @@
+// Home screen: the dashboard the user sees first.
+// Shows today's score, this week's totals, navigation buttons,
+// the weekly goal ring, country benchmark, and recent activity.
+
 import React, { useContext, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -13,6 +17,8 @@ const dayKey = (iso) => new Date(iso).toISOString().slice(0, 10);
 export default function HomeScreen({ navigation }) {
   const { state } = useContext(AppContext);
 
+  // Crunch the user's logs into a single summary object that the JSX below uses.
+  // useMemo recomputes only when state changes, not on every re-render.
   const summary = useMemo(() => {
     const logs = state?.logs || [];
     const now = new Date();

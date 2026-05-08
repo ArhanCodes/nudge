@@ -1,3 +1,5 @@
+// Trends screen: simple bar chart of CO₂e per day for the current week.
+
 import React, { useContext, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 

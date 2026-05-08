@@ -1,3 +1,8 @@
+// App entry point. Sets up:
+//   1. Global state (loaded from AsyncStorage)
+//   2. React Navigation stack
+//   3. Onboarding redirect for first-time users
+
 import 'react-native-gesture-handler';
 import React, { useEffect, useMemo, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
@@ -28,6 +33,7 @@ const screenOptions = {
   headerTitleStyle: { fontWeight: '900' },
 };
 
+// All screens shown after onboarding, in their stack order.
 const SCREENS = [
   { name: 'Home', component: HomeScreen, title: 'Nudge' },
   { name: 'LogActivity', component: LogActivityScreen, title: 'Log Activity' },
@@ -41,9 +47,11 @@ const SCREENS = [
 ];
 
 export default function App() {
+  // The single source of truth for the whole app's data.
   const [state, setState] = useState(null);
   const [booted, setBooted] = useState(false);
 
+  // On first render: load saved state from disk, then schedule the 8pm reminder.
   useEffect(() => {
     (async () => {
       await seedIfEmpty();
@@ -53,6 +61,8 @@ export default function App() {
     })();
   }, []);
 
+  // The value provided to every screen via React Context.
+  // setState() updates state in memory AND saves it to disk.
   const api = useMemo(() => ({
     booted,
     state,

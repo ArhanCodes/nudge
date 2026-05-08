@@ -1,3 +1,7 @@
+// Dashboard screen: detailed analytics across 4 weeks.
+// Shows weekly score, goal vs target ring, category breakdown,
+// per-day emissions for the current week, and a 4-week trend.
+
 import React, { useContext, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -10,6 +14,8 @@ import { weekKeyISO, startOfWeekISO, addDaysISO } from '../utils/time';
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 const dayKey = (iso) => new Date(iso).toISOString().slice(0, 10);
 
+// A single horizontal bar with a label and kg value. Used for category
+// breakdown, daily emissions, and the 4-week trend.
 function Bar({ label, kg, max, barColor, isHighlight }) {
   const pct = clamp((kg / max) * 100, 0, 100);
   return (

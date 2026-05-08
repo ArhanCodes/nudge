@@ -1,3 +1,6 @@
+// Badges screen: shows the user's logging streak, earned badges,
+// the next badge to unlock, and the full list of all badges.
+
 import React, { useContext, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 

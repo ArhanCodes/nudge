@@ -1,3 +1,6 @@
+// Daily reminder notification (default 8pm). Wraps expo-notifications and
+// fails silently when the module isn't installed (e.g. in Expo Go web).
+
 import { Platform } from 'react-native';
 
 let Notifications = null;
